@@ -1,0 +1,5 @@
+# File sao lưu và danh sách xuất ra có tên người bệnh thật: không bao giờ đưa lên mạng
+*.json
+*.csv
+*.pdf
+*.xlsx
