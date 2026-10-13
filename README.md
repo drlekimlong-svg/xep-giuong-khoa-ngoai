@@ -8,6 +8,8 @@ Bản xem thử mở sẵn với dữ liệu mẫu; mọi tên người bệnh v
 
 **Bản dùng chung nhiều máy (cần tài khoản do khoa cấp):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html
 
+**Bản cũ 1.0 (một máy, không đăng nhập, không nối máy chủ):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/v1/
+
 Lịch sử các phiên bản: [LICH-SU-PHIEN-BAN.md](LICH-SU-PHIEN-BAN.md).
 
 ## Dữ liệu nằm ở đâu

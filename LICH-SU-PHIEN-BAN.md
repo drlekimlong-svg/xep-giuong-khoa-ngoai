@@ -10,6 +10,17 @@ Số phiên bản hiện ở góc dưới màn hình app và trong file sao lưu
 
 File `XepGiuong_KhoaNgoai.html` ở thư mục gốc là bản đang phát triển, có thể mới hơn mọi bản đã phát hành.
 
+**Địa chỉ trên web** (cập nhật 13/10/2026):
+
+| Địa chỉ | Là gì |
+|---|---|
+| https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/ | Bản mới nhất, chạy kiểu xem thử với dữ liệu mẫu |
+| https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html | Bản mới nhất, dùng chung nhiều máy: đăng nhập, nối Supabase |
+| https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/v1/ | Bản cũ 1.0: một máy, không đăng nhập, không nối Supabase |
+
+Mọi bản đã phát hành đều mở được trên web theo dạng `…/phien-ban/<số phiên bản>/XepGiuong_KhoaNgoai.html`.
+Các địa chỉ này cùng một trang web nên trên cùng một máy, bản một máy và bản 1.0 dùng chung dữ liệu lưu trong trình duyệt.
+
 ---
 
 ## 2.0-thu2 — 13/10/2026 — Nối với dự án Supabase thật của khoa
