@@ -12,6 +12,41 @@ File `XepGiuong_KhoaNgoai.html` ở thư mục gốc là bản đang phát tri�
 
 ---
 
+## 2.0-thu1 — 13/10/2026 — Bản thử dùng chung nhiều máy qua Supabase
+
+- **File:** `phien-ban/v2.0-thu1/XepGiuong_KhoaNgoai.html` và `thiet-lap.sql` · nhãn git `v2.0-thu1`
+- **Dùng ở đâu:** chưa dùng tại khoa. Để bác sĩ xem thử cách đăng nhập và dùng chung dữ liệu, với dữ liệu mẫu.
+- **Dữ liệu:** khi chưa kết nối thì y như bản 1.0 (trong trình duyệt). Khi kết nối Supabase thì lưu trên máy chủ Supabase, không để lại trong trình duyệt.
+
+**Mới so với 1.0**
+
+- Màn hình đăng nhập bằng email và mật khẩu; tài khoản do người quản trị tạo trên Supabase.
+- Hai loại quyền: `edit` được sửa, `view` chỉ xem và in. Quyền được kiểm tra ở cả giao diện lẫn máy chủ.
+- Cả sơ đồ lưu chung một chỗ; máy khác thấy thay đổi sau khoảng 6 giây.
+- Chống ghi đè: hai máy sửa cùng lúc thì máy lưu sau bị từ chối, sơ đồ tự tải lại và báo làm lại.
+- Báo đỏ khi mất kết nối và tự thử lại; tự gia hạn phiên đăng nhập.
+- Nhật ký ghi tên người thao tác.
+- Máy chủ tự giữ một bản mỗi ngày trong 60 ngày.
+- Cài đặt có mục kết nối/ngắt kết nối cho riêng từng máy; "Khôi phục từ file" dùng để đưa dữ liệu bản một máy lên.
+- Chưa kết nối thì mọi thứ chạy như bản 1.0.
+
+**Cách bật:** xem `supabase/HUONG-DAN.md`.
+
+**Đã thử và chưa thử**
+
+- Đã thử với một máy chủ giả lập chạy trên máy tính: đăng nhập sai/đúng, lưu, máy khác sửa, hai máy sửa cùng lúc, hết hạn phiên, máy chủ ngừng nhận, đăng xuất, tài khoản chỉ xem, tài khoản chưa được cấp quyền, ngắt kết nối. Tất cả đúng.
+- **Chưa thử với Supabase thật** vì chưa có dự án. File `thiet-lap.sql` chưa được chạy lần nào.
+- Chưa thử trên iPad và điện thoại.
+
+**Hạn chế đã biết**
+
+- Cần mạng để lưu. Thay đổi làm lúc mất mạng có thể bị bỏ nếu máy khác đã sửa trong lúc đó.
+- Mỗi thao tác gửi cả sơ đồ lên máy chủ; với một khoa 65 giường thì nhẹ, nhưng không hợp để mở rộng ra nhiều khoa trong cùng một dòng dữ liệu.
+- Tên người bệnh nằm trên máy chủ ở nước ngoài dưới dạng đọc được; chưa có mã hóa tại máy. Cần bệnh viện đồng ý trước khi nhập dữ liệu thật.
+- Đổi mật khẩu và tạo tài khoản phải làm trong trang Supabase, chưa có trong app.
+
+---
+
 ## 1.0 — 13/10/2026 — Bản triển khai đầu tại khoa
 
 - **File:** `phien-ban/v1.0/XepGiuong_KhoaNgoai.html` · nhãn git `v1.0`

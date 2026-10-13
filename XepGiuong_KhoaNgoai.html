@@ -184,6 +184,18 @@ table.set input[type=number]{width:60px}
 .rp tr{page-break-inside:avoid}
 
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#18212d;color:#fff;padding:10px 18px;border-radius:10px;z-index:99;box-shadow:0 6px 24px rgba(0,0,0,.3);max-width:90vw}
+/* ---- bản dùng chung: đăng nhập, người dùng, chỉ xem ---- */
+.login{position:fixed;left:0;top:0;right:0;bottom:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;z-index:80;overflow:auto}
+.logincard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 26px 20px;width:100%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
+.logincard h2{font-size:22px;margin-bottom:4px}
+.fld input[type=email],.fld input[type=password]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+.userbox{display:inline-flex;align-items:center}
+.userbox .who{font-weight:600;margin-right:8px;white-space:nowrap}
+.sub.bad{color:var(--warn);font-weight:700}
+body.ro [data-act=new],body.ro [data-act=edit],body.ro [data-act=move],body.ro [data-act=discharge],body.ro [data-act=back],
+body.ro [data-act=doMove],body.ro [data-act=hold],body.ro [data-act=settings],body.ro [data-act=backup],body.ro [data-act=sample],
+body.ro [data-act=wipeSample],body.ro [data-act=undo],body.ro .chk{display:none!important}
+body.ro .bed.free:not(.held){pointer-events:none}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
 @media print{
@@ -206,6 +218,7 @@ table.set input[type=number]{width:60px}
     <button class="btn" data-act="report">Danh sách ngày</button>
     <button class="btn" data-act="history">Lịch sử</button>
     <button class="btn" data-act="settings">Cài đặt</button>
+    <span id="userBox" class="userbox"></span>
   </div>
 </header>
 
@@ -229,6 +242,19 @@ table.set input[type=number]{width:60px}
 </main>
 
 <div id="overlay" class="overlay" hidden><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<!-- Màn hình đăng nhập: chỉ hiện ở bản dùng chung nhiều máy -->
+<div id="login" class="login" hidden>
+  <form class="logincard" id="loginForm">
+    <h2>Đăng nhập</h2>
+    <p class="hint" style="margin-bottom:14px">Sơ đồ xếp giường – Khoa Ngoại, Bệnh viện An Bình</p>
+    <div class="fld"><label for="l_email">Email</label><input id="l_email" type="email" autocomplete="username" required></div>
+    <div class="fld"><label for="l_pass">Mật khẩu</label><input id="l_pass" type="password" autocomplete="current-password" required></div>
+    <p id="l_err" class="err"></p>
+    <button class="btn primary big" type="submit" id="l_btn" style="width:100%">Đăng nhập</button>
+    <p class="hint" style="margin-top:12px">Tài khoản do người quản trị của khoa cấp. Quên mật khẩu xin báo người quản trị.</p>
+    <p id="l_local" style="margin-top:10px"></p>
+  </form>
+</div>
 <div id="toast" class="toast" hidden></div>
 <div id="printArea"></div>
 <input type="file" id="fileRestore" accept=".json,application/json" hidden>
@@ -239,8 +265,17 @@ table.set input[type=number]{width:60px}
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '1.0', VERSION_DATE = '13/10/2026';
+var VERSION = '2.0-thu1', VERSION_DATE = '13/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
+
+// DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
+// Để trống cả hai = bản một máy, lưu trong trình duyệt (như bản 1.x).
+// Điền địa chỉ dự án và khóa công khai (publishable / anon) = mọi máy mở trang này phải đăng nhập và dùng chung một sơ đồ.
+// Khóa công khai được phép nằm trong trang web: quyền đọc/ghi do quy tắc RLS ở Supabase quyết định (xem supabase/thiet-lap.sql).
+// KHÔNG BAO GIỜ đặt khóa service_role vào đây.
+var CLOUD_DEFAULT = {url: '', key: ''};
+var WARD_ID = 'khoa-ngoai';                        // mã dòng dữ liệu của khoa trong bảng ward_state
+var CLOUD_KEY = KEY + '.cloud', SESSION_KEY = KEY + '.session';
 // Sơ đồ khoa: hai dãy phòng hai bên hành lang, vẽ từ trái sang phải đúng như thực tế.
 var MAP = {
   top: [{blank: 1}, {label: 'Phòng BS'}, '612', '614', '615', '616', '617', '618', '619', '620'],
@@ -259,6 +294,9 @@ var OUT_TYPES = [['XV', 'Xuất viện'], ['CK', 'Chuyển khoa khác'], ['MO', 
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 var DEMO = location.hash === '#mau';
 var outForm = null;
+// Trạng thái dùng chung: cloud = cấu hình Supabase (null nếu là bản một máy); session = người đang đăng nhập.
+var cloud = null, session = null, remoteVersion = 0, pushing = false, dirty = false, refreshing = null;
+var syncState = '', syncAt = '', pollTimer = null, retryTimer = null, retryDelay = 5000;
 var state, form = null, query = '', reportBy = 'spec', reportDoctor = '', storageOK = true, savedAt = '', toastTimer = null;
 
 /* ================= DỮ LIỆU ================= */
@@ -321,6 +359,7 @@ function load() {
 }
 // Không có nút "Lưu": mỗi thao tác đều gọi commit() và được ghi ngay vào trình duyệt.
 function save() {
+  if (cloud) return;   // bản dùng chung không để dữ liệu người bệnh lại trong trình duyệt
   var json = JSON.stringify(state), d = new Date();
   try { localStorage.setItem(KEY, json); storageOK = true; }
   catch (e) {
@@ -330,7 +369,10 @@ function save() {
   }
   if (storageOK) savedAt = pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
-function commit() { dailySnapshot(); save(); dailyFile(); render(); }
+function commit() {
+  if (cloud) { render(); push(); return; }
+  dailySnapshot(); save(); dailyFile(); render();
+}
 
 /* ---- bản lưu tự động ---- */
 function snapshots() {
@@ -338,6 +380,7 @@ function snapshots() {
   catch (e) { return []; }
 }
 function putSnapshot(label, raw, auto) {
+  if (cloud) return;   // bản dùng chung: bản lưu hằng ngày nằm ở máy chủ (bảng ward_state_daily)
   var a = snapshots(), n;
   try { n = JSON.parse(raw).patients.length; } catch (e) { return; }
   if (!n && auto) return;
@@ -359,17 +402,224 @@ function keepCopy(label) {
   if (state.patients.length || state.discharged.length) putSnapshot(label, JSON.stringify(state), false);
 }
 function backupFile() {
-  state.lastBackup = nowStamp(); state.lastFileDay = today(); save();
+  state.lastBackup = nowStamp(); state.lastFileDay = today();
+  if (cloud) push(); else save();
   download('xep-giuong-sao-luu-' + today() + '.json', new Blob([JSON.stringify(Object.assign({}, state, {appVersion: VERSION}), null, 1)], {type: 'application/json'}));
 }
 // Thao tác đầu tiên của mỗi ngày tự tải một file sao lưu về thư mục Tải xuống.
 function dailyFile() {
-  if (DEMO || state.autoFile === false || state.sample || state.lastFileDay === today() || !state.patients.length) return;
+  if (cloud || DEMO || state.autoFile === false || state.sample || state.lastFileDay === today() || !state.patients.length) return;
   backupFile();
 }
 function addLog(text) {
-  state.log.unshift({t: nowStamp(), x: text});
-  if (state.log.length > 1000) state.log.length = 1000;
+  var entry = {t: nowStamp(), x: text};
+  if (cloud && session) entry.u = session.name;   // bản dùng chung: ghi ai đã thao tác
+  state.log.unshift(entry);
+  // bản dùng chung gửi cả sơ đồ lên máy chủ sau mỗi thao tác nên giữ nhật ký ngắn hơn
+  var max = cloud ? 400 : 1000;
+  if (state.log.length > max) state.log.length = max;
+}
+
+/* ================= DÙNG CHUNG NHIỀU MÁY (SUPABASE) ================= */
+// Cả sơ đồ được lưu thành một dòng trong bảng ward_state, kèm số "version" tăng dần.
+// Mỗi lần lưu chỉ thành công nếu version trên máy chủ còn đúng bằng bản mình đang có;
+// nếu máy khác đã lưu trước thì thao tác bị từ chối, sơ đồ được tải lại và người dùng làm lại.
+// Nhờ vậy hai máy không thể xếp hai người vào cùng một giường hay ghi đè lên nhau.
+function cloudConfig() {
+  function clean(c, fixed) { return {url: String(c.url).trim().replace(/\/+$/, ''), key: String(c.key).trim(), fixed: fixed}; }
+  if (CLOUD_DEFAULT.url && CLOUD_DEFAULT.key) return clean(CLOUD_DEFAULT, true);
+  try {
+    var c = JSON.parse(localStorage.getItem(CLOUD_KEY));
+    if (c && c.url && c.key) return clean(c, false);
+  } catch (e) {}
+  return null;
+}
+function canEdit() { return !cloud || !!(session && session.role === 'edit'); }
+function http(method, path, body, token, extra) {
+  var headers = {apikey: cloud.key, 'Content-Type': 'application/json'};
+  if (token) headers.Authorization = 'Bearer ' + token;
+  if (extra) Object.keys(extra).forEach(function (k) { headers[k] = extra[k]; });
+  var ctl = window.AbortController ? new AbortController() : null;
+  var timer = ctl ? setTimeout(function () { ctl.abort(); }, 20000) : null;
+  return fetch(cloud.url + path, {method: method, headers: headers, body: body == null ? undefined : JSON.stringify(body), signal: ctl ? ctl.signal : undefined})
+    .then(function (r) {
+      return r.text().then(function (t) {
+        clearTimeout(timer);
+        var j = null;
+        try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!r.ok) {
+          var err = new Error((j && (j.msg || j.message || j.error_description || j.error)) || 'HTTP ' + r.status);
+          err.status = r.status; throw err;
+        }
+        return j;
+      });
+    }, function () { clearTimeout(timer); var err = new Error('Không kết nối được máy chủ'); err.network = true; throw err; });
+}
+function saveSession() {
+  try { if (session) localStorage.setItem(SESSION_KEY, JSON.stringify(session)); else localStorage.removeItem(SESSION_KEY); } catch (e) {}
+}
+function takeTokens(j) {
+  session = session || {};
+  session.access = j.access_token; session.refresh = j.refresh_token;
+  session.exp = j.expires_at || Math.floor(Date.now() / 1000) + (j.expires_in || 3600);
+  if (j.user) { session.uid = j.user.id; session.email = j.user.email; }
+  saveSession();
+}
+// Trả về mã truy cập còn hạn; tự gia hạn khi sắp hết.
+function freshToken() {
+  if (!session || !session.refresh) { var e0 = new Error('Chưa đăng nhập'); e0.auth = true; return Promise.reject(e0); }
+  if (session.exp - 60 > Date.now() / 1000) return Promise.resolve(session.access);
+  if (!refreshing) {
+    refreshing = http('POST', '/auth/v1/token?grant_type=refresh_token', {refresh_token: session.refresh}).then(
+      function (j) { refreshing = null; takeTokens(j); return session.access; },
+      function (e) { refreshing = null; if (!e.network) e.auth = true; throw e; });
+  }
+  return refreshing;
+}
+function api(method, path, body, extra, retried) {
+  return freshToken().then(function (tok) { return http(method, path, body, tok, extra); }).catch(function (e) {
+    if (e.status === 401 && !retried && session) { session.exp = 0; return api(method, path, body, extra, true); }
+    if (e.status === 401) e.auth = true;
+    throw e;
+  });
+}
+function wardPath(select, more) { return '/rest/v1/ward_state?id=eq.' + encodeURIComponent(WARD_ID) + '&select=' + select + (more || ''); }
+function setSync(s) {
+  syncState = s;
+  if (s === 'ok') { var d = new Date(); syncAt = pad(d.getHours()) + ':' + pad(d.getMinutes()); retryDelay = 5000; }
+  renderStatus();
+}
+function showLogin(msg) {
+  $('login').hidden = false;
+  $('l_err').textContent = msg || '';
+  $('l_btn').disabled = false;
+  $('l_local').innerHTML = cloud.fixed ? '' : '<button type="button" class="btn small" data-act="cloudOff">Ngắt kết nối, dùng bản một máy</button>';
+  if (!$('l_email').value && session && session.email) $('l_email').value = session.email;
+}
+function signIn(email, pass) {
+  $('l_err').textContent = ''; $('l_btn').disabled = true;
+  http('POST', '/auth/v1/token?grant_type=password', {email: email, password: pass}).then(function (j) {
+    session = null; takeTokens(j);
+    return startCloud();
+  }).catch(function (e) {
+    if (e.handled) return;
+    $('l_btn').disabled = false;
+    $('l_err').textContent = e.network ? 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'
+      : e.status === 400 || e.status === 401 ? 'Email hoặc mật khẩu không đúng.' : 'Không đăng nhập được: ' + e.message;
+  });
+}
+// Sau khi có phiên đăng nhập: kiểm tra quyền vào khoa, tải sơ đồ, bắt đầu theo dõi thay đổi.
+function startCloud() {
+  return api('GET', '/rest/v1/staff?select=full_name,role&user_id=eq.' + encodeURIComponent(session.uid)).then(function (rows) {
+    if (!rows || !rows.length) return stop('Tài khoản này chưa được cấp quyền vào khoa. Xin báo người quản trị.');
+    session.name = rows[0].full_name; session.role = rows[0].role; saveSession();
+    return api('GET', wardPath('data,version')).then(function (ws) {
+      if (ws && ws.length) return ws[0];
+      if (session.role !== 'edit') return stop('Khoa chưa có dữ liệu. Cần một tài khoản có quyền sửa đăng nhập trước.');
+      // lần đầu tiên: tạo sơ đồ trống trên máy chủ
+      return api('POST', '/rest/v1/ward_state?select=data,version', {id: WARD_ID, data: defaultState(), updated_by: session.name}, {Prefer: 'return=representation'})
+        .then(function (r) { return r[0]; });
+    }).then(function (row) {
+      state = migrate(row.data); remoteVersion = row.version; pushing = false; dirty = false;
+      $('login').hidden = true; $('l_pass').value = '';
+      render(); setSync('ok');
+      clearInterval(pollTimer); pollTimer = setInterval(poll, 6000);
+    });
+  }).catch(function (e) {
+    if (e.handled) throw e;
+    if (e.auth) { signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.'); e.handled = true; throw e; }
+    showLogin(e.network ? 'Không kết nối được máy chủ. Kiểm tra mạng rồi tải lại trang.' : 'Không tải được dữ liệu: ' + e.message);
+    e.handled = true; throw e;
+  });
+  function stop(msg) { signOut(msg); var e = new Error(msg); e.handled = true; throw e; }
+}
+function signOut(msg) {
+  var tok = session && session.access, email = session && session.email;
+  if (tok) http('POST', '/auth/v1/logout', null, tok).catch(function () {});
+  session = null; saveSession();
+  clearInterval(pollTimer); clearTimeout(retryTimer); pushing = false; dirty = false; remoteVersion = 0; syncState = '';
+  state = defaultState(); closeModal(); render();
+  if (email) $('l_email').value = email;
+  showLogin(msg);
+}
+// Gửi sơ đồ lên máy chủ. Nếu đang gửi dở thì đánh dấu để gửi tiếp ngay sau đó.
+function push() {
+  if (!cloud || !session) return;
+  if (pushing) { dirty = true; return; }
+  clearTimeout(retryTimer);
+  pushing = true; dirty = false; setSync('saving');
+  api('PATCH', wardPath('version', '&version=eq.' + remoteVersion), {data: state, updated_by: session.name}, {Prefer: 'return=representation'}).then(function (rows) {
+    pushing = false;
+    if (!rows || !rows.length) return conflict();
+    remoteVersion = rows[0].version;
+    if (dirty) push(); else setSync('ok');
+  }).catch(function (e) {
+    pushing = false;
+    if (e.auth) { signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.'); return; }
+    dirty = true; setSync(e.network ? 'offline' : 'error');
+    retryTimer = setTimeout(push, retryDelay); retryDelay = Math.min(retryDelay * 2, 30000);
+  });
+}
+// Máy khác đã lưu trước: bỏ thay đổi chưa lưu của máy này, lấy lại sơ đồ mới nhất.
+function conflict() {
+  dirty = false;
+  return pull(true).then(function () {
+    closeModal();
+    alert('Máy khác vừa cập nhật sơ đồ trước bạn.\nThao tác vừa rồi của bạn CHƯA được lưu. Xin xem lại sơ đồ và làm lại nếu cần.');
+  });
+}
+function pull(force) {
+  return api('GET', wardPath('data,version')).then(function (rows) {
+    if (!rows || !rows.length) { signOut('Tài khoản không còn quyền xem dữ liệu của khoa.'); return; }
+    if (!force && (pushing || dirty)) return;   // máy này đang có thay đổi chờ lưu
+    state = migrate(rows[0].data); remoteVersion = rows[0].version;
+    render(); if (form) refreshSug();
+    setSync('ok');
+  });
+}
+// Cứ vài giây hỏi máy chủ số version; chỉ tải lại sơ đồ khi có máy khác vừa lưu.
+function poll() {
+  if (!cloud || !session || pushing || dirty || document.hidden) return;
+  api('GET', wardPath('version')).then(function (rows) {
+    if (!rows || !rows.length) { signOut('Tài khoản không còn quyền xem dữ liệu của khoa.'); return; }
+    if (rows[0].version !== remoteVersion) return pull();
+    if (syncState !== 'ok') setSync('ok');
+  }).catch(function (e) {
+    if (e.auth) signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.');
+    else if (!pushing && !dirty) setSync('offline');
+  });
+}
+// Các thao tác làm thay đổi dữ liệu: tài khoản chỉ xem không được dùng.
+var EDIT_ACTS = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
+  'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn'];
+function looksSecret(key) {
+  if (/^sb_secret_/.test(key)) return true;
+  try { return /"role"\s*:\s*"service_role"/.test(atob(key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); } catch (e) { return false; }
+}
+// Kết nối riêng cho máy này (để thử). Muốn mọi máy tự kết nối thì điền CLOUD_DEFAULT ở đầu chương trình.
+function cloudOn() {
+  var url = $('c_url').value.trim().replace(/\/+$/, ''), key = $('c_key').value.trim();
+  if (!/^https:\/\/[^\s\/]+$/.test(url) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(url)) { alert('Địa chỉ dự án chưa đúng. Ví dụ: https://abcdefgh.supabase.co'); return; }
+  if (!key) { alert('Chưa nhập khóa công khai.'); return; }
+  if (looksSecret(key)) { alert('Đây là khóa bí mật (secret / service_role), không được dùng trong trang web.\nHãy dùng khóa công khai (publishable / anon).'); return; }
+  try { localStorage.setItem(CLOUD_KEY, JSON.stringify({url: url, key: key})); } catch (e) { alert('Trình duyệt không cho lưu cấu hình.'); return; }
+  location.reload();
+}
+function cloudOff() {
+  if (!confirm('Ngắt kết nối dùng chung trên máy này và quay về bản một máy?\nDữ liệu trên máy chủ không bị xóa.')) return;
+  if (session && session.access) http('POST', '/auth/v1/logout', null, session.access).catch(function () {});
+  try { localStorage.removeItem(CLOUD_KEY); localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  location.reload();
+}
+function renderStatus() {
+  var d = new Date(), wd = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][d.getDay()], s;
+  if (!cloud) s = !storageOK ? '⚠ Chưa lưu được dữ liệu' : savedAt ? '✓ Đã tự động lưu lúc ' + savedAt : '✓ Tự động lưu sau mỗi thao tác';
+  else if (syncState === 'saving') s = '… Đang lưu lên máy chủ';
+  else if (syncState === 'offline') s = '⚠ Mất kết nối' + (dirty ? ' – thay đổi CHƯA được lưu, đang thử lại' : '');
+  else if (syncState === 'error') s = '⚠ Máy chủ chưa nhận được thay đổi, đang thử lại';
+  else s = syncAt ? '✓ Đã đồng bộ lúc ' + syncAt : '';
+  $('todayLine').textContent = wd + ', ngày ' + fmtDate(ymd(d)) + (s ? ' · ' + s : '');
+  $('todayLine').className = 'sub' + (cloud && (syncState === 'offline' || syncState === 'error') ? ' bad' : '');
 }
 
 /* ================= TIỆN ÍCH ================= */
@@ -600,10 +850,11 @@ function backFromSurgery(pid) {
 function render() {
   $('wardName').textContent = state.ward;
   document.title = 'Xếp giường – ' + state.ward;
-  var d = new Date(), wd = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'][d.getDay()];
-  $('todayLine').textContent = wd + ', ngày ' + fmtDate(ymd(d)) + ' · ' +
-    (!storageOK ? '⚠ Chưa lưu được dữ liệu' : savedAt ? '✓ Đã tự động lưu lúc ' + savedAt : '✓ Tự động lưu sau mỗi thao tác');
-  renderStats(); renderNotice(); renderMap(); renderPanels(); renderFoot();
+  // tài khoản chỉ xem: ẩn mọi nút làm thay đổi dữ liệu (máy chủ cũng từ chối ghi)
+  document.body.className = canEdit() ? '' : 'ro';
+  $('userBox').innerHTML = cloud && session && session.name
+    ? '<span class="who">' + esc(session.name) + (session.role === 'edit' ? '' : ' · chỉ xem') + '</span><button class="btn small" data-act="logout">Đăng xuất</button>' : '';
+  renderStatus(); renderStats(); renderNotice(); renderMap(); renderPanels(); renderFoot();
 }
 function bedTotals() {
   var z = {TH: {t: 0, o: 0}, NIEU: {t: 0, o: 0}};
@@ -637,8 +888,9 @@ function renderStats() {
 }
 function renderNotice() {
   var h = '';
-  if (!storageOK) h += '<div class="notice err"><b>Trình duyệt đang không cho lưu dữ liệu.</b> Mọi thay đổi sẽ mất khi đóng trang. Hãy mở bằng Chrome/Edge ở chế độ thường (không phải ẩn danh) và vào Cài đặt → Sao lưu ra file.</div>';
-  if (state.sample) {
+  if (!storageOK && !cloud) h += '<div class="notice err"><b>Trình duyệt đang không cho lưu dữ liệu.</b> Mọi thay đổi sẽ mất khi đóng trang. Hãy mở bằng Chrome/Edge ở chế độ thường (không phải ẩn danh) và vào Cài đặt → Sao lưu ra file.</div>';
+  if (cloud && !remoteVersion) h += '<div class="notice">Đang tải dữ liệu từ máy chủ…</div>';
+  else if (state.sample) {
     h += '<div class="notice"><b>Đang dùng dữ liệu mẫu</b> (tên người bệnh giả, để tập thao tác). Khi bắt đầu dùng thật: ' +
       '<button class="btn small" data-act="wipeSample">Xóa dữ liệu mẫu</button></div>';
   } else if (!state.patients.length && !state.discharged.length) {
@@ -750,10 +1002,15 @@ function renderPanels() {
     '<ol class="steps"><li>Bấm <b>+ Nhận bệnh</b>, chọn giới và chuyên khoa.</li><li>Phần mềm gợi ý giường – bấm <b>Lưu</b>.</li><li>Bấm vào giường có người để chuyển giường hoặc cho ra khoa.</li></ol>';
 }
 function renderFoot() {
+  var ver = '<div style="margin-top:4px">Phiên bản ' + VERSION + ' · ' + VERSION_DATE + (cloud ? ' · dùng chung nhiều máy' : ' · một máy') + '</div>';
+  if (cloud) {
+    $('foot').innerHTML = 'Mọi thao tác được <b>lưu tự động</b> lên máy chủ dùng chung của khoa; các máy khác thấy thay đổi sau vài giây. Cần có mạng để lưu. ' +
+      'File sao lưu gần nhất: <b>' + esc(state.lastBackup || 'chưa có') + '</b> · <button class="btn small" data-act="backup">Sao lưu ra file ngay</button>' + ver;
+    return;
+  }
   $('foot').innerHTML = 'Mọi thao tác được <b>lưu tự động</b> ngay trên trình duyệt của máy này, không cần bấm lưu và không gửi lên mạng. ' +
     'File sao lưu gần nhất: <b>' + esc(state.lastBackup || 'chưa có') + '</b>' +
-    (state.autoFile === false ? '' : ' (tự tải mỗi ngày một file)') + ' · <button class="btn small" data-act="backup">Sao lưu ra file ngay</button>' +
-    '<div style="margin-top:4px">Phiên bản ' + VERSION + ' · ' + VERSION_DATE + '</div>';
+    (state.autoFile === false ? '' : ' (tự tải mỗi ngày một file)') + ' · <button class="btn small" data-act="backup">Sao lưu ra file ngay</button>' + ver;
 }
 
 /* ================= HỘP THOẠI ================= */
@@ -901,6 +1158,10 @@ function saveForm() {
     addDoctor(p.doctor);
     addLog('Nhận bệnh từ ' + labelOf(SOURCES, p.src) + ': ' + p.name + ' (' + specName(p.spec) + ', ' + GENDER[p.gender] + ') → ' + (p.room ? bedLabel(p.room, p.bed) : 'chờ giường'));
     msg = 'Đã nhận ' + p.name + (p.room ? ' vào ' + bedLabel(p.room, p.bed) : ' – đang chờ giường');
+  } else if (!patientById(f.pid)) {
+    // bản dùng chung: máy khác vừa cho người bệnh này ra khoa trong lúc bảng đang mở
+    closeModal(); render(); toast('Người bệnh này vừa được máy khác cập nhật, xin xem lại sơ đồ.');
+    return false;
   } else if (f.mode === 'edit') {
     p = patientById(f.pid);
     p.name = f.name; p.yob = f.yob ? +f.yob : null; p.gender = f.gender; p.spec = f.spec; p.doctor = f.doctor;
@@ -1025,7 +1286,7 @@ function openHistory() {
     h += '</table>';
   }
   h += '<h3>Nhật ký thao tác</h3>';
-  h += state.log.length ? '<ul class="log">' + state.log.slice(0, 200).map(function (l) { return '<li><span>' + esc(l.t) + '</span>' + esc(l.x) + '</li>'; }).join('') + '</ul>' : '<p class="hint">Chưa có.</p>';
+  h += state.log.length ? '<ul class="log">' + state.log.slice(0, 200).map(function (l) { return '<li><span>' + esc(l.t) + '</span>' + esc(l.x) + (l.u ? ' <span>— ' + esc(l.u) + '</span>' : '') + '</li>'; }).join('') + '</ul>' : '<p class="hint">Chưa có.</p>';
   h += '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>';
   showModal(h, 'wide');
 }
@@ -1203,21 +1464,37 @@ function openSettings() {
   h += '</table><h3>3. Danh sách bác sĩ (mỗi dòng một người)</h3><textarea rows="5" data-set="doctors">' + esc(state.doctors.join('\n')) + '</textarea>' +
     '<h3>4. Tên khoa in trên danh sách</h3><input class="full" type="text" data-set="ward" value="' + esc(state.ward) + '">' +
     '<h3>5. Lưu và sao lưu</h3>' +
-    '<p class="hint">Mọi thao tác được lưu tự động ngay vào trình duyệt của máy này, không cần bấm lưu. Rủi ro còn lại là trình duyệt bị xóa dữ liệu duyệt web hoặc máy hỏng, nên phần mềm tự sao lưu thêm:</p>' +
-    '<label class="chk" style="margin:6px 0 10px"><input type="checkbox" data-set="autoFile"' + (state.autoFile === false ? '' : ' checked') + '> ' +
-    'Mỗi ngày tự tải một file sao lưu về thư mục Tải xuống (Downloads) của máy, vào lúc có thao tác đầu tiên trong ngày</label>' +
+    (cloud ? '<p class="hint">Mọi thao tác được lưu lên máy chủ dùng chung; máy chủ tự giữ một bản mỗi ngày. Thỉnh thoảng vẫn nên tải một file sao lưu về máy. ' +
+      '“Khôi phục từ file” cũng là cách đưa dữ liệu từ bản một máy lên dùng chung.</p>'
+      : '<p class="hint">Mọi thao tác được lưu tự động ngay vào trình duyệt của máy này, không cần bấm lưu. Rủi ro còn lại là trình duyệt bị xóa dữ liệu duyệt web hoặc máy hỏng, nên phần mềm tự sao lưu thêm:</p>' +
+      '<label class="chk" style="margin:6px 0 10px"><input type="checkbox" data-set="autoFile"' + (state.autoFile === false ? '' : ' checked') + '> ' +
+      'Mỗi ngày tự tải một file sao lưu về thư mục Tải xuống (Downloads) của máy, vào lúc có thao tác đầu tiên trong ngày</label>') +
     '<div class="databtns"><button class="btn" data-act="backup">Sao lưu ra file ngay</button><button class="btn" data-act="restore">Khôi phục từ file</button>' +
     '<button class="btn" data-act="sample">Nạp dữ liệu mẫu</button><button class="btn" data-act="resetRooms">Về sơ đồ phân khu mặc định</button>' +
     '<button class="btn danger" data-act="wipe">Xóa toàn bộ người bệnh</button></div>';
-  var snaps = snapshots();
-  h += '<h3>6. Bản lưu tự động trong máy</h3><p class="hint">Mỗi ngày phần mềm giữ lại một bản đầu ngày, và một bản trước mỗi lần xóa hay khôi phục; tối đa 10 bản. Dùng khi lỡ thao tác nhầm.</p>';
-  if (snaps.length) {
-    h += '<table class="set"><tr><th>Bản lưu</th><th>Lưu lúc</th><th>Số người bệnh</th><th></th></tr>';
-    snaps.forEach(function (s, i) {
-      h += '<tr><td>' + esc(s.label) + '</td><td>' + esc(s.t) + '</td><td>' + s.n + '</td><td><button class="btn small" data-act="snap" data-i="' + i + '">Quay về bản này</button></td></tr>';
-    });
-    h += '</table>';
-  } else h += '<p class="hint">Chưa có bản lưu nào.</p>';
+  if (!cloud) {
+    var snaps = snapshots();
+    h += '<h3>6. Bản lưu tự động trong máy</h3><p class="hint">Mỗi ngày phần mềm giữ lại một bản đầu ngày, và một bản trước mỗi lần xóa hay khôi phục; tối đa 10 bản. Dùng khi lỡ thao tác nhầm.</p>';
+    if (snaps.length) {
+      h += '<table class="set"><tr><th>Bản lưu</th><th>Lưu lúc</th><th>Số người bệnh</th><th></th></tr>';
+      snaps.forEach(function (s, i) {
+        h += '<tr><td>' + esc(s.label) + '</td><td>' + esc(s.t) + '</td><td>' + s.n + '</td><td><button class="btn small" data-act="snap" data-i="' + i + '">Quay về bản này</button></td></tr>';
+      });
+      h += '</table>';
+    } else h += '<p class="hint">Chưa có bản lưu nào.</p>';
+  }
+  h += '<h3>' + (cloud ? '6' : '7') + '. Dùng chung nhiều máy (Supabase, đang thử nghiệm)</h3>';
+  if (cloud) {
+    h += '<p class="hint">Máy này đang dùng chung dữ liệu tại <b>' + esc(cloud.url) + '</b>.' +
+      (cloud.fixed ? ' Kết nối được đặt sẵn trong chương trình.' : '') + '</p>' +
+      (cloud.fixed ? '' : '<div class="databtns"><button class="btn" data-act="cloudOff">Ngắt kết nối, quay về bản một máy</button></div>');
+  } else {
+    h += '<p class="hint">Nhập địa chỉ dự án Supabase và khóa công khai để máy này đăng nhập và dùng chung sơ đồ với các máy khác. ' +
+      'Dữ liệu đang có trong máy này vẫn được giữ nguyên và không tự gửi lên.</p>' +
+      '<div class="grid2" style="grid-template-columns:1fr 1fr"><div class="fld"><label>Địa chỉ dự án (https://….supabase.co)</label><input id="c_url" type="text" autocomplete="off"></div>' +
+      '<div class="fld"><label>Khóa công khai (publishable / anon)</label><input id="c_key" type="text" autocomplete="off"></div></div>' +
+      '<div class="databtns"><button class="btn" data-act="cloudOn">Kết nối</button></div>';
+  }
   h += '</div><div class="mfoot"><button class="btn primary" data-act="close">Xong</button></div>';
   showModal(h, 'wide');
 }
@@ -1346,7 +1623,11 @@ document.addEventListener('click', function (e) {
   var el = e.target.closest ? e.target.closest('[data-act]') : null;
   if (!el) return;
   var d = el.dataset, p;
+  if (!canEdit() && EDIT_ACTS.indexOf(d.act) >= 0) { toast('Tài khoản này chỉ được xem, không sửa được.'); return; }
   switch (d.act) {
+    case 'logout': if (confirm('Đăng xuất khỏi máy này?')) signOut(); break;
+    case 'cloudOn': cloudOn(); break;
+    case 'cloudOff': cloudOff(); break;
     case 'new': openForm('new'); break;
     case 'admit': openForm('new', {room: d.room, bed: +d.bed}); break;
     case 'patient': openPatient(+d.pid); break;
@@ -1391,13 +1672,15 @@ document.addEventListener('click', function (e) {
 });
 document.addEventListener('change', function (e) {
   var el = e.target, v, p;
-  if (el.id === 'f_other') {
+  if (el.id === 'r_doctor') {
+    reportDoctor = el.value; $('reportBox').innerHTML = reportHTML();
+  } else if (!canEdit()) {
+    return;
+  } else if (el.id === 'f_other') {
     if (form && el.value) { v = el.value.split('|'); form.pick = {room: v[0], bed: +v[1]}; form.manual = true; refreshSug(); }
   } else if (el.id === 'p_hold') {
     p = patientById(+el.dataset.pid);
     if (p) { p.hold = el.checked; commit(); }
-  } else if (el.id === 'r_doctor') {
-    reportDoctor = el.value; $('reportBox').innerHTML = reportHTML();
   } else if (el.id === 'fileRestore') {
     if (el.files && el.files[0]) restoreFile(el.files[0]);
   } else if (el.getAttribute && el.getAttribute('data-set')) applySetting(el);
@@ -1405,13 +1688,27 @@ document.addEventListener('change', function (e) {
 $('q').addEventListener('input', function () { query = fold(this.value.trim()); renderMap(); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('overlay').hidden) closeModal(); });
 window.addEventListener('storage', function (e) {
-  if (e.key !== KEY || !e.newValue || form) return;
+  if (cloud || e.key !== KEY || !e.newValue || form) return;
   try { state = migrate(JSON.parse(e.newValue)); render(); } catch (x) {}
 });
+$('loginForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  signIn($('l_email').value.trim(), $('l_pass').value);
+});
+document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
 
-state = load();
-if (DEMO && !state.patients.length && !state.discharged.length) loadSample();
-else render();
+cloud = cloudConfig();
+if (cloud) {
+  // bản dùng chung: chưa đăng nhập thì chưa có dữ liệu nào trên màn hình
+  state = defaultState(); render();
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch (x) { session = null; }
+  if (session && session.refresh) startCloud().catch(function () {});
+  else { session = null; showLogin(); }
+} else {
+  state = load();
+  if (DEMO && !state.patients.length && !state.discharged.length) loadSample();
+  else render();
+}
 })();
 </script>
 </body>
