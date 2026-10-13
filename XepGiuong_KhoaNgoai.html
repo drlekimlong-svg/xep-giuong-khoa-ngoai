@@ -238,6 +238,8 @@ table.set input[type=number]{width:60px}
 'use strict';
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
+// Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
+var VERSION = '1.0', VERSION_DATE = '13/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
 // Sơ đồ khoa: hai dãy phòng hai bên hành lang, vẽ từ trái sang phải đúng như thực tế.
 var MAP = {
@@ -358,7 +360,7 @@ function keepCopy(label) {
 }
 function backupFile() {
   state.lastBackup = nowStamp(); state.lastFileDay = today(); save();
-  download('xep-giuong-sao-luu-' + today() + '.json', new Blob([JSON.stringify(state, null, 1)], {type: 'application/json'}));
+  download('xep-giuong-sao-luu-' + today() + '.json', new Blob([JSON.stringify(Object.assign({}, state, {appVersion: VERSION}), null, 1)], {type: 'application/json'}));
 }
 // Thao tác đầu tiên của mỗi ngày tự tải một file sao lưu về thư mục Tải xuống.
 function dailyFile() {
@@ -750,7 +752,8 @@ function renderPanels() {
 function renderFoot() {
   $('foot').innerHTML = 'Mọi thao tác được <b>lưu tự động</b> ngay trên trình duyệt của máy này, không cần bấm lưu và không gửi lên mạng. ' +
     'File sao lưu gần nhất: <b>' + esc(state.lastBackup || 'chưa có') + '</b>' +
-    (state.autoFile === false ? '' : ' (tự tải mỗi ngày một file)') + ' · <button class="btn small" data-act="backup">Sao lưu ra file ngay</button>';
+    (state.autoFile === false ? '' : ' (tự tải mỗi ngày một file)') + ' · <button class="btn small" data-act="backup">Sao lưu ra file ngay</button>' +
+    '<div style="margin-top:4px">Phiên bản ' + VERSION + ' · ' + VERSION_DATE + '</div>';
 }
 
 /* ================= HỘP THOẠI ================= */
