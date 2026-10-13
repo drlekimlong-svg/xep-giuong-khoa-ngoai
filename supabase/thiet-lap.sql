@@ -54,9 +54,10 @@ create trigger ward_state_touch before update on public.ward_state
   for each row execute function public.ward_state_touch();
 
 -- Quyền của người đang đăng nhập: 'edit', 'view', hoặc null nếu không thuộc khoa.
+-- Chỉ đọc dòng staff của chính người gọi (quy tắc RLS của bảng staff cho phép), nên không cần security definer.
 create or replace function public.my_role() returns text
-language sql stable security definer set search_path = public as $$
-  select role from public.staff where user_id = auth.uid()
+language sql stable security invoker set search_path = public as $$
+  select role from public.staff where user_id = (select auth.uid())
 $$;
 
 revoke all on function public.my_role() from public, anon;

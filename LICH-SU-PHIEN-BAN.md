@@ -12,6 +12,31 @@ File `XepGiuong_KhoaNgoai.html` ở thư mục gốc là bản đang phát tri�
 
 ---
 
+## 2.0-thu2 — 13/10/2026 — Nối với dự án Supabase thật của khoa
+
+- **File:** `phien-ban/v2.0-thu2/` (app, `chung.html`, `thiet-lap.sql`) · nhãn git `v2.0-thu2`
+- **Dùng ở đâu:** để bác sĩ đăng nhập thử với dự án Supabase thật, bằng dữ liệu mẫu. Chưa dùng tại khoa.
+- **Dự án Supabase:** `xep-giuong-khoa-ngoai` (mã `wcnxauujoraohokntryt`, vùng Singapore, gói miễn phí), tạo ngày 13/10/2026.
+
+**Mới so với 2.0-thu1**
+
+- Địa chỉ dự án và khóa công khai của khoa được đặt sẵn trong app.
+- Một file chạy ba kiểu theo cách mở: mở thường là bản một máy; `chung.html` (đuôi `#chung`) là bản dùng chung có đăng nhập; `index.html` (đuôi `#mau`) là bản xem thử.
+- Cài đặt có nút "Chuyển máy này sang dùng chung", không phải gõ địa chỉ và khóa.
+- Hàm `my_role()` trong cơ sở dữ liệu chuyển sang chạy với quyền của người gọi, theo cảnh báo bảo mật của Supabase.
+
+**Đã thử và chưa thử**
+
+- Đã cài `thiet-lap.sql` vào dự án thật; công cụ rà bảo mật của Supabase không còn cảnh báo nào.
+- Đã thử quy tắc bảo mật ngay trên cơ sở dữ liệu thật với ba loại người dùng giả lập (dữ liệu thử được hủy sau khi chạy): người chưa đăng nhập và người không thuộc khoa không đọc, không ghi được gì; quyền `view` đọc được, không ghi được; quyền `edit` lưu được, không xóa được sơ đồ, không tự thêm người; lưu với số version cũ bị từ chối; bản lưu đầu ngày được tạo.
+- Đã gọi địa chỉ thật từ bên ngoài bằng khóa công khai: bị từ chối đúng như mong muốn; trình duyệt gọi được.
+- **Chưa đăng nhập thật lần nào**, vì chưa có tài khoản. Việc này cần bác sĩ tạo tài khoản rồi tự đăng nhập.
+- Chưa thử trên iPad và điện thoại; bản web trên GitHub chưa cập nhật.
+
+**Hạn chế đã biết:** như bản 2.0-thu1.
+
+---
+
 ## 2.0-thu1 — 13/10/2026 — Bản thử dùng chung nhiều máy qua Supabase
 
 - **File:** `phien-ban/v2.0-thu1/XepGiuong_KhoaNgoai.html` và `thiet-lap.sql` · nhãn git `v2.0-thu1`

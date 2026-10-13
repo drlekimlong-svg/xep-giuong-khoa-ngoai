@@ -1,6 +1,21 @@
 # Bật dùng chung nhiều máy qua Supabase
 
-Làm một lần, khoảng 15 phút. Tên các mục trong trang Supabase có thể khác đôi chút theo thời gian.
+## Tình trạng hiện tại (13/10/2026)
+
+Dự án của khoa **đã được tạo và cài xong** – các bước 1, 2, 5, 6 dưới đây đã làm, chỉ để tham khảo khi cần dựng lại:
+
+- Dự án: `xep-giuong-khoa-ngoai` · mã `wcnxauujoraohokntryt` · vùng Singapore · gói miễn phí
+- Địa chỉ: https://wcnxauujoraohokntryt.supabase.co
+- Trang quản trị: https://supabase.com/dashboard/project/wcnxauujoraohokntryt
+- Địa chỉ và khóa công khai đã đặt sẵn trong app (bản 2.0-thu2).
+
+**Việc còn lại là bước 3 và bước 4:** tắt tự đăng ký và tạo tài khoản đăng nhập cho từng người.
+
+**Mở bản dùng chung:** mở file `chung.html` (hoặc thêm đuôi `#chung` vào địa chỉ app). Mở app theo cách thường thì vẫn là bản một máy.
+
+---
+
+Tên các mục trong trang Supabase có thể khác đôi chút theo thời gian.
 
 > Trong giai đoạn thử, chỉ dùng dữ liệu mẫu hoặc tên giả. Chỉ nhập tên người bệnh thật sau khi bệnh viện đồng ý cho lưu dữ liệu trên Supabase.
 
@@ -48,10 +63,15 @@ Hai giá trị này được phép công khai. **Không** dùng và không gửi
 
 ## 6. Kết nối app
 
-**Thử trên một máy:** mở app → **Cài đặt** → mục **Dùng chung nhiều máy** → dán hai giá trị → **Kết nối** → đăng nhập.
-Dữ liệu một máy đang có trong trình duyệt vẫn giữ nguyên; bấm "Ngắt kết nối" là quay lại như cũ.
+Hai giá trị này nằm ở dòng `CLOUD_DEFAULT` ở đầu phần chương trình trong file `XepGiuong_KhoaNgoai.html`. Một file chạy được ba kiểu:
 
-**Cho mọi máy tự kết nối:** điền hai giá trị vào dòng `CLOUD_DEFAULT` ở đầu phần chương trình trong file `XepGiuong_KhoaNgoai.html`, rồi phát hành bản mới.
+| Cách mở | Kết quả |
+|---|---|
+| Mở thường | Bản một máy, dữ liệu trong trình duyệt |
+| Mở `chung.html`, hoặc thêm đuôi `#chung` | Bản dùng chung: phải đăng nhập |
+| Mở `index.html`, hoặc thêm đuôi `#mau` | Bản xem thử giao diện với dữ liệu mẫu |
+
+Muốn một máy luôn là bản dùng chung dù mở kiểu nào: **Cài đặt** → mục **Dùng chung nhiều máy** → **Chuyển máy này sang dùng chung**. Dữ liệu một máy đang có vẫn giữ nguyên; "Ngắt kết nối" là quay lại như cũ.
 
 ## 7. Đưa dữ liệu từ bản một máy lên
 

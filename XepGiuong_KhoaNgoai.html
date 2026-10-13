@@ -265,15 +265,18 @@ body.ro .bed.free:not(.held){pointer-events:none}
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.0-thu1', VERSION_DATE = '13/10/2026';
+var VERSION = '2.0-thu2', VERSION_DATE = '13/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
-// Để trống cả hai = bản một máy, lưu trong trình duyệt (như bản 1.x).
-// Điền địa chỉ dự án và khóa công khai (publishable / anon) = mọi máy mở trang này phải đăng nhập và dùng chung một sơ đồ.
-// Khóa công khai được phép nằm trong trang web: quyền đọc/ghi do quy tắc RLS ở Supabase quyết định (xem supabase/thiet-lap.sql).
-// KHÔNG BAO GIỜ đặt khóa service_role vào đây.
-var CLOUD_DEFAULT = {url: '', key: ''};
+// Một file chạy được ba kiểu, chọn bằng cách mở:
+//   mở thường           → bản một máy, lưu trong trình duyệt (như bản 1.x)
+//   thêm đuôi "#chung"  → bản dùng chung: phải đăng nhập, dữ liệu nằm ở dự án Supabase dưới đây
+//   thêm đuôi "#mau"    → bản xem thử giao diện với dữ liệu mẫu
+// Một máy cũng có thể được chuyển hẳn sang dùng chung trong Cài đặt (khi đó mở thường cũng đòi đăng nhập).
+// Khóa dưới đây là khóa CÔNG KHAI (publishable), được phép nằm trong trang web: quyền đọc/ghi do quy tắc RLS
+// ở Supabase quyết định (xem supabase/thiet-lap.sql). KHÔNG BAO GIỜ đặt khóa secret / service_role vào đây.
+var CLOUD_DEFAULT = {url: 'https://wcnxauujoraohokntryt.supabase.co', key: 'sb_publishable_AUZ4CautdWeeBffsgkzqSQ_aqLwcpVQ'};
 var WARD_ID = 'khoa-ngoai';                        // mã dòng dữ liệu của khoa trong bảng ward_state
 var CLOUD_KEY = KEY + '.cloud', SESSION_KEY = KEY + '.session';
 // Sơ đồ khoa: hai dãy phòng hai bên hành lang, vẽ từ trái sang phải đúng như thực tế.
@@ -426,12 +429,13 @@ function addLog(text) {
 // nếu máy khác đã lưu trước thì thao tác bị từ chối, sơ đồ được tải lại và người dùng làm lại.
 // Nhờ vậy hai máy không thể xếp hai người vào cùng một giường hay ghi đè lên nhau.
 function cloudConfig() {
+  // fixed = bật bởi liên kết "#chung": không ngắt được trên máy, muốn dùng bản một máy thì mở liên kết thường
   function clean(c, fixed) { return {url: String(c.url).trim().replace(/\/+$/, ''), key: String(c.key).trim(), fixed: fixed}; }
-  if (CLOUD_DEFAULT.url && CLOUD_DEFAULT.key) return clean(CLOUD_DEFAULT, true);
-  try {
-    var c = JSON.parse(localStorage.getItem(CLOUD_KEY));
-    if (c && c.url && c.key) return clean(c, false);
-  } catch (e) {}
+  var hasDefault = !!(CLOUD_DEFAULT.url && CLOUD_DEFAULT.key), c = null;
+  if (hasDefault && location.hash === '#chung') return clean(CLOUD_DEFAULT, true);
+  try { c = JSON.parse(localStorage.getItem(CLOUD_KEY)); } catch (e) {}
+  if (c && c.useDefault && hasDefault) return clean(CLOUD_DEFAULT, false);   // máy này đã được chuyển sang dùng chung
+  if (c && c.url && c.key) return clean(c, false);                            // máy này tự nhập một dự án khác
   return null;
 }
 function canEdit() { return !cloud || !!(session && session.role === 'edit'); }
@@ -598,6 +602,11 @@ function looksSecret(key) {
 }
 // Kết nối riêng cho máy này (để thử). Muốn mọi máy tự kết nối thì điền CLOUD_DEFAULT ở đầu chương trình.
 function cloudOn() {
+  if (!$('c_url')) {   // dự án của khoa đã đặt sẵn trong chương trình
+    if (!confirm('Chuyển máy này sang dùng chung?\nTừ giờ mở app trên máy này sẽ phải đăng nhập. Dữ liệu một máy đang có vẫn được giữ, ngắt kết nối là thấy lại.')) return;
+    try { localStorage.setItem(CLOUD_KEY, JSON.stringify({useDefault: true})); } catch (e) { alert('Trình duyệt không cho lưu cấu hình.'); return; }
+    location.reload(); return;
+  }
   var url = $('c_url').value.trim().replace(/\/+$/, ''), key = $('c_key').value.trim();
   if (!/^https:\/\/[^\s\/]+$/.test(url) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(url)) { alert('Địa chỉ dự án chưa đúng. Ví dụ: https://abcdefgh.supabase.co'); return; }
   if (!key) { alert('Chưa nhập khóa công khai.'); return; }
@@ -1486,8 +1495,12 @@ function openSettings() {
   h += '<h3>' + (cloud ? '6' : '7') + '. Dùng chung nhiều máy (Supabase, đang thử nghiệm)</h3>';
   if (cloud) {
     h += '<p class="hint">Máy này đang dùng chung dữ liệu tại <b>' + esc(cloud.url) + '</b>.' +
-      (cloud.fixed ? ' Kết nối được đặt sẵn trong chương trình.' : '') + '</p>' +
+      (cloud.fixed ? ' Đang mở bằng liên kết dùng chung (đuôi #chung); muốn dùng bản một máy thì mở liên kết thường.' : '') + '</p>' +
       (cloud.fixed ? '' : '<div class="databtns"><button class="btn" data-act="cloudOff">Ngắt kết nối, quay về bản một máy</button></div>');
+  } else if (CLOUD_DEFAULT.url && CLOUD_DEFAULT.key) {
+    h += '<p class="hint">Máy này đang chạy bản một máy. Chuyển sang dùng chung thì mở app sẽ phải đăng nhập và sơ đồ là sơ đồ chung của khoa trên máy chủ. ' +
+      'Dữ liệu đang có trong máy này vẫn được giữ nguyên và không tự gửi lên.</p>' +
+      '<div class="databtns"><button class="btn" data-act="cloudOn">Chuyển máy này sang dùng chung</button></div>';
   } else {
     h += '<p class="hint">Nhập địa chỉ dự án Supabase và khóa công khai để máy này đăng nhập và dùng chung sơ đồ với các máy khác. ' +
       'Dữ liệu đang có trong máy này vẫn được giữ nguyên và không tự gửi lên.</p>' +
@@ -1696,6 +1709,8 @@ $('loginForm').addEventListener('submit', function (e) {
   signIn($('l_email').value.trim(), $('l_pass').value);
 });
 document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+// đổi đuôi liên kết (#chung, #mau) là đổi kiểu chạy, nên tải lại trang
+window.addEventListener('hashchange', function () { location.reload(); });
 
 cloud = cloudConfig();
 if (cloud) {
