@@ -30,8 +30,9 @@ File `XepGiuong_KhoaNgoai.html` ở thư mục gốc là bản đang phát tri�
 - Đã cài `thiet-lap.sql` vào dự án thật; công cụ rà bảo mật của Supabase không còn cảnh báo nào.
 - Đã thử quy tắc bảo mật ngay trên cơ sở dữ liệu thật với ba loại người dùng giả lập (dữ liệu thử được hủy sau khi chạy): người chưa đăng nhập và người không thuộc khoa không đọc, không ghi được gì; quyền `view` đọc được, không ghi được; quyền `edit` lưu được, không xóa được sơ đồ, không tự thêm người; lưu với số version cũ bị từ chối; bản lưu đầu ngày được tạo.
 - Đã gọi địa chỉ thật từ bên ngoài bằng khóa công khai: bị từ chối đúng như mong muốn; trình duyệt gọi được.
-- **Chưa đăng nhập thật lần nào**, vì chưa có tài khoản. Việc này cần bác sĩ tạo tài khoản rồi tự đăng nhập.
-- Chưa thử trên iPad và điện thoại; bản web trên GitHub chưa cập nhật.
+- Lúc phát hành chưa có lần đăng nhập thật nào từ app. Tài khoản đầu tiên (BS.KimLong, quyền `edit`) được cấp quyền cùng ngày; việc đăng nhập thử do bác sĩ tự làm.
+- Bản web trên GitHub được cập nhật lên bản này ngày 13/10/2026; link đăng nhập: https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html
+- Chưa thử trên iPad và điện thoại.
 
 **Hạn chế đã biết:** như bản 2.0-thu1.
 

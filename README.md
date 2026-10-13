@@ -6,9 +6,16 @@ Công cụ giúp điều dưỡng xếp giường cho người bệnh Tiêu hóa
 
 Bản xem thử mở sẵn với dữ liệu mẫu; mọi tên người bệnh và bác sĩ trong đó đều là tên giả.
 
+**Bản dùng chung nhiều máy (cần tài khoản do khoa cấp):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html
+
+Lịch sử các phiên bản: [LICH-SU-PHIEN-BAN.md](LICH-SU-PHIEN-BAN.md).
+
 ## Dữ liệu nằm ở đâu
 
-Toàn bộ là một file `XepGiuong_KhoaNgoai.html`, không có máy chủ. Những gì nhập vào chỉ được lưu trong trình duyệt của chính máy đang dùng và không gửi đi đâu. Kho này chỉ chứa chương trình, không chứa dữ liệu người bệnh.
+Toàn bộ chương trình là một file `XepGiuong_KhoaNgoai.html`. Kho này chỉ chứa chương trình, không chứa dữ liệu người bệnh.
+
+- **Bản một máy và bản xem thử:** những gì nhập vào chỉ được lưu trong trình duyệt của chính máy đang dùng và không gửi đi đâu.
+- **Bản dùng chung:** dữ liệu nằm trong một dự án Supabase của khoa và chỉ đọc, ghi được sau khi đăng nhập bằng tài khoản được cấp quyền. Địa chỉ dự án và khóa trong mã nguồn là khóa công khai; quyền truy cập do quy tắc trong `supabase/thiet-lap.sql` quyết định.
 
 ## Dùng tại khoa
 
