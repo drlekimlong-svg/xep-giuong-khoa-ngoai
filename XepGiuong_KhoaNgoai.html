@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- iPad / iPhone: "Thêm vào Màn hình chính" trong Safari sẽ mở toàn màn hình như một ứng dụng -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Xếp giường">
+<meta name="theme-color" content="#0e6655">
+<link rel="apple-touch-icon" href="icon-180.png">
 <title>Xếp giường – Khoa Ngoại BV An Bình</title>
 <style>
 :root{
@@ -54,7 +60,7 @@ main{padding:4px 16px 24px}
 
 /* ---- sơ đồ ---- */
 .mapwrap{overflow-x:auto;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
-.mapin{min-width:1140px}
+.mapin{min-width:1100px}
 .maprow{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px}
 .corridor{text-align:center;letter-spacing:.6em;color:#8a96a6;font-size:11px;padding:8px 0;margin:6px 0;background:repeating-linear-gradient(90deg,#f1f3f6 0 14px,#e9ecf1 14px 28px);border-radius:6px}
 .cell{border:1px dashed var(--line);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#8a96a6;min-height:70px;text-align:center;font-size:12px}
@@ -188,14 +194,52 @@ table.set input[type=number]{width:60px}
 .login{position:fixed;left:0;top:0;right:0;bottom:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;z-index:80;overflow:auto}
 .logincard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:26px 26px 20px;width:100%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,.08)}
 .logincard h2{font-size:22px;margin-bottom:4px}
-.fld input[type=email],.fld input[type=password]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:16px}
-.userbox{display:inline-flex;align-items:center}
-.userbox .who{font-weight:600;margin-right:8px;white-space:nowrap}
+.logincard .fld input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:16px}
+.userbox{display:inline-flex;flex-wrap:wrap;align-items:center}
+.userbox>*{margin:2px 0 2px 6px}
+.userbox .who{font-weight:600;white-space:nowrap}
+.userbox .who small{font-weight:400;color:var(--muted)}
 .sub.bad{color:var(--warn);font-weight:700}
-body.ro [data-act=new],body.ro [data-act=edit],body.ro [data-act=move],body.ro [data-act=discharge],body.ro [data-act=back],
-body.ro [data-act=doMove],body.ro [data-act=hold],body.ro [data-act=settings],body.ro [data-act=backup],body.ro [data-act=sample],
-body.ro [data-act=wipeSample],body.ro [data-act=undo],body.ro .chk{display:none!important}
-body.ro .bed.free:not(.held){pointer-events:none}
+.bed.free:disabled{cursor:default}
+table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-radius:6px;width:100%;min-width:90px}
+.res-ok{color:var(--ok);font-weight:600} .res-bad{color:var(--warn);font-weight:600}
+.slip{border:1px dashed #777;padding:10px 12px;margin:0 0 8px;page-break-inside:avoid;font-size:13px}
+.slip b{font-size:15px}
+
+/* ---- iPad, iPhone và màn hình hẹp ---- */
+@media (max-width:900px){
+  .top{padding:8px 12px}
+  .top h1{font-size:17px}
+  .tools{width:100%;justify-content:flex-start}
+  .tools>*{margin:4px 6px 4px 0}
+  #q{flex:1 1 100%;width:auto}
+  .stats{padding:8px 12px 0}
+  .stat{flex:1 1 28%;min-width:0;margin:0 6px 6px 0;padding:5px 8px}
+  .stat b{font-size:17px}
+  .stat.now{flex-basis:100%}
+  main{padding:4px 12px 20px}
+  .mapwrap{padding:8px}
+  .mapin{min-width:0}
+  /* bỏ hành lang, xếp các phòng thành lưới thẻ để không phải kéo ngang */
+  .maprow{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .maprow .cell,.corridor{display:none}
+  .maprow+.corridor+.maprow{margin-top:6px}
+  .overlay{padding:8px 4px}
+  .mhead,.mbody,.mfoot{padding-left:12px;padding-right:12px}
+  .mfoot{flex-wrap:wrap}
+  .mfoot .btn{margin:4px 0 4px 8px}
+  .grid2{grid-template-columns:1fr}
+  .mbody{overflow-x:auto}
+  .sug .sr{width:86px;font-size:15px}
+}
+/* màn hình cảm ứng: nút và ô giường to hơn, chữ trong ô nhập 16px để iPhone không tự phóng to */
+@media (pointer:coarse){
+  .bed{height:36px;font-size:14px}
+  .btn{padding:10px 14px}
+  .btn.small{padding:7px 11px}
+  .seg button{padding:10px 14px}
+  input,select,textarea{font-size:16px}
+}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
 @media print{
@@ -247,12 +291,25 @@ body.ro .bed.free:not(.held){pointer-events:none}
   <form class="logincard" id="loginForm">
     <h2>Đăng nhập</h2>
     <p class="hint" style="margin-bottom:14px">Sơ đồ xếp giường – Khoa Ngoại, Bệnh viện An Bình</p>
-    <div class="fld"><label for="l_email">Email</label><input id="l_email" type="email" autocomplete="username" required></div>
+    <div class="fld"><label for="l_email">Tên đăng nhập</label><input id="l_email" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ví dụ: LNKhoi" required></div>
     <div class="fld"><label for="l_pass">Mật khẩu</label><input id="l_pass" type="password" autocomplete="current-password" required></div>
     <p id="l_err" class="err"></p>
     <button class="btn primary big" type="submit" id="l_btn" style="width:100%">Đăng nhập</button>
-    <p class="hint" style="margin-top:12px">Tài khoản do người quản trị của khoa cấp. Quên mật khẩu xin báo người quản trị.</p>
+    <p class="hint" style="margin-top:12px">Tài khoản do quản trị viên của khoa cấp. Quên mật khẩu xin báo quản trị viên để đặt lại.</p>
     <p id="l_local" style="margin-top:10px"></p>
+  </form>
+</div>
+<!-- Đổi mật khẩu: bắt buộc ở lần đăng nhập đầu, hoặc tự đổi bất cứ lúc nào -->
+<div id="pwbox" class="login" hidden>
+  <form class="logincard" id="pwForm">
+    <h2 id="p_title">Đổi mật khẩu</h2>
+    <p class="hint" id="p_hint" style="margin-bottom:14px"></p>
+    <div class="fld"><label for="p_new">Mật khẩu mới</label><input id="p_new" type="password" autocomplete="new-password" required></div>
+    <div class="fld"><label for="p_new2">Nhập lại mật khẩu mới</label><input id="p_new2" type="password" autocomplete="new-password" required></div>
+    <p class="hint">Ít nhất 8 ký tự, có cả chữ và số. Không dùng lại mật khẩu ban đầu.</p>
+    <p id="p_err" class="err"></p>
+    <button class="btn primary big" type="submit" id="p_btn" style="width:100%">Lưu mật khẩu mới</button>
+    <p style="margin-top:10px"><button type="button" class="btn small" id="p_cancel" data-act="pwCancel">Để sau</button></p>
   </form>
 </div>
 <div id="toast" class="toast" hidden></div>
@@ -265,8 +322,24 @@ body.ro .bed.free:not(.held){pointer-events:none}
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.0-thu2', VERSION_DATE = '13/10/2026';
+var VERSION = '2.0-thu3', VERSION_DATE = '14/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
+
+// Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
+// Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
+var LOGIN_DOMAIN = 'khoangoai.invalid';
+var ACCOUNT_FN = '/functions/v1/quan-ly-tai-khoan';
+// Vai trò và việc được làm. Quản trị viên (một người) làm được mọi thứ; máy chủ cũng kiểm lại (supabase/thiet-lap.sql).
+var ROLE_NAMES = {admin: 'Quản trị', nurse: 'Điều dưỡng', doctor: 'Bác sĩ', view: 'Chỉ xem'};
+var ROLE_ACTS = {
+  nurse: ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait', 'undo', 'backup'],
+  doctor: ['edit', 'saveForm'],   // bác sĩ: xem và bổ sung thông tin, không nhận bệnh, không xếp giường
+  view: []
+};
+// Các nút cần quyền; nút không có trong danh sách này (xem, in, xuất Excel, lịch sử…) ai cũng dùng được.
+var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
+  'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
+  'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
 // Một file chạy được ba kiểu, chọn bằng cách mở:
@@ -438,7 +511,34 @@ function cloudConfig() {
   if (c && c.url && c.key) return clean(c, false);                            // máy này tự nhập một dự án khác
   return null;
 }
-function canEdit() { return !cloud || !!(session && session.role === 'edit'); }
+// Bản một máy không có tài khoản: người dùng có mọi quyền như quản trị viên.
+function myRole() { return !cloud ? 'admin' : session && ROLE_NAMES[session.role] ? session.role : 'none'; }
+function can(act) {
+  var r = myRole();
+  return r === 'admin' || (ROLE_ACTS[r] || []).indexOf(act) >= 0;
+}
+// Ẩn nút không được dùng; ô giường trống thì giữ trên sơ đồ nhưng không cho bấm.
+// Các nút cố định ở đầu trang được hiện lại khi người có quyền đăng nhập; đánh dấu data-ph/data-pd để
+// chỉ hiện lại đúng những gì bước này đã ẩn, không đụng tới thứ bị ẩn vì lý do khác.
+function applyPerms(root) {
+  Array.prototype.forEach.call((root || document).querySelectorAll('[data-act]'), function (el) {
+    var a = el.getAttribute('data-act');
+    if (GUARDED.indexOf(a) < 0) return;
+    if (can(a)) {
+      if (el.hasAttribute('data-ph')) { el.hidden = false; el.removeAttribute('data-ph'); }
+      if (el.hasAttribute('data-pd')) { el.disabled = false; el.removeAttribute('data-pd'); }
+    } else if (a === 'admit') {
+      if (!el.disabled) { el.disabled = true; el.setAttribute('data-pd', ''); }
+    } else if (!el.hidden) {
+      el.hidden = true; el.setAttribute('data-ph', '');
+    }
+  });
+}
+function loginEmail(v) {
+  v = String(v || '').trim().toLowerCase();
+  return v.indexOf('@') >= 0 ? v : v + '@' + LOGIN_DOMAIN;
+}
+function fn(action, payload) { return api('POST', ACCOUNT_FN, Object.assign({action: action}, payload || {})); }
 function http(method, path, body, token, extra) {
   var headers = {apikey: cloud.key, 'Content-Type': 'application/json'};
   if (token) headers.Authorization = 'Bearer ' + token;
@@ -498,28 +598,32 @@ function showLogin(msg) {
   $('l_err').textContent = msg || '';
   $('l_btn').disabled = false;
   $('l_local').innerHTML = cloud.fixed ? '' : '<button type="button" class="btn small" data-act="cloudOff">Ngắt kết nối, dùng bản một máy</button>';
-  if (!$('l_email').value && session && session.email) $('l_email').value = session.email;
+  if (!$('l_email').value && session) $('l_email').value = session.loginId || session.email || '';
 }
-function signIn(email, pass) {
+// Nhận cả mã đăng nhập (LNKhoi) lẫn email (của quản trị viên).
+function signIn(id, pass) {
   $('l_err').textContent = ''; $('l_btn').disabled = true;
-  http('POST', '/auth/v1/token?grant_type=password', {email: email, password: pass}).then(function (j) {
+  http('POST', '/auth/v1/token?grant_type=password', {email: loginEmail(id), password: pass}).then(function (j) {
     session = null; takeTokens(j);
     return startCloud();
   }).catch(function (e) {
     if (e.handled) return;
     $('l_btn').disabled = false;
     $('l_err').textContent = e.network ? 'Không kết nối được máy chủ. Kiểm tra mạng rồi thử lại.'
-      : e.status === 400 || e.status === 401 ? 'Email hoặc mật khẩu không đúng.' : 'Không đăng nhập được: ' + e.message;
+      : e.status === 400 || e.status === 401 ? 'Tên đăng nhập hoặc mật khẩu không đúng.' : 'Không đăng nhập được: ' + e.message;
   });
 }
 // Sau khi có phiên đăng nhập: kiểm tra quyền vào khoa, tải sơ đồ, bắt đầu theo dõi thay đổi.
 function startCloud() {
-  return api('GET', '/rest/v1/staff?select=full_name,role&user_id=eq.' + encodeURIComponent(session.uid)).then(function (rows) {
-    if (!rows || !rows.length) return stop('Tài khoản này chưa được cấp quyền vào khoa. Xin báo người quản trị.');
-    session.name = rows[0].full_name; session.role = rows[0].role; saveSession();
+  return api('GET', '/rest/v1/staff?select=full_name,role,login_id,must_change,active&user_id=eq.' + encodeURIComponent(session.uid)).then(function (rows) {
+    if (!rows || !rows.length) return stop('Tài khoản này chưa được cấp quyền vào khoa. Xin báo quản trị viên.');
+    if (rows[0].active === false) return stop('Tài khoản này đã bị khóa. Xin báo quản trị viên.');
+    var me = rows[0];
+    session.name = me.full_name; session.role = me.role; session.loginId = me.login_id || '';
+    session.mustChange = !!me.must_change; saveSession();
     return api('GET', wardPath('data,version')).then(function (ws) {
       if (ws && ws.length) return ws[0];
-      if (session.role !== 'edit') return stop('Khoa chưa có dữ liệu. Cần một tài khoản có quyền sửa đăng nhập trước.');
+      if (!can('new')) return stop('Khoa chưa có dữ liệu. Cần quản trị viên hoặc điều dưỡng đăng nhập trước.');
       // lần đầu tiên: tạo sơ đồ trống trên máy chủ
       return api('POST', '/rest/v1/ward_state?select=data,version', {id: WARD_ID, data: defaultState(), updated_by: session.name}, {Prefer: 'return=representation'})
         .then(function (r) { return r[0]; });
@@ -528,6 +632,7 @@ function startCloud() {
       $('login').hidden = true; $('l_pass').value = '';
       render(); setSync('ok');
       clearInterval(pollTimer); pollTimer = setInterval(poll, 6000);
+      if (session.mustChange) showPwChange(true);   // lần đăng nhập đầu: bắt buộc đổi mật khẩu ban đầu
     });
   }).catch(function (e) {
     if (e.handled) throw e;
@@ -540,10 +645,11 @@ function startCloud() {
 function signOut(msg) {
   var tok = session && session.access, email = session && session.email;
   if (tok) http('POST', '/auth/v1/logout', null, tok).catch(function () {});
+  var shown = session && (session.loginId || session.email);
   session = null; saveSession();
   clearInterval(pollTimer); clearTimeout(retryTimer); pushing = false; dirty = false; remoteVersion = 0; syncState = '';
-  state = defaultState(); closeModal(); render();
-  if (email) $('l_email').value = email;
+  state = defaultState(); closeModal(); $('pwbox').hidden = true; render();
+  if (shown || email) $('l_email').value = shown || email;
   showLogin(msg);
 }
 // Gửi sơ đồ lên máy chủ. Nếu đang gửi dở thì đánh dấu để gửi tiếp ngay sau đó.
@@ -560,8 +666,19 @@ function push() {
   }).catch(function (e) {
     pushing = false;
     if (e.auth) { signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.'); return; }
+    if (e.status === 403) { denied(e.message); return; }   // máy chủ từ chối vì không đủ quyền: không thử lại
     dirty = true; setSync(e.network ? 'offline' : 'error');
     retryTimer = setTimeout(push, retryDelay); retryDelay = Math.min(retryDelay * 2, 30000);
+  });
+}
+// Máy chủ từ chối vì không đủ quyền (vd quản trị viên vừa đổi vai trò của người này): lấy lại vai trò và sơ đồ.
+function denied(msg) {
+  dirty = false;
+  return api('GET', '/rest/v1/staff?select=full_name,role&user_id=eq.' + encodeURIComponent(session.uid)).then(function (rows) {
+    if (rows && rows[0]) { session.role = rows[0].role; session.name = rows[0].full_name; saveSession(); }
+  }, function () {}).then(function () { return pull(true); }).then(function () {
+    closeModal();
+    alert('Máy chủ không cho lưu thay đổi này:\n' + msg + '\nSơ đồ đã được tải lại như trước khi sửa.');
   });
 }
 // Máy khác đã lưu trước: bỏ thay đổi chưa lưu của máy này, lấy lại sơ đồ mới nhất.
@@ -593,9 +710,200 @@ function poll() {
     else if (!pushing && !dirty) setSync('offline');
   });
 }
-// Các thao tác làm thay đổi dữ liệu: tài khoản chỉ xem không được dùng.
-var EDIT_ACTS = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
-  'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn'];
+/* ---- đổi mật khẩu ---- */
+// Mật khẩu ban đầu theo quy ước của khoa: tên (không dấu, viết hoa chữ đầu) + "@1234", vd Khôi → Khoi@1234.
+function namePlain(s) {
+  s = String(s || '');
+  if (s.normalize) s = s.normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return s.replace(/đ/g, 'd').replace(/Đ/g, 'D');
+}
+var TITLE_RE = /^(gs|pgs|ts|ths|bs|bsck1|bsck2|bscki|bsckii|bsnt|bscc|dd|cn|ktv|nhs|hl|ys|ds)$/i;
+function nameParts(full) {
+  var p = String(full || '').replace(/[,;()]/g, ' ').split(/\s+/).filter(Boolean);
+  // bỏ học hàm, chức danh ở đầu: "TS.", "BS.", "ThS.", "ĐD"…
+  while (p.length > 1 && (/\.$/.test(p[0]) || TITLE_RE.test(namePlain(p[0]).replace(/\./g, '')))) p.shift();
+  return p.map(function (w) { return w.replace(/\./g, ''); }).filter(Boolean);
+}
+function capWord(w) { w = namePlain(w).replace(/[^A-Za-z0-9]/g, ''); return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); }
+function suggestLoginId(full) {
+  var p = nameParts(full);
+  if (!p.length) return '';
+  return p.slice(0, -1).map(function (w) { return namePlain(w).charAt(0).toUpperCase(); }).join('').replace(/[^A-Z]/g, '') + capWord(p[p.length - 1]);
+}
+function suggestPassword(full) { var p = nameParts(full); return capWord(p[p.length - 1] || 'Khoa') + '@1234'; }
+function weakPw(pw) {
+  if (pw.length < 8) return 'Mật khẩu cần ít nhất 8 ký tự.';
+  if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return 'Mật khẩu cần có cả chữ và số.';
+  return '';
+}
+function showPwChange(forced) {
+  $('pwbox').hidden = false;
+  $('p_new').value = ''; $('p_new2').value = ''; $('p_err').textContent = ''; $('p_btn').disabled = false;
+  $('p_title').textContent = forced ? 'Đặt mật khẩu mới' : 'Đổi mật khẩu';
+  $('p_hint').textContent = forced ? 'Đây là lần đăng nhập đầu của ' + session.name + '. Hãy đặt mật khẩu riêng thay cho mật khẩu ban đầu.' : session.name;
+  $('p_cancel').hidden = !!forced;
+}
+function submitPwChange() {
+  var a = $('p_new').value, b = $('p_new2').value, bad = weakPw(a);
+  function fail(m) { $('p_err').textContent = m; }
+  if (a !== b) return fail('Hai lần nhập không giống nhau.');
+  if (bad) return fail(bad);
+  if (a.toLowerCase() === suggestPassword(session.name).toLowerCase()) return fail('Hãy chọn mật khẩu khác mật khẩu ban đầu.');
+  $('p_btn').disabled = true;
+  fn('doi-mat-khau', {password: a}).then(function () {
+    session.mustChange = false; saveSession();
+    $('pwbox').hidden = true; toast('Đã đổi mật khẩu.');
+  }).catch(function (e) {
+    $('p_btn').disabled = false;
+    if (e.auth) signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.');
+    else fail(e.network ? 'Không kết nối được máy chủ, thử lại sau.' : e.message);
+  });
+}
+
+/* ---- quản lý tài khoản (chỉ quản trị viên) ---- */
+// Mật khẩu ban đầu chỉ có trong bộ nhớ của trang lúc vừa tạo, để in phiếu; không lưu ở đâu khác.
+var acc = {list: [], text: '', preview: [], created: []};
+function openAccounts() {
+  acc.preview = []; acc.created = [];
+  showModal(mhead('Tài khoản đăng nhập') + '<div class="mbody" id="accBody"><p class="hint">Đang tải danh sách…</p></div>' +
+    '<div class="mfoot"><button class="btn primary" data-act="close">Xong</button></div>', 'wide');
+  loadAccounts();
+}
+function accFail(e) {
+  if (e.auth) { signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.'); return; }
+  alert(e.network ? 'Không kết nối được máy chủ.' : e.message);
+}
+function loadAccounts() {
+  return fn('danh-sach').then(function (j) { acc.list = (j && j.staff) || []; renderAccounts(); }).catch(accFail);
+}
+function roleSelect(cls, attrs, val) {
+  return '<select class="' + cls + '" ' + attrs + '>' + (val ? '' : '<option value="" selected>— chọn —</option>') + ['nurse', 'doctor', 'view'].map(function (r) {
+    return '<option value="' + r + '"' + (r === val ? ' selected' : '') + '>' + ROLE_NAMES[r] + '</option>';
+  }).join('') + '</select>';
+}
+function renderAccounts() {
+  if (!$('accBody')) return;
+  var h = '<h3>Danh sách hiện có (' + acc.list.length + ' tài khoản)</h3><table class="set"><tr><th>Họ tên</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Trạng thái</th><th>Đăng nhập gần nhất</th><th></th></tr>';
+  acc.list.forEach(function (s) {
+    var isAdmin = s.role === 'admin', uid = esc(s.user_id);
+    h += '<tr><td>' + esc(s.full_name) + '</td><td>' + esc(s.login_id || s.email || '') + '</td><td>' +
+      (isAdmin ? ROLE_NAMES.admin : roleSelect('acc-role', 'data-uid="' + uid + '"', s.role)) + '</td><td>' +
+      (s.active ? 'Đang dùng' + (s.must_change ? ' · <i>chưa đổi mật khẩu</i>' : '') : '<span class="res-bad">Đã khóa</span>') + '</td><td>' +
+      (s.last_sign_in_at ? fmtDate(String(s.last_sign_in_at).slice(0, 10)) : 'chưa') + '</td><td style="white-space:nowrap">' +
+      (isAdmin ? '' : '<button class="btn small" data-act="accReset" data-uid="' + uid + '">Đặt lại mật khẩu</button> ' +
+        '<button class="btn small' + (s.active ? ' danger' : '') + '" data-act="accLock" data-uid="' + uid + '" data-on="' + (s.active ? 0 : 1) + '">' + (s.active ? 'Khóa' : 'Mở khóa') + '</button>') +
+      '</td></tr>';
+  });
+  h += '</table>';
+  h += '<h3>Thêm tài khoản</h3><p class="hint">Mỗi dòng một người: họ tên kèm học hàm, dấu chấm phẩy, rồi vai trò: <b>dd</b> = điều dưỡng, <b>bs</b> = bác sĩ, <b>xem</b> = chỉ xem, ' +
+    '<b>qt</b> = chỉ đưa tên vào danh sách bác sĩ phụ trách, không tạo tài khoản. Ví dụ: <i>TS. BS. Lê Nguyên Khôi; bs</i></p>' +
+    '<textarea id="acc_text" rows="6">' + esc(acc.text) + '</textarea><div class="databtns" style="margin-top:6px"><button class="btn" data-act="accPreview">Xem trước</button></div>';
+  if (acc.preview.length) {
+    h += '<table class="set"><tr><th>#</th><th>Họ tên</th><th>Tên đăng nhập</th><th>Mật khẩu ban đầu</th><th>Vai trò</th><th>Kết quả</th></tr>';
+    acc.preview.forEach(function (r, i) {
+      var done = r.status === 'ok' || r.role === 'qt';
+      h += '<tr><td>' + (i + 1) + '</td><td>' + esc(r.name) + '</td>' +
+        (r.role === 'qt' ? '<td colspan="3"><i>chỉ thêm vào danh sách bác sĩ phụ trách</i></td>'
+          : '<td><input type="text" class="acc-id" data-i="' + i + '" value="' + esc(r.id) + '"' + (done ? ' disabled' : '') + '></td>' +
+            '<td><input type="text" class="acc-pw" data-i="' + i + '" value="' + esc(r.pw) + '"' + (done ? ' disabled' : '') + '></td>' +
+            '<td>' + roleSelect('acc-r', 'data-i="' + i + '"' + (done ? ' disabled' : ''), r.role) + '</td>') +
+        '<td>' + (r.status === 'ok' ? '<span class="res-ok">Đã tạo</span>' : r.status ? '<span class="res-bad">' + esc(r.status) + '</span>' : '') + '</td></tr>';
+    });
+    var left = acc.preview.filter(function (r) { return r.role !== 'qt' && r.status !== 'ok'; }).length;
+    h += '</table><div class="databtns" style="margin-top:6px">' +
+      (left ? '<button class="btn primary" data-act="accCreate">Tạo ' + left + ' tài khoản</button>' : '') +
+      (acc.created.length ? '<button class="btn" data-act="accPrint">In phiếu tài khoản (' + acc.created.length + ')</button>' : '') + '</div>' +
+      '<p class="hint">Mỗi người phải đổi mật khẩu ở lần đăng nhập đầu. Mật khẩu ban đầu chỉ hiện ở đây, đóng bảng này là không xem lại được.</p>';
+  }
+  $('accBody').innerHTML = h;
+  applyPerms($('accBody'));
+}
+function parseRole(tok, full) {
+  var t = namePlain(tok).toLowerCase().replace(/\s+/g, ' ').trim();
+  if (/^(bs|bac si|doctor)$/.test(t)) return 'doctor';
+  if (/^(dd|dieu duong|nurse)$/.test(t)) return 'nurse';
+  if (/^(xem|chi xem|view)$/.test(t)) return 'view';
+  if (/^(qt|quan tri|admin)$/.test(t)) return 'qt';
+  var head = namePlain(full).toLowerCase();   // không ghi vai trò thì đoán theo chức danh
+  if (/(^|\s)(dd|cn\.? ?dd|dieu duong)\b|đd/i.test(head)) return 'nurse';
+  if (/(^|\s)(bs|ths|ts|pgs|gs)\b/.test(head)) return 'doctor';
+  return '';
+}
+function accPreview() {
+  acc.text = $('acc_text').value;
+  var taken = {}, rows = [];
+  acc.list.forEach(function (s) { if (s.login_id) taken[s.login_id.toLowerCase()] = 1; });
+  acc.text.split(/\n/).forEach(function (line) {
+    var parts = line.split(/[;\t|]/), name = parts[0].replace(/\s+/g, ' ').trim();
+    if (!name) return;
+    var role = parseRole(parts[1] || '', name), id = suggestLoginId(name), base = id, n = 2;
+    while (id && taken[id.toLowerCase()]) id = base + n++;   // trùng tên viết tắt: thêm số
+    if (id) taken[id.toLowerCase()] = 1;
+    rows.push({name: name, id: id, pw: suggestPassword(name), role: role, status: role ? '' : 'Chưa rõ vai trò – chọn ở cột Vai trò'});
+  });
+  acc.preview = rows; acc.created = [];
+  renderAccounts();
+}
+function accCreate() {
+  // đọc lại các ô quản trị viên có thể đã sửa
+  Array.prototype.forEach.call(document.querySelectorAll('#accBody .acc-id'), function (el) { acc.preview[+el.dataset.i].id = el.value.trim(); });
+  Array.prototype.forEach.call(document.querySelectorAll('#accBody .acc-pw'), function (el) { acc.preview[+el.dataset.i].pw = el.value; });
+  Array.prototype.forEach.call(document.querySelectorAll('#accBody .acc-r'), function (el) { acc.preview[+el.dataset.i].role = el.value; });
+  var todo = acc.preview.filter(function (r) { return r.role !== 'qt' && r.status !== 'ok'; });
+  if (!todo.length) return;
+  if (!confirm('Tạo ' + todo.length + ' tài khoản đăng nhập?')) return;
+  var chain = Promise.resolve();
+  todo.forEach(function (r) {
+    chain = chain.then(function () {
+      var bad = weakPw(r.pw);
+      if (!r.role) { r.status = 'Chưa chọn vai trò'; return; }
+      if (!/^[A-Za-z0-9._-]{2,40}$/.test(r.id)) { r.status = 'Tên đăng nhập không hợp lệ'; return; }
+      if (bad) { r.status = bad; return; }
+      r.status = 'Đang tạo…'; renderAccounts();
+      return fn('tao', {full_name: r.name, login_id: r.id, role: r.role, password: r.pw}).then(function () {
+        r.status = 'ok'; acc.created.push({name: r.name, id: r.id, pw: r.pw, role: r.role});
+      }, function (e) {
+        if (e.auth) throw e;
+        r.status = e.network ? 'Mất kết nối' : e.message;
+      });
+    });
+  });
+  chain.then(function () {
+    // bác sĩ vừa tạo (và dòng "qt") được đưa vào danh sách bác sĩ phụ trách của khoa
+    var added = 0;
+    acc.preview.forEach(function (r) {
+      if ((r.role === 'doctor' && r.status === 'ok') || r.role === 'qt') { if (state.doctors.indexOf(r.name) < 0) { state.doctors.push(r.name); added++; } }
+    });
+    if (added) { addLog('Thêm ' + added + ' bác sĩ vào danh sách bác sĩ phụ trách'); commit(); }
+    return loadAccounts();
+  }).catch(accFail);
+}
+function accPrint() {
+  var link = location.href.split('#')[0].replace(/[^\/]*$/, '') + 'chung.html';
+  var h = '<div class="rp"><h2>TÀI KHOẢN ĐĂNG NHẬP – ' + esc(state.ward.toUpperCase()) + '</h2><p class="rp-sum">Địa chỉ: ' + esc(link) + ' · In lúc ' + nowStamp() + '</p>';
+  acc.created.forEach(function (c) {
+    h += '<div class="slip"><b>' + esc(c.name) + '</b> (' + ROLE_NAMES[c.role] + ')<br>Tên đăng nhập: <b>' + esc(c.id) + '</b> &nbsp; Mật khẩu ban đầu: <b>' + esc(c.pw) + '</b><br>' +
+      'Mở địa chỉ trên bằng Chrome, Edge hoặc Safari. Lần đăng nhập đầu sẽ phải đặt mật khẩu riêng.</div>';
+  });
+  $('printArea').innerHTML = h + '</div>';
+  window.print();
+}
+function accSet(uid, patch, done) {
+  fn('sua', Object.assign({user_id: uid}, patch)).then(function () { if (done) toast(done); return loadAccounts(); }).catch(function (e) { accFail(e); loadAccounts(); });
+}
+function accReset(uid) {
+  var s = acc.list.filter(function (x) { return x.user_id === uid; })[0];
+  if (!s) return;
+  var pw = prompt('Mật khẩu mới tạm thời cho ' + s.full_name + ' (người đó sẽ phải đổi lại ở lần đăng nhập tới):', suggestPassword(s.full_name));
+  if (pw === null) return;
+  var bad = weakPw(pw);
+  if (bad) { alert(bad); return; }
+  fn('dat-lai-mat-khau', {user_id: uid, password: pw}).then(function () {
+    alert('Đã đặt lại mật khẩu cho ' + s.full_name + '.\nTên đăng nhập: ' + (s.login_id || s.email) + '\nMật khẩu tạm: ' + pw);
+    return loadAccounts();
+  }).catch(accFail);
+}
+
 function looksSecret(key) {
   if (/^sb_secret_/.test(key)) return true;
   try { return /"role"\s*:\s*"service_role"/.test(atob(key.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); } catch (e) { return false; }
@@ -859,11 +1167,13 @@ function backFromSurgery(pid) {
 function render() {
   $('wardName').textContent = state.ward;
   document.title = 'Xếp giường – ' + state.ward;
-  // tài khoản chỉ xem: ẩn mọi nút làm thay đổi dữ liệu (máy chủ cũng từ chối ghi)
-  document.body.className = canEdit() ? '' : 'ro';
   $('userBox').innerHTML = cloud && session && session.name
-    ? '<span class="who">' + esc(session.name) + (session.role === 'edit' ? '' : ' · chỉ xem') + '</span><button class="btn small" data-act="logout">Đăng xuất</button>' : '';
+    ? '<span class="who">' + esc(session.name) + ' <small>· ' + (ROLE_NAMES[session.role] || '') + '</small></span>' +
+      '<button class="btn small" data-act="accounts">Tài khoản</button>' +
+      '<button class="btn small" data-act="pwChange">Đổi mật khẩu</button><button class="btn small" data-act="logout">Đăng xuất</button>' : '';
   renderStatus(); renderStats(); renderNotice(); renderMap(); renderPanels(); renderFoot();
+  // ẩn nút không thuộc quyền của người đang đăng nhập (máy chủ cũng kiểm lại khi lưu)
+  applyPerms(document);
 }
 function bedTotals() {
   var z = {TH: {t: 0, o: 0}, NIEU: {t: 0, o: 0}};
@@ -900,8 +1210,8 @@ function renderNotice() {
   if (!storageOK && !cloud) h += '<div class="notice err"><b>Trình duyệt đang không cho lưu dữ liệu.</b> Mọi thay đổi sẽ mất khi đóng trang. Hãy mở bằng Chrome/Edge ở chế độ thường (không phải ẩn danh) và vào Cài đặt → Sao lưu ra file.</div>';
   if (cloud && !remoteVersion) h += '<div class="notice">Đang tải dữ liệu từ máy chủ…</div>';
   else if (state.sample) {
-    h += '<div class="notice"><b>Đang dùng dữ liệu mẫu</b> (tên người bệnh giả, để tập thao tác). Khi bắt đầu dùng thật: ' +
-      '<button class="btn small" data-act="wipeSample">Xóa dữ liệu mẫu</button></div>';
+    h += '<div class="notice"><b>Đang dùng dữ liệu mẫu</b> (tên người bệnh giả, để tập thao tác).' +
+      (can('wipeSample') ? ' Khi bắt đầu dùng thật: <button class="btn small" data-act="wipeSample">Xóa dữ liệu mẫu</button>' : '') + '</div>';
   } else if (!state.patients.length && !state.discharged.length) {
     h += '<div class="notice">Chưa có người bệnh nào. Bấm <b>+ Nhận bệnh</b> hoặc bấm vào một <b>giường trống</b> trên sơ đồ để bắt đầu. ' +
       'Muốn xem thử cách hoạt động: <button class="btn small" data-act="sample">Nạp dữ liệu mẫu</button></div>';
@@ -1028,6 +1338,7 @@ function showModal(html, cls) {
   $('modal').innerHTML = html;
   $('overlay').hidden = false;
   $('overlay').scrollTop = 0;
+  applyPerms($('modal'));
 }
 function closeModal() { $('overlay').hidden = true; $('modal').innerHTML = ''; form = null; }
 function mhead(title) { return '<div class="mhead"><h2>' + title + '</h2><button class="x" data-act="close" title="Đóng">×</button></div>'; }
@@ -1139,6 +1450,7 @@ function pickSummary(p) {
 function addDoctor(n) { if (n && state.doctors.indexOf(n) < 0) state.doctors.push(n); }
 function saveForm() {
   var f = form, p, msg;
+  if (f.mode !== 'edit' && !can('move')) return false;   // bác sĩ chỉ được lưu phần bổ sung thông tin
   function fail(m) { $('f_err').textContent = m; return false; }
   if (f.mode !== 'move') {
     f.name = $('f_name').value.replace(/\s+/g, ' ').trim();
@@ -1213,7 +1525,7 @@ function openPatient(pid) {
     row('Loại phòng yêu cầu', p.want ? p.want + ' giường' + (rm && rm.size !== p.want ? ' <span class="chip warn">chưa đáp ứng</span>' : '')
       : 'Không yêu cầu' + (rm && rm.svc ? ' <span class="chip warn">đang tạm nằm phòng dịch vụ</span>' : '')) +
     row('Ghi chú', esc(p.note || '—')) + '</table>' +
-    (rm ? '<label class="chk"><input type="checkbox" id="p_hold" data-pid="' + p.id + '"' + (p.hold ? ' checked' : '') + '> Giữ nguyên giường này (không nhắc chuyển phòng)</label>' : '') +
+    (rm && can('hold') ? '<label class="chk"><input type="checkbox" id="p_hold" data-pid="' + p.id + '"' + (p.hold ? ' checked' : '') + '> Giữ nguyên giường này (không nhắc chuyển phòng)</label>' : '') +
     '</div><div class="mfoot"><button class="btn danger" data-act="discharge" data-pid="' + p.id + '">' + (p.away ? 'Không về khoa' : 'Ra khoa') + '</button><span class="sp"></span>' +
     '<button class="btn" data-act="edit" data-pid="' + p.id + '">Sửa thông tin</button>' +
     (p.away ? '<button class="btn primary" data-act="back" data-pid="' + p.id + '">Mổ về – nhận lại</button>'
@@ -1636,9 +1948,17 @@ document.addEventListener('click', function (e) {
   var el = e.target.closest ? e.target.closest('[data-act]') : null;
   if (!el) return;
   var d = el.dataset, p;
-  if (!canEdit() && EDIT_ACTS.indexOf(d.act) >= 0) { toast('Tài khoản này chỉ được xem, không sửa được.'); return; }
+  if (GUARDED.indexOf(d.act) >= 0 && !can(d.act)) { toast('Tài khoản ' + (ROLE_NAMES[myRole()] || '') + ' không được làm việc này.'); return; }
   switch (d.act) {
     case 'logout': if (confirm('Đăng xuất khỏi máy này?')) signOut(); break;
+    case 'pwChange': showPwChange(false); break;
+    case 'pwCancel': $('pwbox').hidden = true; break;
+    case 'accounts': openAccounts(); break;
+    case 'accPreview': accPreview(); break;
+    case 'accCreate': accCreate(); break;
+    case 'accPrint': accPrint(); break;
+    case 'accReset': accReset(d.uid); break;
+    case 'accLock': if (confirm(d.on === '1' ? 'Mở khóa tài khoản này?' : 'Khóa tài khoản này? Người đó sẽ không vào được app nữa.')) accSet(d.uid, {active: d.on === '1'}, d.on === '1' ? 'Đã mở khóa.' : 'Đã khóa tài khoản.'); break;
     case 'cloudOn': cloudOn(); break;
     case 'cloudOff': cloudOff(); break;
     case 'new': openForm('new'); break;
@@ -1687,16 +2007,18 @@ document.addEventListener('change', function (e) {
   var el = e.target, v, p;
   if (el.id === 'r_doctor') {
     reportDoctor = el.value; $('reportBox').innerHTML = reportHTML();
-  } else if (!canEdit()) {
-    return;
   } else if (el.id === 'f_other') {
-    if (form && el.value) { v = el.value.split('|'); form.pick = {room: v[0], bed: +v[1]}; form.manual = true; refreshSug(); }
+    if (form && el.value && can('move')) { v = el.value.split('|'); form.pick = {room: v[0], bed: +v[1]}; form.manual = true; refreshSug(); }
   } else if (el.id === 'p_hold') {
     p = patientById(+el.dataset.pid);
-    if (p) { p.hold = el.checked; commit(); }
+    if (p && can('hold')) { p.hold = el.checked; commit(); }
   } else if (el.id === 'fileRestore') {
-    if (el.files && el.files[0]) restoreFile(el.files[0]);
-  } else if (el.getAttribute && el.getAttribute('data-set')) applySetting(el);
+    if (el.files && el.files[0] && can('restore')) restoreFile(el.files[0]);
+  } else if (el.classList && el.classList.contains('acc-role')) {
+    if (can('accounts')) accSet(el.dataset.uid, {role: el.value}, 'Đã đổi vai trò.');
+  } else if (el.getAttribute && el.getAttribute('data-set')) {
+    if (can('settings')) applySetting(el);
+  }
 });
 $('q').addEventListener('input', function () { query = fold(this.value.trim()); renderMap(); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('overlay').hidden) closeModal(); });
@@ -1708,6 +2030,7 @@ $('loginForm').addEventListener('submit', function (e) {
   e.preventDefault();
   signIn($('l_email').value.trim(), $('l_pass').value);
 });
+$('pwForm').addEventListener('submit', function (e) { e.preventDefault(); submitPwChange(); });
 document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
 // đổi đuôi liên kết (#chung, #mau) là đổi kiểu chạy, nên tải lại trang
 window.addEventListener('hashchange', function () { location.reload(); });

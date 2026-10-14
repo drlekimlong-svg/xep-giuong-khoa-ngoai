@@ -6,7 +6,7 @@ Công cụ giúp điều dưỡng xếp giường cho người bệnh Tiêu hóa
 
 Bản xem thử mở sẵn với dữ liệu mẫu; mọi tên người bệnh và bác sĩ trong đó đều là tên giả.
 
-**Bản dùng chung nhiều máy (cần tài khoản do khoa cấp):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html
+**Bản dùng chung nhiều máy (cần tài khoản do khoa cấp):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/chung.html – đăng nhập bằng tên đăng nhập do quản trị viên cấp; dùng được trên máy tính, iPad, iPhone. Vai trò, cách tạo tài khoản và cấu hình máy tối thiểu: [supabase/HUONG-DAN.md](supabase/HUONG-DAN.md).
 
 **Bản cũ 1.0 (một máy, không đăng nhập, không nối máy chủ):** https://drlekimlong-svg.github.io/xep-giuong-khoa-ngoai/v1/
 

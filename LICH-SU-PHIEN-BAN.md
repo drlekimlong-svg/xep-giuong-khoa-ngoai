@@ -23,6 +23,53 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.0-thu3 — 14/10/2026 — Đăng nhập bằng mã, phân quyền theo vai trò, dùng được trên iPhone/iPad
+
+- **File:** `phien-ban/v2.0-thu3/` (app, `chung.html`, `icon-180.png`, `thiet-lap.sql`, `quan-ly-tai-khoan/index.ts`) · nhãn git `v2.0-thu3`
+- **Dùng ở đâu:** bản dùng chung trên web (`…/chung.html`), dùng thử với dữ liệu mẫu.
+
+**Mới so với 2.0-thu2**
+
+- **Đăng nhập bằng mã** do quản trị viên cấp (vd `LNKhoi`), không cần email; quản trị viên vẫn dùng email.
+- **Bốn vai trò:**
+  - Quản trị: một người, dr.lekimlong@gmail.com.
+  - Điều dưỡng: nhận bệnh, xếp và chuyển giường, đi mổ, ra khoa, sửa thông tin.
+  - Bác sĩ: xem và bổ sung thông tin, không xếp giường.
+  - Chỉ xem.
+- **Máy chủ kiểm quyền theo nội dung thay đổi:** bác sĩ đổi giường, nhận bệnh hay cho ra khoa bị từ chối; chỉ quản trị viên đổi được phân khu và tên khoa.
+- **Mục "Tài khoản" cho quản trị viên:**
+  - Dán danh sách để tạo hàng loạt; app gợi ý tên đăng nhập và mật khẩu ban đầu theo quy ước `Tên@1234`.
+  - In phiếu tài khoản; đổi vai trò, khóa/mở khóa, đặt lại mật khẩu.
+  - Tạo bằng Edge Function `quan-ly-tai-khoan` trên máy chủ; khóa quản trị của Supabase không tới trình duyệt.
+- **Bắt buộc đổi mật khẩu ở lần đăng nhập đầu** và sau mỗi lần được đặt lại; có nút "Đổi mật khẩu" cho mọi người.
+- **Nếu vai trò bị đổi trong lúc đang mở app:** máy chủ từ chối, app báo, tự tải lại sơ đồ và cập nhật vai trò.
+- **Giao diện màn hình hẹp:**
+  - Điện thoại và iPad dọc: phòng xếp thành thẻ, không phải kéo ngang; nút và ô giường to hơn khi dùng tay chạm; chữ ô nhập 16px để iPhone không tự phóng to.
+  - iPad ngang: thấy đủ sơ đồ hành lang.
+  - Biểu tượng riêng khi "Thêm vào Màn hình chính".
+- **Cơ sở dữ liệu:** bảng `staff` có thêm `login_id`, `must_change`, `active`; vai trò đổi từ `edit/view` sang `admin/nurse/doctor/view`; hàm kiểm quyền chuyển vào schema `private` (không gọi được qua API).
+
+**Đã thử và chưa thử**
+
+- **Trên cơ sở dữ liệu thật** (người dùng giả lập, hủy sau khi chạy):
+  - Từng vai trò đọc và ghi đúng quyền; bác sĩ bị chặn khi đổi giường, nhận bệnh, cho ra khoa.
+  - Điều dưỡng bị chặn khi đổi phân khu; không thêm được quản trị viên thứ hai; tài khoản bị khóa không đọc được gì.
+  - Công cụ rà bảo mật của Supabase chỉ còn một nhắc về tính năng chặn mật khẩu đã lộ; tôi chưa bật tính năng này.
+- **Phần quản lý tài khoản trên máy chủ thật:** đã thử người chưa đăng nhập và mã giả đều bị từ chối, và Supabase nhận địa chỉ nội bộ `…@khoangoai.invalid` (kiểm bằng lệnh không tạo tài khoản). **Chưa tạo tài khoản thật nào**; lần tạo đầu do quản trị viên làm.
+- **Với máy chủ giả lập:**
+  - Quản trị tạo hàng loạt, in phiếu, đổi vai trò, khóa, đặt lại mật khẩu.
+  - Điều dưỡng đăng nhập lần đầu bị bắt đổi mật khẩu, rồi nhận bệnh được.
+  - Bác sĩ chỉ thấy nút "Sửa thông tin"; tài khoản chỉ xem không sửa được gì; tài khoản bị khóa không vào được.
+- **Giao diện:** đã thử bằng cách giả lập khổ màn hình iPhone (375 px), iPad dọc (768 px), iPad ngang (1180 px) trên máy tính. **Chưa thử trên iPhone, iPad thật.**
+
+**Hạn chế đã biết**
+
+- Mật khẩu ban đầu theo quy ước dễ đoán cho tới khi người dùng đổi.
+- Không có "quên mật khẩu" tự phục vụ; phải nhờ quản trị viên.
+- Các hạn chế của 2.0-thu1 vẫn còn: cần mạng; tên người bệnh trên máy chủ ở nước ngoài, chưa mã hóa.
+
+---
+
 ## 2.0-thu2 — 13/10/2026 — Nối với dự án Supabase thật của khoa
 
 - **File:** `phien-ban/v2.0-thu2/` (app, `chung.html`, `thiet-lap.sql`) · nhãn git `v2.0-thu2`
