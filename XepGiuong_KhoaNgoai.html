@@ -322,7 +322,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.0-thu3', VERSION_DATE = '14/10/2026';
+var VERSION = '2.0-thu4', VERSION_DATE = '14/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
@@ -717,7 +717,7 @@ function namePlain(s) {
   if (s.normalize) s = s.normalize('NFD').replace(/[̀-ͯ]/g, '');
   return s.replace(/đ/g, 'd').replace(/Đ/g, 'D');
 }
-var TITLE_RE = /^(gs|pgs|ts|ths|bs|bsck1|bsck2|bscki|bsckii|bsnt|bscc|dd|cn|ktv|nhs|hl|ys|ds)$/i;
+var TITLE_RE = /^(gs|pgs|ts|ths|bs|bsck1|bsck2|bscki|bsckii|bsnt|bscc|ck1|ck2|cki|ckii|dd|cn|ktv|nhs|hl|ys|ds)$/i;
 function nameParts(full) {
   var p = String(full || '').replace(/[,;()]/g, ' ').split(/\s+/).filter(Boolean);
   // bỏ học hàm, chức danh ở đầu: "TS.", "BS.", "ThS.", "ĐD"…
@@ -730,7 +730,11 @@ function suggestLoginId(full) {
   if (!p.length) return '';
   return p.slice(0, -1).map(function (w) { return namePlain(w).charAt(0).toUpperCase(); }).join('').replace(/[^A-Z]/g, '') + capWord(p[p.length - 1]);
 }
-function suggestPassword(full) { var p = nameParts(full); return capWord(p[p.length - 1] || 'Khoa') + '@1234'; }
+// Tên quá ngắn (Vũ, My…) thì thêm một số để đủ 8 ký tự: Vu@12345.
+function suggestPassword(full) {
+  var p = nameParts(full), pw = capWord(p[p.length - 1] || 'Khoa') + '@1234';
+  return pw.length < 8 ? pw + '5' : pw;
+}
 function weakPw(pw) {
   if (pw.length < 8) return 'Mật khẩu cần ít nhất 8 ký tự.';
   if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return 'Mật khẩu cần có cả chữ và số.';

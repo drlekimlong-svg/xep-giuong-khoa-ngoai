@@ -23,6 +23,19 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.0-thu4 — 14/10/2026 — Sửa cách tạo tên đăng nhập và mật khẩu ban đầu
+
+- **File:** `phien-ban/v2.0-thu4/XepGiuong_KhoaNgoai.html` · nhãn git `v2.0-thu4`. Máy chủ (cơ sở dữ liệu, Edge Function) không đổi so với 2.0-thu3.
+
+**Sửa so với 2.0-thu3**
+
+- Chức danh `CKI`, `CKII`, `CK1`, `CK2` viết không có dấu chấm (vd "BS. CKII Phạm Ngọc Tảo") trước đây bị tính là một phần của tên, cho ra tên đăng nhập sai. Nay được bỏ đúng: `PNTao`.
+- Người tên hai chữ cái (Vũ, Mỹ, My) có mật khẩu ban đầu `Vu@1234` chỉ 7 ký tự, bị từ chối vì dưới 8 ký tự. Nay thêm một số: `Vu@12345`.
+
+**Đã thử:** dán danh sách 30 người của khoa (lấy từ sơ đồ tổ chức) vào mục Tài khoản trên máy chủ giả lập. Tên đăng nhập không trùng, mật khẩu đều đủ 8 ký tự, vai trò đúng; tạo đủ 29 tài khoản (một dòng `qt` chỉ thêm vào danh sách bác sĩ); 15 bác sĩ được đưa vào danh sách bác sĩ phụ trách. Chưa tạo trên máy chủ thật.
+
+---
+
 ## 2.0-thu3 — 14/10/2026 — Đăng nhập bằng mã, phân quyền theo vai trò, dùng được trên iPhone/iPad
 
 - **File:** `phien-ban/v2.0-thu3/` (app, `chung.html`, `icon-180.png`, `thiet-lap.sql`, `quan-ly-tai-khoan/index.ts`) · nhãn git `v2.0-thu3`
