@@ -49,6 +49,29 @@ Trong danh sách tài khoản: đổi vai trò bằng ô chọn; **Khóa** để
 
 Mật khẩu theo quy ước `Tên@1234` dễ đoán. Vì vậy app bắt đổi ở lần đăng nhập đầu; nên phát phiếu và nhắc mọi người đăng nhập sớm để đổi.
 
+## Cập nhật bệnh mới từ phần mềm bệnh viện (máy bàn)
+
+Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để nhập tay như cũ; nút này ẩn trên màn hình nhỏ.
+
+1. Trong phần mềm bệnh viện, xuất **Danh sách bệnh nhân hiện diện** của khoa ra file Excel, đặt tên **a**, lưu vào thư mục **Downloads (Tải xuống)**. Nếu đã có file a cũ thì **lưu đè**, đừng để thành "a (1)".
+2. Trong app, bấm **Cập nhật bệnh mới** (cạnh nút "+ Nhận bệnh").
+   - Lần đầu: chọn file `a.xls` trong thư mục Tải xuống. Chrome, Edge sẽ nhớ file này cho những lần sau; mỗi lần mở lại trình duyệt có thể hỏi "Cho phép xem tệp?" một lần, bấm Cho phép.
+3. App so danh sách trong file với sơ đồ:
+   - **Không có bệnh mới:** app báo "Không có bệnh mới".
+   - **Có bệnh mới (tối đa 10 người):** mở lần lượt bảng nhận bệnh cho từng người, đã điền sẵn họ tên, năm sinh, giới, mã bệnh nhân, ngày vào, mã ICD, nơi chuyển đến; chuyên khoa được **gợi ý theo mã ICD** (N… → Niệu; S06, I60–I62… → Thần kinh; còn lại → Tiêu hóa). Kiểm tra, chọn giường theo gợi ý hoặc tự chọn, rồi bấm **Lưu & xếp giường**. "Bỏ qua người này" để nhận sau; "Dừng lại" để xem bảng đối chiếu.
+   - **Nhiều hơn 10 người** (ví dụ lần đầu đưa cả khoa vào): app hiện danh sách trước. Có thể xếp giường lần lượt, hoặc **đưa tất cả vào danh sách chờ giường** rồi xếp dần.
+4. Bảng **Cần đối chiếu** liệt kê:
+   - Ca **nhập tay** trùng họ tên và năm sinh với danh sách bệnh viện → **Gắn mã** (từ đó tự đối chiếu được).
+   - Họ tên, năm sinh, giới **khác với** danh sách bệnh viện → **Sửa theo bệnh viện**.
+   - Có trên sơ đồ nhưng **không còn** trong danh sách bệnh viện → có thể đã ra viện/chuyển khoa → **Ra khoa…**.
+   - Nhập tay chưa có mã và không tìm thấy trong danh sách → kiểm tra lại.
+   - Đã cho ra khoa trên sơ đồ nhưng **vẫn còn** trong danh sách bệnh viện → kiểm tra phần mềm bệnh viện.
+   - Nếu file không phải vừa xuất (cũ hơn 2 giờ hoặc khác ngày), app nhắc xuất lại.
+
+File chỉ được đọc trong trình duyệt của máy đó. Chỉ những người được bấm Lưu mới được đưa lên sơ đồ chung. Bộ đọc file Excel (SheetJS) được tải từ internet ở lần dùng đầu tiên.
+
+**Danh sách khoa:** "Khoa chuyển đến" khi nhận bệnh và "Chuyển đến khoa" khi chuyển khoa chọn từ danh sách khoa trong Cài đặt (mục 4). Khoa mới xuất hiện trong file a được tự thêm vào; quản trị viên bổ sung các khoa còn thiếu.
+
 ## Cấu hình máy tối thiểu
 
 **Máy tính bàn hoặc xách tay**
@@ -59,6 +82,7 @@ Mật khẩu theo quy ước `Tên@1234` dễ đoán. Vì vậy app bắt đổi
 - Bản dùng chung cần internet ổn định; lưu lượng nhỏ, khoảng vài chục MB mỗi ngày mỗi máy. Bản một máy không cần mạng.
 - Máy in A4 nếu cần in danh sách.
 - Windows 7, 8.1: Chrome và Edge đã ngừng cập nhật từ đầu năm 2023. App có thể vẫn chạy nhưng không an toàn, không khuyên dùng.
+- **Máy ở quầy khoa hiện tại** (15/10/2026): Windows 7 Ultimate SP1, Pentium Dual-Core E5200 2,5 GHz, RAM 3 GB. Bác sĩ đã mở được link và chạy thử. Chrome cao nhất trên Windows 7 là bản 109, vẫn đủ cho app, kể cả nút "Cập nhật bệnh mới". Nhưng trình duyệt này không còn được vá lỗi bảo mật, nên khi bệnh viện thay máy, ưu tiên Windows 10/11.
 
 **iPhone, iPad, điện thoại Android**
 

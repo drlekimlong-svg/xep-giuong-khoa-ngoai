@@ -23,6 +23,51 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.1-thu1 — 15/10/2026 — Lấy bệnh mới từ phần mềm bệnh viện, phân khu mới, phòng dự phòng, danh sách khoa
+
+- **File:** `phien-ban/v2.1-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.1-thu1`. Máy chủ: cơ sở dữ liệu và Edge Function không đổi; sơ đồ chung trên máy chủ được cập nhật phân khu mới (lúc đó chưa có người bệnh nào).
+
+**Mới so với 2.0-thu4**
+
+- **Phân khu mới** (bác sĩ quyết định 15/10/2026):
+  - Niệu: 612 (Nam), 614 (Nữ), 610 (linh hoạt), 609 (Nam), 608 (Nữ), 607 (linh hoạt), tổng 23 giường.
+  - Tiêu hóa và Thần kinh: các phòng còn lại, giới như cũ, 618 thành Nam; tổng 42 giường, kể cả 619.
+  - Tạm bỏ chuyên khoa Lồng ngực – Mạch máu (ẩn khỏi lựa chọn, hồ sơ cũ vẫn giữ).
+  - Kiểm tra "Niệu đủ phòng Nam/Nữ" nay chỉ xét phòng 3, 4, 6 giường.
+- **Phòng dự phòng** (619): chỉ được gợi ý khi các phòng khác đã hết giường đúng giới. Có thẻ "Dự phòng" trên sơ đồ, cảnh báo khi tự chọn, nhắc chuyển ra khi có giường thường. Bật/tắt trong Cài đặt.
+- **Nút "Cập nhật bệnh mới"** (máy bàn), đọc file `a.xls` (Danh sách bệnh nhân hiện diện) xuất từ phần mềm bệnh viện:
+  - Nhận ra các cột theo nội dung, vì file không có dòng tiêu đề.
+  - Bệnh mới mở lần lượt bảng nhận bệnh điền sẵn, gợi ý chuyên khoa theo ICD, gợi ý giường; nhiều hơn 10 người thì hiện danh sách trước, có nút đưa tất cả vào danh sách chờ.
+  - Bảng đối chiếu: ca nhập tay trùng tên (gắn mã), thông tin sai khác (sửa theo bệnh viện), người không còn trong danh sách (ra khoa), người đã ra khoa nhưng vẫn còn trong danh sách.
+  - Nhắc khi file cũ; Chrome/Edge nhớ file đã chọn.
+- **Mã bệnh nhân** của phần mềm bệnh viện: lưu cho từng người, nhập tay được, chặn trùng mã, có trong file Excel xuất ra và tìm kiếm được.
+- **Danh sách khoa:** "Khoa chuyển đến" khi nhận bệnh, "Chuyển đến khoa" (bắt buộc) khi chuyển khoa; hiện trong hồ sơ, lịch sử, file Excel. Sửa trong Cài đặt mục 4; khoa mới trong file a được tự thêm.
+
+**Đã thử**
+
+- **Với file thử cùng cấu trúc, tên giả** (8 người), ở bản một máy trên khổ màn hình máy bàn:
+  - Bệnh mới mở lần lượt và điền sẵn đúng; lưu, bỏ qua, dừng giữa chừng đều đúng.
+  - Ca nhập tay được nhận ra và gắn mã; sai năm sinh được báo và sửa; người không còn trong danh sách được báo.
+  - "Đưa tất cả vào danh sách chờ" chạy đúng; khoa mới "Nội Thận" được tự thêm.
+- **Phòng 619:** không nằm trong 6 gợi ý đầu khi còn giường khác; tự chọn có cảnh báo; có đề xuất "rời phòng dự phòng".
+- **Chuyển khoa:** bắt buộc ghi khoa; hiện trong lịch sử.
+- **Với file `a.xls` thật của khoa** (đọc trên máy này, không lưu, không gửi đi): nhận đủ 50 người; mã, năm sinh, giới, giờ vào, khoa chuyển đến khớp với file; gợi ý 31 Tiêu hóa, 17 Niệu, 2 Thần kinh.
+
+**Chưa thử**
+
+- Chưa thử trên máy ở khoa (Windows 7, Chrome 109), nhất là bước Chrome nhớ file a.
+- Chưa thử ở bản dùng chung với tài khoản điều dưỡng thật.
+- Chưa thử với file có người bệnh mới thật xen giữa người cũ.
+
+**Hạn chế đã biết**
+
+- Phần mềm bệnh viện không xuất chẩn đoán bằng chữ và bác sĩ phụ trách, nên chỉ có mã ICD; cần gõ thêm nếu muốn.
+- Gợi ý chuyên khoa theo ICD có thể sai, ví dụ chấn thương cột sống thắt lưng S32; người nhận bệnh phải kiểm tra.
+- Bộ đọc Excel tải từ internet (cdn.sheetjs.com) ở lần dùng đầu; mất mạng thì không đọc được file, vẫn nhập tay được.
+- Khi đã nhập tên người bệnh thật lên bản dùng chung, dữ liệu nằm trên máy chủ Supabase ở Singapore; cần bệnh viện đồng ý.
+
+---
+
 ## 2.0-thu4 — 14/10/2026 — Sửa cách tạo tên đăng nhập và mật khẩu ban đầu
 
 - **File:** `phien-ban/v2.0-thu4/XepGiuong_KhoaNgoai.html` · nhãn git `v2.0-thu4`. Máy chủ (cơ sở dữ liệu, Edge Function) không đổi so với 2.0-thu3.
