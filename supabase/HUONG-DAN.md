@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.0-thu3 (14/10/2026).
+Cập nhật cho bản 2.2-thu1 (15/10/2026).
 
 ## Địa chỉ
 
@@ -25,8 +25,9 @@ Phía sau, tên đăng nhập được đổi thành một địa chỉ nội b�
 
 | Việc | Quản trị | Điều dưỡng | Bác sĩ | Chỉ xem |
 |---|:-:|:-:|:-:|:-:|
-| Xem sơ đồ, danh sách, in, xuất Excel, lịch sử | ✓ | ✓ | ✓ | ✓ |
+| Xem sơ đồ, danh sách, báo cáo, in, xuất Excel, lịch sử | ✓ | ✓ | ✓ | ✓ |
 | Sửa, bổ sung thông tin người bệnh | ✓ | ✓ | ✓ | |
+| Ghi báo cáo bệnh trong ngày (giao ca) | ✓ | ✓ | | |
 | Nhận bệnh, xếp và chuyển giường, đi mổ, ra khoa, hoàn tác | ✓ | ✓ | | |
 | Tải file sao lưu | ✓ | ✓ | | |
 | Cài đặt (phân khu, giới phòng, phòng dịch vụ, tên khoa) | ✓ | | | |
@@ -71,6 +72,26 @@ Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để n
 File chỉ được đọc trong trình duyệt của máy đó. Chỉ những người được bấm Lưu mới được đưa lên sơ đồ chung. Bộ đọc file Excel (SheetJS) được tải từ internet ở lần dùng đầu tiên.
 
 **Danh sách khoa:** "Khoa chuyển đến" khi nhận bệnh và "Chuyển đến khoa" khi chuyển khoa chọn từ danh sách khoa trong Cài đặt (mục 4). Khoa mới xuất hiện trong file a được tự thêm vào; quản trị viên bổ sung các khoa còn thiếu.
+
+## Báo cáo bệnh trong ngày (giao ca 7 giờ)
+
+Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
+
+- **Kỳ báo cáo** từ 7:00 hôm trước đến 7:00 ngày báo cáo. Mở buổi sáng là báo cáo vừa chốt lúc 7 giờ; từ trưa trở đi là báo cáo của ca đang chạy, để trực đêm ghi dần. "Ngày trước / Ngày sau" để xem lại, tối đa 45 ngày.
+- **Phần app tự tính**, từ giờ vào khoa và giờ ra khoa đã ghi trên sơ đồ:
+  - Bảng tổng hợp: cũ đầu kỳ, nhập mới, khoa khác chuyển đến, từng hình thức ra khoa, còn cuối kỳ, kèm dòng đối chiếu.
+  - Danh sách người bệnh mới; danh sách xuất viện, chuyển khoa, chuyển viện, tử vong, ra khoa khác.
+- **Phần điều dưỡng ghi** (ô nền vàng, tự lưu sau khi gõ):
+  - Người giao, người nhận.
+  - Tình trạng và việc cần theo dõi của người bệnh mới; tình trạng, hồ sơ đã bàn giao của người ra viện.
+  - Sự việc trong ca trực: bấm "+ Thêm" ở đúng nhóm; nhóm không có gì sẽ in "Không ghi nhận trong ca trực".
+  - Công việc cần tiếp tục.
+- **In / Lưu PDF** ra khổ A4, có chỗ ký của hai bên.
+- **Để số liệu đúng:**
+  - Khi nhận bệnh, ghi đúng giờ vào khoa. Mặc định là lúc nhận; bấm "Cập nhật bệnh mới" thì lấy giờ từ phần mềm bệnh viện.
+  - Khi cho ra khoa, đi mổ mà ghi muộn, sửa lại ô "Thời điểm" cho đúng giờ thật.
+  - Trước khi in báo cáo, nên bấm "Cập nhật bệnh mới" để biết người nào đã ra viện trên phần mềm bệnh viện mà chưa ra khoa trên sơ đồ.
+- **Danh sách điều dưỡng** để chọn người giao, người nhận nằm ở Cài đặt mục 3, cạnh danh sách bác sĩ.
 
 ## Cấu hình máy tối thiểu
 

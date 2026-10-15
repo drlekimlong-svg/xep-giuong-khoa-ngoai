@@ -243,6 +243,31 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
   .seg button{padding:10px 14px}
   input,select,textarea{font-size:16px}
 }
+/* ---- báo cáo bệnh trong ngày (giao ca) ---- */
+.btn.menu{display:block;width:100%;text-align:left;white-space:normal;padding:12px 14px;margin-bottom:10px;font-weight:400}
+.btn.menu b{font-size:15.5px} .btn.menu small{color:var(--muted);font-size:13px}
+.rp h4{font-size:13.5px;margin:10px 0 4px}
+.rp-note{font-size:12px;margin:4px 0 2px}
+.rp p.none{margin:6px 0}
+.rp tr.grp td{background:#f1f3f5;font-weight:700}
+.rp table.sum th{text-align:center;font-size:11.5px}
+.who2{display:flex;flex-wrap:wrap;justify-content:space-between;margin:6px 0 4px}
+.who2>div{flex:1 1 45%;margin:2px 8px 2px 0}
+.shf .dots{color:#777}
+.sig{display:flex;justify-content:space-around;text-align:center;margin-top:18px;page-break-inside:avoid}
+.sig>div{width:40%} .sig .sgap{height:64px}
+.shf.edit table{min-width:860px}
+.shf.edit .rpf{width:100%;border:1px solid #d9c56b;border-radius:5px;padding:4px 6px;background:#fffbe6;font:inherit;font-size:13px;min-width:90px}
+.shf.edit textarea.rpf{resize:vertical;min-width:130px}
+.shf.edit td.tm .rpf{width:64px;min-width:0}
+.shf.edit .who2 .rpf{width:auto;min-width:220px;max-width:100%}
+@media (pointer:coarse){.shf.edit .rpf{font-size:16px}}
+.fld select{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+.fld .dt{display:flex}
+.fld .dt input[type=text]{flex:1;width:auto;min-width:0}
+.fld .dt input[type=text]+input[type=text]{flex:none;width:96px;margin-left:6px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:900px){.two{grid-template-columns:1fr}}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
 @media print{
@@ -263,7 +288,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
     <input id="q" type="search" placeholder="Tìm người bệnh / bác sĩ…" autocomplete="off">
     <button class="btn primary big" data-act="new">+ Nhận bệnh</button>
     <button class="btn desk-only" data-act="importHis" title="Đọc file a.xls xuất từ phần mềm bệnh viện để thêm bệnh mới">Cập nhật bệnh mới</button>
-    <button class="btn" data-act="report">Danh sách ngày</button>
+    <button class="btn" data-act="report">Báo cáo</button>
     <button class="btn" data-act="history">Lịch sử</button>
     <button class="btn" data-act="settings">Cài đặt</button>
     <span id="userBox" class="userbox"></span>
@@ -327,7 +352,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.1-thu1', VERSION_DATE = '15/10/2026';
+var VERSION = '2.2-thu1', VERSION_DATE = '15/10/2026';
 var KEY = 'xepgiuong.khoangoai.v1';
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
@@ -338,7 +363,8 @@ var ACCOUNT_FN = '/functions/v1/quan-ly-tai-khoan';
 var ROLE_NAMES = {admin: 'Quản trị', nurse: 'Điều dưỡng', doctor: 'Bác sĩ', view: 'Chỉ xem'};
 var ROLE_ACTS = {
   nurse: ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait', 'undo', 'backup',
-    'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick'],
+    'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick',
+    'repEdit', 'repAddEv', 'repDelEv'],   // ghi báo cáo giao ca
   doctor: ['edit', 'saveForm'],   // bác sĩ: xem và bổ sung thông tin, không nhận bệnh, không xếp giường
   view: []
 };
@@ -346,7 +372,8 @@ var ROLE_ACTS = {
 var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
   'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
   'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock',
-  'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick'];
+  'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick',
+  'repEdit', 'repAddEv', 'repDelEv'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
 // Một file chạy được ba kiểu, chọn bằng cách mở:
@@ -370,6 +397,8 @@ var DEFAULT_WARD = 'Khoa Ngoại – Bệnh viện An Bình';
 
 var SNAP_KEY = KEY + '.snap', NO_DOC = '\u0001';
 var SAMPLE_DOCTORS = ['Bác sĩ A', 'Bác sĩ B', 'Bác sĩ C', 'Bác sĩ D', 'Bác sĩ E'];
+var SAMPLE_NURSES = ['Điều dưỡng A', 'Điều dưỡng B', 'Điều dưỡng C'];
+var OTHER_DOC = '__khac__';   // mục Khác (gõ tên) trong ô chọn bác sĩ
 // Nơi nhận bệnh về khoa và hình thức ra khoa. "MO" (đi mổ) không phải ra hẳn: người bệnh tạm vắng, giường được giữ.
 var SOURCES = [['CC', 'Cấp cứu'], ['PK', 'Phòng khám'], ['KK', 'Khoa khác / phòng mổ']];
 var OUT_TYPES = [['XV', 'Xuất viện'], ['CK', 'Chuyển khoa khác'], ['MO', 'Chuyển đi mổ'], ['XVE', 'Xin về'], ['CV', 'Chuyển viện'], ['TV', 'Tử vong']];
@@ -380,6 +409,9 @@ var outForm = null;
 // Trạng thái dùng chung: cloud = cấu hình Supabase (null nếu là bản một máy); session = người đang đăng nhập.
 var cloud = null, session = null, remoteVersion = 0, pushing = false, dirty = false, refreshing = null;
 var syncState = '', syncAt = '', pollTimer = null, retryTimer = null, retryDelay = 5000;
+// Phần ghi báo cáo giao ca chưa được máy chủ xác nhận: nếu máy khác lưu trước thì ghi lại từng ô lên sơ đồ mới,
+// không bắt người dùng gõ lại. Chỉ làm được khi từ lần lưu thành công gần nhất không có thao tác nào khác (replayOK).
+var replay = [], replayOK = true;
 var state, form = null, query = '', reportBy = 'spec', reportDoctor = '', storageOK = true, savedAt = '', toastTimer = null;
 
 /* ================= DỮ LIỆU ================= */
@@ -414,7 +446,9 @@ function defaultState() {
       {id: 'LNMM', name: 'LN-MM', zone: 'TH', hidden: true}   // tạm bỏ (15/10/2026); giữ lại cho hồ sơ cũ
     ],
     doctors: [],
+    nurses: [],           // điều dưỡng: để chọn người giao, người nhận trong báo cáo giao ca
     depts: DEFAULT_DEPTS.slice(),
+    reports: {},          // báo cáo bệnh trong ngày: phần điều dưỡng ghi, theo ngày báo cáo
     patients: [],
     discharged: [],
     log: [],
@@ -459,7 +493,8 @@ function save() {
   }
   if (storageOK) savedAt = pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
-function commit() {
+function commit(fromReport) {
+  if (!fromReport) replayOK = false;
   if (cloud) { render(); push(); return; }
   dailySnapshot(); save(); dailyFile(); render();
 }
@@ -662,6 +697,7 @@ function signOut(msg) {
   var shown = session && (session.loginId || session.email);
   session = null; saveSession();
   clearInterval(pollTimer); clearTimeout(retryTimer); pushing = false; dirty = false; remoteVersion = 0; syncState = '';
+  replay = []; replayOK = true; shift.ops = [];
   state = defaultState(); closeModal(); $('pwbox').hidden = true; render();
   if (shown || email) $('l_email').value = shown || email;
   showLogin(msg);
@@ -676,7 +712,7 @@ function push() {
     pushing = false;
     if (!rows || !rows.length) return conflict();
     remoteVersion = rows[0].version;
-    if (dirty) push(); else setSync('ok');
+    if (dirty) push(); else { replay = []; replayOK = true; setSync('ok'); }
   }).catch(function (e) {
     pushing = false;
     if (e.auth) { signOut('Phiên đăng nhập đã hết hạn, xin đăng nhập lại.'); return; }
@@ -687,7 +723,7 @@ function push() {
 }
 // Máy chủ từ chối vì không đủ quyền (vd quản trị viên vừa đổi vai trò của người này): lấy lại vai trò và sơ đồ.
 function denied(msg) {
-  dirty = false;
+  dirty = false; replay = []; replayOK = true;
   return api('GET', '/rest/v1/staff?select=full_name,role&user_id=eq.' + encodeURIComponent(session.uid)).then(function (rows) {
     if (rows && rows[0]) { session.role = rows[0].role; session.name = rows[0].full_name; saveSession(); }
   }, function () {}).then(function () { return pull(true); }).then(function () {
@@ -698,7 +734,14 @@ function denied(msg) {
 // Máy khác đã lưu trước: bỏ thay đổi chưa lưu của máy này, lấy lại sơ đồ mới nhất.
 function conflict() {
   dirty = false;
+  var again = replayOK && replay.length ? replay : null;
+  replay = []; replayOK = true;
   return pull(true).then(function () {
+    if (again && session) {   // chỉ có phần ghi báo cáo: ghi lại lên sơ đồ mới rồi lưu tiếp
+      again.forEach(function (f) { f(); });
+      replay = again; render(); shiftRefresh(); push();
+      return;
+    }
     closeModal();
     alert('Máy khác vừa cập nhật sơ đồ trước bạn.\nThao tác vừa rồi của bạn CHƯA được lưu. Xin xem lại sơ đồ và làm lại nếu cần.');
   });
@@ -709,6 +752,7 @@ function pull(force) {
     if (!force && (pushing || dirty)) return;   // máy này đang có thay đổi chờ lưu
     state = migrate(rows[0].data); remoteVersion = rows[0].version;
     render(); if (form) refreshSug();
+    shiftRefresh();
     setSync('ok');
   });
 }
@@ -891,8 +935,9 @@ function accCreate() {
     var added = 0;
     acc.preview.forEach(function (r) {
       if ((r.role === 'doctor' && r.status === 'ok') || r.role === 'qt') { if (state.doctors.indexOf(r.name) < 0) { state.doctors.push(r.name); added++; } }
+      if (r.role === 'nurse' && r.status === 'ok' && state.nurses.indexOf(r.name) < 0) { state.nurses.push(r.name); added++; }
     });
-    if (added) { addLog('Thêm ' + added + ' bác sĩ vào danh sách bác sĩ phụ trách'); commit(); }
+    if (added) { addLog('Thêm ' + added + ' người vào danh sách bác sĩ, điều dưỡng của khoa'); commit(); }
     return loadAccounts();
   }).catch(accFail);
 }
@@ -968,6 +1013,21 @@ function pad(n) { return (n < 10 ? '0' : '') + n; }
 function ymd(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
 function today() { return ymd(new Date()); }
 function nowStamp() { var d = new Date(); return fmtDate(ymd(d)) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function nowHM() { var d = new Date(); return pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function nowTs() { return today() + ' ' + nowHM(); }
+function addDays(day, n) { var a = String(day).split('-'); return ymd(new Date(+a[0], +a[1] - 1, +a[2] + n)); }
+// Nhận "14:30", "14h30", "14g30", "7", "0730"; để trống = ''; sai = null.
+function parseTime(s) {
+  s = String(s || '').trim().toLowerCase();
+  if (!s) return '';
+  var m = /^(\d{1,2})(?:\s*[:hg.]\s*(\d{1,2})?)?$/.exec(s) || /^(\d{2})(\d{2})$/.exec(s);
+  if (!m) return null;
+  var h = +m[1], mi = m[2] ? +m[2] : 0;
+  return h < 24 && mi < 60 ? pad(h) + ':' + pad(mi) : null;
+}
+function hisTime(s) { var m = /(\d{1,2}):(\d{2})/.exec(s || ''); return m && +m[1] < 24 && +m[2] < 60 ? pad(+m[1]) + ':' + m[2] : ''; }
+// Thời điểm "yyyy-mm-dd hh:mm" sau hiện tại quá 15 phút (cho phép lệch đồng hồ giữa các máy).
+function futureTs(ts) { var d = new Date(Date.now() + 15 * 60000); return ts > ymd(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
 function fmtDate(s) { if (!s) return ''; var a = String(s).split('-'); return a.length === 3 ? a[2] + '/' + a[1] + '/' + a[0] : s; }
 // Nhận "12/10/2026" (ngày/tháng/năm); để trống = hôm nay; sai định dạng hoặc ngày tương lai = null.
 function parseDate(s) {
@@ -1362,13 +1422,18 @@ function renderFoot() {
 
 /* ================= HỘP THOẠI ================= */
 function showModal(html, cls) {
+  if (shift.ops.length) repFlush();
   $('modal').className = 'modal' + (cls ? ' ' + cls : '');
   $('modal').innerHTML = html;
   $('overlay').hidden = false;
   $('overlay').scrollTop = 0;
   applyPerms($('modal'));
 }
-function closeModal() { $('overlay').hidden = true; $('modal').innerHTML = ''; form = null; }
+function closeModal() {
+  if (shift.ops.length) repFlush();
+  shift.day = null;
+  $('overlay').hidden = true; $('modal').innerHTML = ''; form = null;
+}
 function mhead(title) { return '<div class="mhead"><h2>' + title + '</h2><button class="x" data-act="close" title="Đóng">×</button></div>'; }
 function field(label, inner) { return '<div class="fld"><label>' + label + '</label>' + inner + '</div>'; }
 function seg(name, options, val) {
@@ -1388,6 +1453,16 @@ function doctorNames() {
   return a;
 }
 
+// Bấm chọn bác sĩ trong danh sách của khoa (Cài đặt mục 3); tên chưa có trong danh sách thì chọn "Khác" rồi gõ.
+function doctorSelect(val) {
+  var names = doctorNames(), other = !!val && names.indexOf(val) < 0;
+  return '<select id="f_doctor"><option value="">— chưa ghi —</option>' + names.map(function (n) {
+      return '<option value="' + esc(n) + '"' + (n === val ? ' selected' : '') + '>' + esc(n) + '</option>';
+    }).join('') + '<option value="' + OTHER_DOC + '"' + (other ? ' selected' : '') + '>Khác (gõ tên)…</option></select>' +
+    '<input id="f_doctorOther" type="text" placeholder="Họ tên bác sĩ" value="' + (other ? esc(val) : '') + '" autocomplete="off" style="margin-top:6px"' + (other ? '' : ' hidden') + '>' +
+    (state.doctors.length ? '' : '<p class="hint">Chưa có danh sách bác sĩ của khoa – quản trị viên thêm ở Cài đặt, mục 3.</p>');
+}
+
 /* ---- nhận bệnh / sửa / chuyển giường ---- */
 function openForm(mode, opt) {
   opt = opt || {};
@@ -1398,6 +1473,7 @@ function openForm(mode, opt) {
     gender: p ? p.gender : pre ? pre.gender : '', spec: p ? p.spec : pre ? pre.spec : '',
     doctor: p ? p.doctor : '', want: p ? p.want : 0, dx: p ? p.dx : pre ? pre.icd : '', note: p ? p.note : '',
     date: p ? p.admittedAt : pre && pre.admitAt ? pre.admitAt : today(), src: p ? p.src || '' : pre ? pre.src : '',
+    time: p ? p.admitTime || '' : pre ? pre.admitTime || '' : nowHM(),
     srcDept: p ? p.srcDept || '' : pre ? pre.srcDept : '', hisCode: p ? p.hisCode || '' : pre ? pre.code : '',
     fromImport: !!pre,
     pick: opt.room ? {room: opt.room, bed: opt.bed} : null,
@@ -1425,9 +1501,9 @@ function openForm(mode, opt) {
       field('Mã bệnh nhân (phần mềm bệnh viện)', '<input id="f_code" type="text" value="' + esc(f.hisCode) + '" autocomplete="off" inputmode="numeric">') + '</div>' +
       field('Loại phòng người bệnh yêu cầu', seg('want', wants, f.want)) +
       '<div class="grid2">' +
-      field('Bác sĩ phụ trách', '<input id="f_doctor" type="text" list="dl_doctor" value="' + esc(f.doctor) + '" autocomplete="off"><datalist id="dl_doctor">' +
-        doctorNames().map(function (n) { return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>') +
-      field('Ngày vào khoa (ngày/tháng/năm)', '<input id="f_date" type="text" placeholder="dd/mm/yyyy" value="' + esc(fmtDate(f.date)) + '" autocomplete="off">') + '</div>' +
+      field('Bác sĩ phụ trách', doctorSelect(f.doctor)) +
+      field('Ngày, giờ vào khoa', '<div class="dt"><input id="f_date" type="text" placeholder="ngày/tháng/năm" value="' + esc(fmtDate(f.date)) + '" autocomplete="off">' +
+        '<input id="f_time" type="text" placeholder="giờ:phút" value="' + esc(f.time) + '" autocomplete="off"></div>') + '</div>' +
       field('Chẩn đoán', '<input id="f_dx" type="text" value="' + esc(f.dx) + '" autocomplete="off">') +
       field('Ghi chú', '<input id="f_note" type="text" value="' + esc(f.note) + '" autocomplete="off">');
   }
@@ -1488,6 +1564,7 @@ function pickSummary(p) {
   return '➜ Xếp vào <b>phòng ' + rm.id + ' – giường ' + f.pick.bed + '</b> (phòng ' + rm.size + ' giường' + (rm.svc ? ' dịch vụ' : '') + ', khu ' + ZONES[rm.zone] + ')' + (w.length ? '<br>' + w.join('<br>') : '');
 }
 function addDoctor(n) { if (n && state.doctors.indexOf(n) < 0) state.doctors.push(n); }
+function addNurse(n) { if (n && state.nurses.indexOf(n) < 0) state.nurses.push(n); }
 function addDept(n) { if (n && state.depts.indexOf(n) < 0) state.depts.push(n); }
 function deptDatalist() { return '<datalist id="dl_dept">' + state.depts.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>'; }
 function saveForm() {
@@ -1497,7 +1574,7 @@ function saveForm() {
   if (f.mode !== 'move') {
     f.name = $('f_name').value.replace(/\s+/g, ' ').trim();
     f.yob = $('f_yob').value.trim();
-    f.doctor = $('f_doctor').value.replace(/\s+/g, ' ').trim();
+    f.doctor = ($('f_doctor').value === OTHER_DOC ? $('f_doctorOther').value : $('f_doctor').value).replace(/\s+/g, ' ').trim();
     f.dx = $('f_dx').value.trim();
     f.note = $('f_note').value.trim();
     f.srcDept = $('f_srcDept').value.replace(/\s+/g, ' ').trim();
@@ -1505,6 +1582,11 @@ function saveForm() {
     var dt = parseDate($('f_date').value);
     if (!dt) return fail('Ngày vào khoa chưa đúng, hãy ghi theo dạng ngày/tháng/năm, ví dụ ' + fmtDate(today()) + '.');
     f.date = dt;
+    var tm = parseTime($('f_time').value);
+    if (tm === null) return fail('Giờ vào khoa chưa đúng, hãy ghi giờ:phút, ví dụ 14:30.');
+    if (!tm && f.mode === 'new') return fail('Chưa ghi giờ vào khoa (cần cho báo cáo giao ca).');
+    if (tm && futureTs(dt + ' ' + tm)) return fail('Giờ vào khoa đang ở sau thời điểm hiện tại.');
+    f.time = tm;
     if (!f.name) return fail('Chưa nhập họ tên.');
     if (!f.gender) return fail('Chưa chọn giới.');
     if (!f.spec) return fail('Chưa chọn chuyên khoa.');
@@ -1515,7 +1597,7 @@ function saveForm() {
   }
   if (f.mode === 'new') {
     p = {id: null, name: f.name, yob: f.yob ? +f.yob : null, gender: f.gender, spec: f.spec, doctor: f.doctor, want: f.want,
-      dx: f.dx, note: f.note, admittedAt: f.date, src: f.src, srcDept: f.srcDept, hisCode: f.hisCode, room: null, bed: null, hold: false};
+      dx: f.dx, note: f.note, admittedAt: f.date, admitTime: f.time, src: f.src, srcDept: f.srcDept, hisCode: f.hisCode, room: null, bed: null, hold: false};
     if (f.pick && f.pick !== 'wait') {
       if (!placeOK(p, f.pick.room, f.pick.bed)) { refreshSug(); return false; }
       p.room = f.pick.room; p.bed = f.pick.bed;
@@ -1532,7 +1614,7 @@ function saveForm() {
   } else if (f.mode === 'edit') {
     p = patientById(f.pid);
     p.name = f.name; p.yob = f.yob ? +f.yob : null; p.gender = f.gender; p.spec = f.spec; p.doctor = f.doctor;
-    p.want = f.want; p.dx = f.dx; p.note = f.note; p.admittedAt = f.date; p.src = f.src; p.srcDept = f.srcDept; p.hisCode = f.hisCode;
+    p.want = f.want; p.dx = f.dx; p.note = f.note; p.admittedAt = f.date; p.admitTime = f.time; p.src = f.src; p.srcDept = f.srcDept; p.hisCode = f.hisCode;
     addDoctor(p.doctor); addDept(p.srcDept);
     addLog('Sửa thông tin: ' + p.name);
     msg = 'Đã lưu thông tin.';
@@ -1567,7 +1649,7 @@ function openPatient(pid) {
     row('Chuyên khoa', '<span class="chip s-' + p.spec + '">' + esc(specName(p.spec)) + '</span>') +
     row('Bác sĩ phụ trách', esc(p.doctor || '—')) +
     row('Chẩn đoán', esc(p.dx || '—')) +
-    row('Ngày vào khoa', fmtDate(p.admittedAt) + ' (ngày thứ ' + dayN(p.admittedAt) + ')') +
+    row('Ngày vào khoa', fmtDate(p.admittedAt) + (p.admitTime ? ' lúc ' + p.admitTime : '') + ' (ngày thứ ' + dayN(p.admittedAt) + ')') +
     row('Nhận từ', esc(labelOf(SOURCES, p.src) || '—') + (p.srcDept ? ' – ' + esc(p.srcDept) : '')) +
     row('Mã bệnh nhân', esc(p.hisCode || '— (chưa có, nhập tay)')) +
     (p.opAt ? row('Đi mổ', 'ngày ' + fmtDate(p.opAt) + (p.away ? ' – chưa về khoa' : '')) : '') +
@@ -1597,6 +1679,8 @@ function openDischarge(pid) {
     (p.room ? 'giường <b>' + bedLabel(p.room, p.bed) + '</b>' : p.away ? '<b>đang đi mổ</b>' : '<b>đang chờ giường</b>') + '</p>' +
     field('Hình thức ra khoa *', seg('outType', types, '')) +
     '<p class="hint" id="out_hint" style="min-height:1.4em;margin-bottom:10px"></p>' +
+    field('Thời điểm (ngày/tháng/năm · giờ:phút)', '<div class="dt"><input id="out_date" type="text" value="' + fmtDate(today()) + '" autocomplete="off">' +
+      '<input id="out_time" type="text" value="' + nowHM() + '" autocomplete="off"></div>') +
     '<div id="out_deptBox" hidden>' + field('Chuyển đến khoa *', '<input id="out_dept" type="text" list="dl_dept" autocomplete="off">' + deptDatalist()) + '</div>' +
     field('Ghi chú (bệnh viện chuyển đến, lý do…)', '<input id="out_note" type="text" autocomplete="off">') +
     '<p id="f_err" class="err"></p></div><div class="mfoot"><button class="btn" data-act="patient" data-pid="' + p.id + '">Quay lại</button>' +
@@ -1609,18 +1693,25 @@ function confirmOut() {
   if (!type) { $('f_err').textContent = 'Chưa chọn hình thức ra khoa.'; return; }
   var dept = type === 'CK' ? $('out_dept').value.replace(/\s+/g, ' ').trim() : '';
   if (type === 'CK' && !dept) { $('f_err').textContent = 'Chưa ghi chuyển đến khoa nào.'; return; }
+  // thời điểm thật sự ra khoa (mặc định là lúc bấm), dùng cho báo cáo giao ca 7 giờ
+  var od = parseDate($('out_date').value), ot = parseTime($('out_time').value), ts = od + ' ' + ot;
+  if (!od) { $('f_err').textContent = 'Ngày chưa đúng, hãy ghi ngày/tháng/năm, ví dụ ' + fmtDate(today()) + '.'; return; }
+  if (!ot) { $('f_err').textContent = 'Giờ chưa đúng, hãy ghi giờ:phút, ví dụ 14:30.'; return; }
+  if (futureTs(ts)) { $('f_err').textContent = 'Thời điểm này đang ở sau hiện tại.'; return; }
+  if (p.admitTime && ts < admitTs(p)) { $('f_err').textContent = 'Thời điểm này sớm hơn lúc vào khoa (' + tsText(admitTs(p)) + ').'; return; }
+  var when = Math.abs(new Date(od.replace(/-/g, '/') + ' ' + ot) - new Date()) > 10 * 60000 ? ' (lúc ' + tsText(ts) + ')' : '';
   var bed = p.room ? bedLabel(p.room, p.bed) : '';
   if (type === 'MO') {
-    p.away = true; p.opAt = today(); p.keepRoom = p.room; p.keepBed = p.bed; p.room = null; p.bed = null; p.hold = false;
-    addLog('Đi mổ: ' + p.name + (bed ? ' · giữ giường ' + bed : '') + (note ? ' · ' + note : ''));
+    p.away = true; p.opAt = od; p.opTime = ot; p.keepRoom = p.room; p.keepBed = p.bed; p.room = null; p.bed = null; p.hold = false;
+    addLog('Đi mổ' + when + ': ' + p.name + (bed ? ' · giữ giường ' + bed : '') + (note ? ' · ' + note : ''));
     closeModal(); commit(); toast(p.name + ' đi mổ' + (bed ? ', giường ' + bed + ' được giữ lại.' : '.'));
     return;
   }
   state.patients = state.patients.filter(function (x) { return x.id !== p.id; });
-  state.discharged.unshift(Object.assign({}, p, {outAt: nowStamp(), outDay: today(), outType: type, outNote: note, outDept: dept}));
+  state.discharged.unshift(Object.assign({}, p, {outAt: fmtDate(od) + ' ' + ot, outDay: od, outType: type, outNote: note, outDept: dept}));
   if (state.discharged.length > 300) state.discharged.length = 300;
   addDept(dept);
-  addLog(label + (dept ? ' → ' + dept : '') + ': ' + p.name + (bed ? ' · trả giường ' + bed : '') + (note ? ' · ' + note : ''));
+  addLog(label + (dept ? ' → ' + dept : '') + when + ': ' + p.name + (bed ? ' · trả giường ' + bed : '') + (note ? ' · ' + note : ''));
   closeModal(); commit();
   var n = transferSuggestions().length;
   toast('Đã ghi nhận ' + p.name + ' – ' + label.toLowerCase() + '.' + (n ? ' Có ' + n + ' đề xuất xếp/chuyển giường.' : ''));
@@ -1643,6 +1734,261 @@ function undoDischarge(pid) {
   addLog('Hoàn tác ra khoa: ' + p.name + ' → ' + (p.away ? 'đang đi mổ' : ok ? bedLabel(p.room, p.bed) : 'chờ giường'));
   commit(); openHistory();
   toast(p.away ? p.name + ' trở lại mục Đang đi mổ.' : ok ? 'Đã đưa ' + p.name + ' về lại giường cũ.' : 'Giường cũ đã có người – ' + p.name + ' được đưa vào danh sách chờ.');
+}
+
+/* ---- báo cáo bệnh trong ngày (giao ca lúc 7 giờ) ---- */
+// Kỳ báo cáo ngày D: từ 7:00 ngày D-1 đến 7:00 ngày D. Số lượng và danh sách tính lại mỗi lần mở, từ giờ vào khoa
+// và giờ ra khoa đã ghi. Phần điều dưỡng ghi thêm (tình trạng, sự việc trong ca trực, bàn giao) nằm ở state.reports[D].
+var REPORT_HOUR = '07:00';
+var EV_CATS = [['NANG', 'Người bệnh nặng, diễn biến bất thường'], ['SUCO', 'Sự cố chăm sóc'], ['ANTT', 'An ninh trật tự'],
+  ['TB', 'Hỏng thiết bị, điện nước'], ['KHAC', 'Vấn đề khác']];
+var OUT_GROUPS = [['XV', 'Xuất viện'], ['CK', 'Chuyển khoa khác'], ['CV', 'Chuyển viện'], ['TV', 'Tử vong'], ['KHAC', 'Ra khoa khác']];
+var shift = {day: null, ops: [], timer: null};
+function outGroup(t) { return t === 'XV' || t === 'CK' || t === 'CV' || t === 'TV' ? t : 'KHAC'; }
+function tsOfStamp(s) { var m = /^(\d{2})\/(\d{2})\/(\d{4}) (\d{2}:\d{2})/.exec(s || ''); return m ? m[3] + '-' + m[2] + '-' + m[1] + ' ' + m[4] : ''; }
+function outTs(d) { return tsOfStamp(d.outAt) || (d.outDay ? d.outDay + ' 12:00' : ''); }
+// Người bệnh nhận trước bản 2.2 chưa có giờ vào khoa: tạm tính là 7:00 ngày vào (không muộn hơn lúc ra khoa).
+function admitTs(p) {
+  var t = (p.admittedAt || '') + ' ' + (p.admitTime || REPORT_HOUR);
+  if (!p.admitTime && p.outAt && outTs(p) < t) t = outTs(p);
+  return t;
+}
+function tsText(ts) { return ts ? ts.slice(11) + ' ' + fmtDate(ts.slice(0, 10)).slice(0, 5) : ''; }
+function hourText() { return +REPORT_HOUR.slice(0, 2) + ' giờ'; }
+// Buổi sáng mở là báo cáo vừa chốt lúc 7 giờ hôm nay; từ trưa trở đi là báo cáo của ca đang chạy (chốt 7 giờ sáng mai).
+function shiftDefaultDay() { return nowHM() < '12:00' ? today() : addDays(today(), 1); }
+function shiftData(D) {
+  var t0 = addDays(D, -1) + ' ' + REPORT_HOUR, t1 = D + ' ' + REPORT_HOUR;
+  var r = {t0: t0, t1: t1, old: 0, end: 0, inNew: [], inTrans: [], out: {}, endSpec: {}, ops: 0, bad: []};
+  OUT_GROUPS.forEach(function (g) { r.out[g[0]] = []; });
+  state.patients.concat(state.discharged).forEach(function (p) {
+    var a = admitTs(p), o = p.outAt ? outTs(p) : '';
+    if (o && o < a) r.bad.push(p);
+    if (a < t0 && (!o || o >= t0)) r.old++;
+    if (a < t1 && (!o || o >= t1)) { r.end++; r.endSpec[p.spec] = (r.endSpec[p.spec] || 0) + 1; }
+    if (a >= t0 && a < t1) (p.src === 'KK' ? r.inTrans : r.inNew).push(p);
+    if (o && o >= t0 && o < t1) r.out[outGroup(p.outType)].push(p);
+    if (p.opAt) { var op = p.opAt + ' ' + (p.opTime || '12:00'); if (op >= t0 && op < t1) r.ops++; }
+  });
+  function byTs(f) { return function (x, y) { var a = f(x), b = f(y); return a < b ? -1 : a > b ? 1 : 0; }; }
+  r.inNew.sort(byTs(admitTs)); r.inTrans.sort(byTs(admitTs));
+  Object.keys(r.out).forEach(function (k) { r.out[k].sort(byTs(outTs)); });
+  return r;
+}
+function repOf(D, make) {
+  if (!state.reports || typeof state.reports !== 'object' || Array.isArray(state.reports)) state.reports = {};
+  var r = state.reports[D];
+  if (!r && make) r = state.reports[D] = {};
+  if (!r) return {nIn: {}, nOut: {}, ev: []};
+  r.nIn = r.nIn || {}; r.nOut = r.nOut || {}; r.ev = r.ev || [];
+  return r;
+}
+// Thay đổi được ghi thành từng ô (không ghi đè cả báo cáo), nên hai máy cùng sửa một báo cáo vẫn không mất phần của nhau.
+function repApply(D, ops) {
+  var r = repOf(D, true);
+  ops.forEach(function (o) {
+    if (o.add) { if (!r.ev.some(function (e) { return e.id === o.add.id; })) r.ev.push(Object.assign({}, o.add)); return; }
+    if (o.del) { r.ev = r.ev.filter(function (e) { return e.id !== o.del; }); return; }
+    var a = o.k.split('.');
+    if (a[0] === 'in') r.nIn[a[1]] = o.v;
+    else if (a[0] === 'out') (r.nOut[a[1]] = r.nOut[a[1]] || {})[a[2]] = o.v;
+    else if (a[0] === 'ev') r.ev.forEach(function (e) { if (e.id === a[1]) e[a[2]] = o.v; });
+    else if (/^(giao|nhan|todo|rcv|at)$/.test(a[0])) r[a[0]] = o.v;
+  });
+  r.by = cloud && session ? session.name : ''; r.ts = nowStamp();
+  var lim = addDays(today(), -45);   // giữ báo cáo của 45 ngày gần nhất
+  Object.keys(state.reports).forEach(function (k) { if (k < lim) delete state.reports[k]; });
+}
+function repQueue(op) {
+  if (op.k) shift.ops = shift.ops.filter(function (o) { return o.k !== op.k; });
+  shift.ops.push(op);
+  clearTimeout(shift.timer); shift.timer = setTimeout(repFlush, 1000);
+}
+// Tự lưu sau khi ngừng gõ 1 giây, khi đổi ngày, khi in và khi đóng bảng.
+function repFlush() {
+  clearTimeout(shift.timer);
+  if (!shift.ops.length || !shift.day || !can('repEdit')) { shift.ops = []; return; }
+  var D = shift.day, ops = shift.ops;
+  shift.ops = [];
+  repApply(D, ops);
+  if (cloud) replay.push(function () { repApply(D, ops); });
+  commit(true);
+}
+function shiftNurses() {
+  var a = (state.nurses || []).slice();
+  if (cloud && session && session.role === 'nurse' && a.indexOf(session.name) < 0) a.unshift(session.name);
+  return a;
+}
+function whereNow(p) {
+  if (p.outAt) return 'Đã ra khoa (' + (labelOf(OUT_TYPES, p.outType) || '').toLowerCase() + ')';
+  return p.room ? bedLabel(p.room, p.bed) : p.away ? 'Đi mổ' : 'Chờ giường';
+}
+function outAutoNote(p) {
+  return [p.outDept ? 'Chuyển đến ' + p.outDept : '', outGroup(p.outType) === 'KHAC' ? labelOf(OUT_TYPES, p.outType) : '', p.outNote || ''].filter(Boolean).join('; ');
+}
+function shiftHTML(D, edit) {
+  var s = shiftData(D), rep = repOf(D, false), parts = state.ward.split(/\s+[–-]\s+/);
+  var khoa = (parts[0] || '').replace(/^Khoa\s+/i, ''), bv = (parts[1] || '').replace(/^Bệnh viện\s+/i, '');
+  var day0 = s.t0.slice(0, 10), nowT = nowTs();
+  function txt(v) { return esc(v || '').replace(/\n/g, '<br>'); }
+  // ô điều dưỡng ghi: ô nhập trên màn hình, chữ khi in
+  function box(k, v, o) {
+    o = o || {};
+    if (!edit) return txt(v) || (o.blank ? '<span class="dots">' + o.blank + '</span>' : '');
+    var a = ' class="rpf" data-k="' + k + '"' + (o.list ? ' list="' + o.list + '"' : '') + (o.ph ? ' placeholder="' + esc(o.ph) + '"' : '');
+    return o.area ? '<textarea rows="' + (o.rows || 2) + '"' + a + '>' + esc(v || '') + '</textarea>'
+      : '<input type="text"' + a + ' value="' + esc(v || '') + '" autocomplete="off">';
+  }
+  function who(p) { return '<b>' + esc(p.name) + '</b>' + (p.hisCode ? ' – ' + esc(p.hisCode) : ''); }
+  function age(p) { return (p.yob ? (+D.slice(0, 4) - p.yob) : '?') + ' / ' + (GENDER[p.gender] || ''); }
+  function admitText(p) { return p.admitTime ? p.admitTime + ' ' + fmtDate(p.admittedAt).slice(0, 5) : fmtDate(p.admittedAt).slice(0, 5) + ' <i>(chưa ghi giờ)</i>'; }
+  var h = '<div class="rp shf' + (edit ? ' edit' : '') + '"><div class="rp-top"><span>Bệnh viện: <b>' + esc(bv || '……………') + '</b> &nbsp; Khoa: <b>' + esc(khoa) + '</b></span>' +
+    (edit ? '' : '<span>In lúc ' + nowStamp() + '</span>') + '</div>' +
+    '<h2>BÁO CÁO BỆNH TRONG NGÀY</h2><p class="rp-sum">Ngày báo cáo: <b>' + fmtDate(D) + '</b> · Từ ' + hourText() + ', ngày ' + fmtDate(day0) +
+    ' đến ' + hourText() + ', ngày ' + fmtDate(D) + '</p>' +
+    (nowT < s.t1 ? '<p class="rp-sum"><i>Kỳ báo cáo chưa kết thúc: số liệu tính đến ' + nowStamp() + '.</i></p>' : '') +
+    '<div class="who2"><div>Điều dưỡng giao: ' + box('giao', rep.giao, {list: 'dl_nurse', blank: '……………………………'}) + '</div>' +
+    '<div>Điều dưỡng nhận: ' + box('nhan', rep.nhan, {list: 'dl_nurse', blank: '……………………………'}) + '</div></div>';
+
+  // 1. tổng hợp số lượng
+  var nOut = 0, outCells = OUT_GROUPS.map(function (g) { nOut += s.out[g[0]].length; return s.out[g[0]].length; });
+  var nIn = s.inNew.length + s.inTrans.length, check = s.old + nIn - nOut;
+  h += '<h3>1. Tổng hợp số lượng người bệnh</h3><table class="sum"><thead><tr><th>Cũ đầu kỳ</th><th>Nhập mới</th><th>Khoa khác chuyển đến</th>' +
+    OUT_GROUPS.map(function (g) { return '<th>' + g[1] + (g[0] === 'KHAC' ? '*' : '') + '</th>'; }).join('') + '<th>Còn cuối kỳ</th></tr></thead><tbody><tr>' +
+    [s.old, s.inNew.length, s.inTrans.length].concat(outCells, [s.end]).map(function (n) { return '<td class="c"><b>' + n + '</b></td>'; }).join('') + '</tr></tbody></table>';
+  var bySrc = {}, other = {};
+  s.inNew.forEach(function (p) { var l = labelOf(SOURCES, p.src) || 'chưa ghi nơi nhận'; bySrc[l] = (bySrc[l] || 0) + 1; });
+  s.out.KHAC.forEach(function (p) { var l = labelOf(OUT_TYPES, p.outType) || 'chưa ghi'; other[l] = (other[l] || 0) + 1; });
+  function list(o) { return Object.keys(o).map(function (k) { return k + ' ' + o[k]; }).join(', '); }
+  var specs = state.specs.filter(function (x) { return s.endSpec[x.id]; }).map(function (x) { return x.name + ' ' + s.endSpec[x.id]; }).join(' · ');
+  h += '<p class="rp-note">* Ra khoa khác: trường hợp không thuộc các nhóm trên' + (s.out.KHAC.length ? ' – ' + esc(list(other)) : '') + '; lý do ghi ở mục 3.5.<br>' +
+    'Đối chiếu: Cũ ' + s.old + ' + Nhập mới ' + s.inNew.length + ' + Chuyển đến ' + s.inTrans.length + ' − Ra ' + nOut + ' = ' + check +
+    (check === s.end ? ' = Còn cuối kỳ ✓' : ' <b>≠ Còn cuối kỳ ' + s.end + ' – kiểm tra lại giờ vào/ra khoa</b>') +
+    (s.inNew.length ? '<br>Nhập mới: ' + esc(list(bySrc)) : '') + (specs ? '<br>Còn cuối kỳ theo chuyên khoa: ' + esc(specs) : '') +
+    (s.ops ? '<br>Đi mổ trong kỳ: ' + s.ops + ' lượt (vẫn tính là người bệnh của khoa).' : '');
+  if (D >= today()) {
+    var z = bedTotals(), total = z.TH.t + z.NIEU.t;
+    var away = state.patients.filter(function (p) { return p.away; }).length, wait = state.patients.filter(function (p) { return !p.room && !p.away; }).length;
+    h += '<br>Lúc ' + nowStamp().slice(11) + ': giường trống ' + (total - z.TH.o - z.NIEU.o) + '/' + total + (away ? ' · đang đi mổ ' + away : '') + (wait ? ' · chờ giường ' + wait : '');
+  }
+  h += '</p>';
+  if (s.bad.length) h += '<p class="rp-note res-bad">Giờ ra khoa sớm hơn giờ vào khoa, cần sửa: ' + s.bad.map(function (p) { return esc(p.name); }).join(', ') + '.</p>';
+
+  // 2. nhập mới, chuyển đến
+  h += '<h3>2. Danh sách người bệnh nhập mới/chuyển đến</h3>';
+  if (!nIn) h += '<p class="none">Không có.</p>';
+  else {
+    h += '<table><thead><tr><th class="c">STT</th><th>Họ tên – mã người bệnh</th><th class="c">Tuổi/giới</th><th class="c">Giờ vào khoa</th><th>Nơi chuyển đến</th>' +
+      '<th>Chẩn đoán</th><th class="c">Buồng/giường</th><th>Tình trạng và việc cần theo dõi</th></tr></thead><tbody>';
+    var i = 0;
+    [['Nhập mới', s.inNew], ['Khoa khác chuyển đến', s.inTrans]].forEach(function (g) {
+      if (!g[1].length) return;
+      h += '<tr class="grp"><td colspan="8">' + g[0] + ' (' + g[1].length + ')</td></tr>';
+      g[1].forEach(function (p) {
+        h += '<tr><td class="c">' + (++i) + '</td><td>' + who(p) + '</td><td class="c">' + age(p) + '</td><td class="c">' + admitText(p) + '</td><td>' +
+          esc(p.srcDept || labelOf(SOURCES, p.src) || '—') + '</td><td>' + esc(p.dx) + '</td><td class="c">' + esc(whereNow(p)) + '</td><td class="w">' +
+          box('in.' + p.id, rep.nIn[p.id], {area: 1}) + '</td></tr>';
+      });
+    });
+    h += '</tbody></table>';
+  }
+
+  // 3. xuất viện; chuyển khoa, chuyển viện, tử vong, ra khoa khác ghi thành nhóm riêng để khớp bảng tổng hợp
+  function outTable(g) {
+    var xv = g === 'XV';
+    var t = '<table><thead><tr><th class="c">STT</th><th>Họ tên – mã người bệnh</th><th class="c">' + (xv ? 'Giờ ra viện' : 'Giờ ra khoa') + '</th><th>Chẩn đoán</th>' +
+      '<th>' + (xv ? 'Tình trạng khi ra viện' : 'Tình trạng khi ra khoa') + '</th><th>Hồ sơ, hướng dẫn đã bàn giao</th><th>Ghi chú</th></tr></thead><tbody>';
+    s.out[g].forEach(function (p, k) {
+      var o = rep.nOut[p.id] || {};
+      t += '<tr><td class="c">' + (k + 1) + '</td><td>' + who(p) + '</td><td class="c">' + tsText(outTs(p)) + '</td><td>' + esc(p.dx) + '</td>' +
+        '<td class="w">' + box('out.' + p.id + '.st', o.st, {area: 1}) + '</td>' +
+        '<td class="w">' + box('out.' + p.id + '.hs', o.hs, {area: 1, ph: xv ? 'giấy ra viện, toa thuốc, hẹn tái khám…' : ''}) + '</td>' +
+        '<td class="w">' + box('out.' + p.id + '.gc', o.gc != null ? o.gc : outAutoNote(p), {area: 1}) + '</td></tr>';
+    });
+    return t + '</tbody></table>';
+  }
+  h += '<h3>3. Danh sách người bệnh xuất viện</h3>';
+  OUT_GROUPS.forEach(function (g, k) {
+    var n = s.out[g[0]].length, title = '3.' + (k + 1) + ' ' + g[1] + (g[0] === 'KHAC' ? ' (xin về…)' : '');
+    h += n ? '<h4>' + title + ' (' + n + ')</h4>' + outTable(g[0]) : '<p class="none"><b>' + title + ':</b> không có.</p>';
+  });
+
+  // 4. đêm trực và sự việc phát sinh
+  h += '<h3>4. Báo cáo đêm trực và sự việc phát sinh</h3>';
+  EV_CATS.forEach(function (c, k) {
+    var evs = rep.ev.filter(function (e) { return e.c === c[0]; }), title = ['a', 'b', 'c', 'd', 'đ'][k] + ') ' + c[1];
+    if (!evs.length) h += '<p class="none"><b>' + title + ':</b> Không ghi nhận trong ca trực.' + (edit ? ' <button class="btn small" data-act="repAddEv" data-c="' + c[0] + '">+ Thêm</button>' : '') + '</p>';
+    else {
+      h += '<h4>' + title + '</h4><table><thead><tr><th class="c">Thời điểm</th><th>Người bệnh/địa điểm liên quan</th><th>Diễn biến hoặc sự việc</th><th>Đã xử trí</th>' +
+        '<th>Đã báo ai, lúc nào</th><th>Kết quả và việc còn bàn giao</th>' + (edit ? '<th></th>' : '') + '</tr></thead><tbody>';
+      evs.forEach(function (e) {
+        var b = 'ev.' + e.id + '.';
+        h += '<tr><td class="c tm">' + box(b + 't', e.t, {ph: 'giờ'}) + '</td><td class="w">' + box(b + 'w', e.w, {list: 'dl_rpPts', ph: 'người bệnh, phòng, nơi xảy ra'}) + '</td>' +
+          '<td class="w">' + box(b + 'x', e.x, {area: 1}) + '</td><td class="w">' + box(b + 'd', e.d, {area: 1}) + '</td><td class="w">' + box(b + 'b', e.b, {area: 1}) + '</td>' +
+          '<td class="w">' + box(b + 'k', e.k, {area: 1}) + '</td>' + (edit ? '<td><button class="btn small danger" data-act="repDelEv" data-id="' + e.id + '" title="Xóa dòng này">×</button></td>' : '') + '</tr>';
+      });
+      h += '</tbody></table>' + (edit ? '<p style="margin-top:4px"><button class="btn small" data-act="repAddEv" data-c="' + c[0] + '">+ Thêm</button></p>' : '');
+    }
+  });
+
+  // cuối trang: việc cần tiếp tục, người tiếp nhận, thời điểm bàn giao, chữ ký hai bên
+  h += '<h3>Công việc cần tiếp tục</h3>' + (edit ? box('todo', rep.todo, {area: 1, rows: 3}) : '<p>' + (txt(rep.todo) || 'Không có.') + '</p>') +
+    '<div class="who2"><div>Người tiếp nhận: ' + box('rcv', edit ? rep.rcv : rep.rcv || rep.nhan, {list: 'dl_nurse', ph: 'để trống = điều dưỡng nhận', blank: '……………………………'}) + '</div>' +
+    '<div>Thời điểm bàn giao: ' + box('at', rep.at != null ? rep.at : REPORT_HOUR + ' ' + fmtDate(D), {blank: '……………'}) + '</div></div>';
+  if (!edit) h += '<div class="sig"><div><b>ĐIỀU DƯỠNG GIAO</b><br><i>(ký, ghi rõ họ tên)</i><div class="sgap"></div>' + esc(rep.giao || '') + '</div>' +
+    '<div><b>ĐIỀU DƯỠNG NHẬN</b><br><i>(ký, ghi rõ họ tên)</i><div class="sgap"></div>' + esc(rep.nhan || '') + '</div></div>';
+  return h + '</div>';
+}
+function shiftLists() {
+  return '<datalist id="dl_nurse">' + shiftNurses().map(function (n) { return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>' +
+    '<datalist id="dl_rpPts">' + state.patients.slice().sort(cmpBed).map(function (p) { return '<option value="' + esc((p.room ? bedLabel(p.room, p.bed) + ' ' : '') + p.name) + '">'; }).join('') + '</datalist>';
+}
+function renderShift() {
+  if (!$('shiftBox')) return;
+  var D = shift.day, edit = can('repEdit'), lo = addDays(today(), -44), hi = addDays(today(), 1);
+  $('shiftNav').innerHTML = '<button class="btn small" data-act="shiftDay" data-n="-1"' + (D <= lo ? ' disabled' : '') + '>‹ Ngày trước</button>' +
+    '<span style="margin:0 10px">Báo cáo ngày <b>' + fmtDate(D) + '</b></span>' +
+    '<button class="btn small" data-act="shiftDay" data-n="1"' + (D >= hi ? ' disabled' : '') + '>Ngày sau ›</button>' +
+    (D !== shiftDefaultDay() ? ' <button class="btn small" data-act="shiftDay" data-n="0">Về báo cáo hiện tại</button>' : '');
+  $('shiftBox').innerHTML = (edit ? '<p class="hint" style="margin-bottom:8px">Số lượng và danh sách được tính tự động từ giờ vào khoa, giờ ra khoa trên sơ đồ. ' +
+      'Các ô nền vàng do điều dưỡng ghi, tự lưu sau khi gõ.</p>' : '<p class="hint" style="margin-bottom:8px">Tài khoản ' + (ROLE_NAMES[myRole()] || '') +
+      ' chỉ xem và in báo cáo; điều dưỡng ghi phần tình trạng, sự việc và bàn giao.</p>') +
+    shiftHTML(D, edit) + (edit ? shiftLists() : '');
+  applyPerms($('shiftBox'));
+}
+function openShift() {
+  repFlush();
+  shift.day = shiftDefaultDay();
+  showModal(mhead('Báo cáo bệnh trong ngày') + '<div class="mbody"><div class="rbar" id="shiftNav"></div><div id="shiftBox"></div></div>' +
+    '<div class="mfoot"><button class="btn" data-act="close">Đóng</button><span class="sp"></span><button class="btn" data-act="list">Danh sách người bệnh</button>' +
+    '<button class="btn primary" data-act="shiftPrint">In / Lưu PDF</button></div>', 'wide');
+  renderShift();
+}
+function shiftRefresh() {
+  var a = document.activeElement;
+  if ($('shiftBox') && !shift.ops.length && !(a && a.classList && a.classList.contains('rpf'))) renderShift();
+}
+function shiftDay(n) {
+  repFlush();
+  var lo = addDays(today(), -44), hi = addDays(today(), 1), D = n ? addDays(shift.day, n) : shiftDefaultDay();
+  shift.day = D < lo ? lo : D > hi ? hi : D;
+  renderShift();
+}
+function printShift() { repFlush(); $('printArea').innerHTML = shiftHTML(shift.day, false); window.print(); }
+function repAddEv(c) {
+  repQueue({add: {id: 'e' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36), c: c, t: nowHM()}});
+  repFlush(); renderShift();
+}
+function repDelEv(id) {
+  var e = repOf(shift.day, false).ev.filter(function (x) { return x.id === id; })[0];
+  if (e && (e.w || e.x || e.d || e.b || e.k) && !confirm('Xóa dòng sự việc này?')) return;
+  repFlush(); repQueue({del: id}); repFlush(); renderShift();
+}
+function openReportMenu() {
+  showModal(mhead('Báo cáo') + '<div class="mbody">' +
+    '<button class="btn menu" data-act="shift"><b>Báo cáo bệnh trong ngày</b><br><small>Giao ca lúc 7 giờ: tổng hợp số lượng, người bệnh mới, ra viện, chuyển khoa, sự việc trong ca trực</small></button>' +
+    '<button class="btn menu" data-act="list"><b>Danh sách người bệnh</b><br><small>In theo chuyên khoa, bác sĩ phụ trách hoặc phòng; in riêng cho một bác sĩ; xuất Excel</small></button>' +
+    '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
 }
 
 /* ---- lịch sử ---- */
@@ -1770,7 +2116,7 @@ function openReport() {
     seg('reportBy', [['spec', 'Chuyên khoa'], ['doctor', 'Bác sĩ phụ trách'], ['room', 'Phòng']], reportBy) + '</div>' +
     '<div id="reportBox" class="reportbox">' + reportHTML() + '</div></div>' +
     '<div class="mfoot"><button class="btn" data-act="close">Đóng</button><span class="sp"></span>' +
-    '<button class="btn" data-act="csv">Xuất Excel</button><button class="btn primary" data-act="print">In / Lưu PDF</button></div>', 'wide');
+    '<button class="btn" data-act="shift">Báo cáo bệnh trong ngày</button><button class="btn" data-act="csv">Xuất Excel</button><button class="btn primary" data-act="print">In / Lưu PDF</button></div>', 'wide');
 }
 function printReport() { $('printArea').innerHTML = reportHTML(); window.print(); }
 function download(name, blob) {
@@ -1789,7 +2135,7 @@ function exportExcel() {
   state.specs.forEach(function (s, i) { order[s.id] = i; });
   reportPatients().sort(function (a, b) { return order[a.spec] - order[b.spec] || cmpBed(a, b); }).forEach(function (p) {
     rows.push([specName(p.spec), p.room || (p.away ? 'Đi mổ' : 'Chờ giường'), p.bed || '', p.hisCode || '', p.name, p.yob || '', GENDER[p.gender], p.dx, p.doctor,
-      fmtDate(p.admittedAt), labelOf(SOURCES, p.src), p.srcDept || '', dayN(p.admittedAt), remarkOf(p)]);
+      fmtDate(p.admittedAt) + (p.admitTime ? ' ' + p.admitTime : ''), labelOf(SOURCES, p.src), p.srcDept || '', dayN(p.admittedAt), remarkOf(p)]);
   });
   var text = rows.map(function (r) { return r.map(cell).join('\t'); }).join('\r\n');
   var buf = new Uint16Array(text.length + 1);
@@ -1976,7 +2322,7 @@ function guessSpec(icd) {
 function srcFromDept(dept) { var d = fold(dept); return /kham benh|phong kham/.test(d) ? 'PK' : /cap cuu/.test(d) ? 'CC' : 'KK'; }
 function prefillFrom(h) {
   return {code: h.code, name: h.name, yob: h.yob, gender: h.gender, spec: guessSpec(h.icd), src: srcFromDept(h.dept),
-    srcDept: h.dept, icd: h.icd, admitAt: h.admitAt, dept: h.dept};
+    srcDept: h.dept, icd: h.icd, admitAt: h.admitAt, admitTime: hisTime(h.admitTime), dept: h.dept};
 }
 function hisDiffs(p, h) {
   var d = [];
@@ -2118,7 +2464,7 @@ function importAllWaiting() {
     if (!h.gender || state.patients.some(function (x) { return x.hisCode === h.code; })) return;   // thiếu giới thì để nhận tay
     var f = prefillFrom(h);
     state.patients.push({id: state.seq++, name: f.name, yob: f.yob, gender: f.gender, spec: f.spec, doctor: '', want: 0, dx: f.icd, note: '',
-      admittedAt: f.admitAt || today(), src: f.src, srcDept: f.srcDept, hisCode: f.code, room: null, bed: null, hold: false});
+      admittedAt: f.admitAt || today(), admitTime: f.admitAt ? f.admitTime : '', src: f.src, srcDept: f.srcDept, hisCode: f.code, room: null, bed: null, hold: false});
     added++;
   });
   addLog('Nhận ' + added + ' bệnh mới từ danh sách bệnh viện vào danh sách chờ giường');
@@ -2130,6 +2476,7 @@ function importApply(list, i, link) {
   var p = patientById(x.p.id);
   if (!p) return;
   if (link) p.hisCode = x.h.code;
+  if (link && !p.admitTime && x.h.admitAt === p.admittedAt) p.admitTime = hisTime(x.h.admitTime);
   p.name = x.h.name || p.name;
   if (x.h.yob) p.yob = x.h.yob;
   if (x.h.gender) p.gender = x.h.gender;
@@ -2177,7 +2524,9 @@ function openSettings() {
     h += '<tr><td style="width:160px">' + esc(s.name) + '</td><td><label><input type="checkbox" data-set="specOn" data-spec="' + s.id + '"' + (s.hidden ? '' : ' checked') +
       '> đang dùng</label></td><td>' + sel('specZone', 'data-spec="' + s.id + '"', zoneOpts, s.zone) + '</td></tr>';
   });
-  h += '</table><h3>3. Danh sách bác sĩ (mỗi dòng một người)</h3><textarea rows="5" data-set="doctors">' + esc(state.doctors.join('\n')) + '</textarea>' +
+  h += '</table><h3>3. Danh sách bác sĩ và điều dưỡng (mỗi dòng một người)</h3><div class="two">' +
+    '<div><p class="hint">Bác sĩ – để bấm chọn “Bác sĩ phụ trách” khi nhận bệnh</p><textarea rows="8" data-set="doctors">' + esc(state.doctors.join('\n')) + '</textarea></div>' +
+    '<div><p class="hint">Điều dưỡng – để chọn người giao, người nhận trong báo cáo giao ca</p><textarea rows="8" data-set="nurses">' + esc((state.nurses || []).join('\n')) + '</textarea></div></div>' +
     '<h3>4. Các khoa trong bệnh viện (mỗi dòng một khoa)</h3><p class="hint">Dùng cho “Khoa chuyển đến” khi nhận bệnh và “Chuyển đến khoa” khi chuyển khoa. ' +
     'Khoa mới trong file của phần mềm bệnh viện được tự thêm vào đây.</p><textarea rows="6" data-set="depts">' + esc(state.depts.join('\n')) + '</textarea>' +
     '<h3>5. Tên khoa in trên danh sách</h3><input class="full" type="text" data-set="ward" value="' + esc(state.ward) + '">' +
@@ -2239,7 +2588,7 @@ function applySetting(el) {
   else if (set === 'specZone') specById(el.dataset.spec).zone = el.value;
   else if (set === 'specOn') specById(el.dataset.spec).hidden = !el.checked;
   else if (set === 'reserve') rm.reserve = el.checked;
-  else if (set === 'doctors' || set === 'depts') {
+  else if (set === 'doctors' || set === 'depts' || set === 'nurses') {
     var seen = {};
     state[set] = el.value.split(/\n/).map(function (s) { return s.replace(/\s+/g, ' ').trim(); }).filter(function (s) { if (!s || seen[s]) return false; seen[s] = 1; return true; });
   }
@@ -2276,8 +2625,11 @@ function wipe() {
   closeModal(); commit(); toast('Đã xóa toàn bộ người bệnh.');
 }
 function clearPatients() {
-  state.patients = []; state.discharged = []; state.log = [];
-  if (state.sample) state.doctors = state.doctors.filter(function (n) { return SAMPLE_DOCTORS.indexOf(n) < 0; });
+  state.patients = []; state.discharged = []; state.log = []; state.reports = {};
+  if (state.sample) {
+    state.doctors = state.doctors.filter(function (n) { return SAMPLE_DOCTORS.indexOf(n) < 0; });
+    state.nurses = state.nurses.filter(function (n) { return SAMPLE_NURSES.indexOf(n) < 0; });
+  }
   state.sample = false;
 }
 function wipeSample() {
@@ -2299,9 +2651,16 @@ function loadSample() {
   if ((state.patients.length || state.discharged.length) && !confirm('Dữ liệu mẫu sẽ THAY THẾ toàn bộ người bệnh hiện có. Tiếp tục?')) return;
   function ago(n) { var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
   keepCopy('Trước khi nạp dữ liệu mẫu');
-  state.patients = []; state.discharged = []; state.log = [];
+  state.patients = []; state.discharged = []; state.log = []; state.reports = {};
   state.sample = true;
-  SAMPLE_DOCTORS.forEach(addDoctor);
+  SAMPLE_DOCTORS.forEach(addDoctor); SAMPLE_NURSES.forEach(addNurse);
+  // người vào hôm nay có giờ nằm trong kỳ báo cáo đang xem, để bản xem thử có số liệu giao ca
+  var k0 = addDays(shiftDefaultDay(), -1).split('-'), t0 = new Date(+k0[0], +k0[1] - 1, +k0[2], +REPORT_HOUR.slice(0, 2), 0);
+  function at(f) {   // f = vị trí trong khoảng từ đầu kỳ đến lúc này (0 → 1)
+    var span = Math.max(30, (Date.now() - 10 * 60000 - t0.getTime()) / 60000), d = new Date(t0.getTime() + Math.round(f * span) * 60000);
+    return {day: ymd(d), hm: pad(d.getHours()) + ':' + pad(d.getMinutes())};
+  }
+  var HM = ['08:20', '09:45', '10:30', '14:10', '15:35', '16:50', '19:25', '21:40'];
   // [họ tên, năm sinh, giới, chuyên khoa, bác sĩ, loại phòng yêu cầu, chẩn đoán, số ngày đã nằm, phòng ép, giường ép]
   var S = [
     ['Lý Văn Tám', 1958, 'M', 'NIEU', 'Bác sĩ D', 0, 'Sỏi niệu quản trái', 1, '618', 1],
@@ -2328,7 +2687,8 @@ function loadSample() {
   ];
   S.forEach(function (a, i) {
     var p = {id: state.seq++, name: a[0], yob: a[1], gender: a[2], spec: a[3], doctor: a[4], want: a[5], dx: a[6], note: 'dữ liệu mẫu',
-      admittedAt: ago(a[7]), src: /cấp|Thủng|Tắc|Chấn thương|Áp xe/.test(a[6]) ? 'CC' : i % 5 === 0 ? 'KK' : 'PK', room: null, bed: null, hold: false};
+      admittedAt: ago(a[7]), admitTime: HM[i % HM.length], src: /cấp|Thủng|Tắc|Chấn thương|Áp xe/.test(a[6]) ? 'CC' : i % 5 === 0 ? 'KK' : 'PK', room: null, bed: null, hold: false};
+    if (!a[7]) { var x = at(0.15 + (i % 6) * 0.14); p.admittedAt = x.day; p.admitTime = x.hm; }
     if (a[8]) { p.room = a[8]; p.bed = a[9]; }
     else { var c = candidates(p)[0]; if (c) { p.room = c.room.id; p.bed = c.bed; } }
     state.patients.push(p);
@@ -2336,7 +2696,16 @@ function loadSample() {
   // một người đang đi mổ để thấy cách giữ giường
   state.patients.forEach(function (p) {
     if (p.name !== 'Lê Văn Cường' || !p.room) return;
-    p.away = true; p.opAt = today(); p.keepRoom = p.room; p.keepBed = p.bed; p.room = null; p.bed = null;
+    p.away = true; p.opAt = today(); p.opTime = nowHM(); p.keepRoom = p.room; p.keepBed = p.bed; p.room = null; p.bed = null;
+  });
+  // ba người đã ra khoa trong kỳ báo cáo
+  [['Kiều Văn Thành', 1962, 'M', 'TH', 'Bác sĩ A', 'Viêm ruột thừa cấp đã mổ', 3, 'XV', '', 0.3],
+   ['Lục Thị Vân', 1970, 'F', 'NIEU', 'Bác sĩ E', 'Sỏi thận trái', 4, 'CK', 'Hồi Sức Tích Cực Chống Độc', 0.55],
+   ['Quách Văn Xuân', 1948, 'M', 'TH', 'Bác sĩ B', 'Bán tắc ruột', 2, 'XVE', 'Gia đình xin về', 0.8]].forEach(function (a) {
+    var x = at(a[9]);
+    state.discharged.unshift({id: state.seq++, name: a[0], yob: a[1], gender: a[2], spec: a[3], doctor: a[4], want: 0, dx: a[5], note: 'dữ liệu mẫu',
+      admittedAt: ago(a[6]), admitTime: '10:15', src: 'PK', room: null, bed: null, hold: false,
+      outAt: fmtDate(x.day) + ' ' + x.hm, outDay: x.day, outType: a[7], outNote: a[7] === 'XVE' ? a[8] : '', outDept: a[7] === 'CK' ? a[8] : ''});
   });
   addLog('Nạp dữ liệu mẫu (' + S.length + ' người bệnh)');
   closeModal(); commit(); toast('Đã nạp dữ liệu mẫu để tập thao tác.');
@@ -2399,7 +2768,13 @@ document.addEventListener('click', function (e) {
       }
       break;
     case 'hold': p = patientById(+d.pid); if (p) { p.hold = true; addLog('Giữ nguyên giường: ' + p.name); commit(); } break;
-    case 'report': openReport(); break;
+    case 'report': openReportMenu(); break;
+    case 'list': openReport(); break;
+    case 'shift': openShift(); break;
+    case 'shiftDay': shiftDay(+d.n); break;
+    case 'shiftPrint': printShift(); break;
+    case 'repAddEv': repAddEv(d.c); break;
+    case 'repDelEv': repDelEv(d.id); break;
     case 'print': printReport(); break;
     case 'csv': exportExcel(); break;
     case 'history': openHistory(); break;
@@ -2418,6 +2793,9 @@ document.addEventListener('change', function (e) {
   var el = e.target, v, p;
   if (el.id === 'r_doctor') {
     reportDoctor = el.value; $('reportBox').innerHTML = reportHTML();
+  } else if (el.id === 'f_doctor') {
+    $('f_doctorOther').hidden = el.value !== OTHER_DOC;
+    if (el.value === OTHER_DOC) $('f_doctorOther').focus();
   } else if (el.id === 'f_other') {
     if (form && el.value && can('move')) { v = el.value.split('|'); form.pick = {room: v[0], bed: +v[1]}; form.manual = true; refreshSug(); }
   } else if (el.id === 'p_hold') {
@@ -2432,6 +2810,12 @@ document.addEventListener('change', function (e) {
   }
 });
 $('q').addEventListener('input', function () { query = fold(this.value.trim()); renderMap(); });
+// ô ghi của báo cáo giao ca: ghi từng ô, tự lưu sau khi ngừng gõ
+document.addEventListener('input', function (e) {
+  var el = e.target;
+  if (el.classList && el.classList.contains('rpf') && shift.day && can('repEdit')) repQueue({k: el.getAttribute('data-k'), v: el.value});
+});
+window.addEventListener('beforeunload', function () { if (shift.ops.length) repFlush(); });
 document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('overlay').hidden) closeModal(); });
 window.addEventListener('storage', function (e) {
   if (cloud || e.key !== KEY || !e.newValue || form) return;

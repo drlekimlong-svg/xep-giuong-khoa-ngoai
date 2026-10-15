@@ -84,6 +84,10 @@ begin
        or new.data->'discharged' is distinct from old.data->'discharged') then
     raise exception 'Bác sĩ chỉ được bổ sung thông tin, không được nhận bệnh, xếp giường hay cho ra khoa.' using errcode = '42501';
   end if;
+  -- báo cáo bệnh trong ngày (giao ca) do điều dưỡng ghi; bác sĩ chỉ xem và in (từ bản 2.2)
+  if r = 'doctor' and new.data->'reports' is distinct from old.data->'reports' then
+    raise exception 'Báo cáo giao ca do điều dưỡng ghi; bác sĩ chỉ xem và in.' using errcode = '42501';
+  end if;
   return new;
 end $$;
 revoke all on function private.ward_state_check() from public, anon, authenticated;

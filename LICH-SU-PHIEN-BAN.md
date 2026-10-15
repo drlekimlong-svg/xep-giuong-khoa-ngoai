@@ -23,6 +23,56 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.2-thu1 — 15/10/2026 — Báo cáo bệnh trong ngày (giao ca 7 giờ), bấm chọn bác sĩ, giờ vào/ra khoa
+
+- **File:** `phien-ban/v2.2-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.2-thu1`.
+- **Máy chủ:**
+  - Quy tắc `private.ward_state_check` thêm một điều: bác sĩ không sửa được báo cáo giao ca (`thiet-lap.sql` đã cập nhật).
+  - Sơ đồ chung được thêm danh sách 13 điều dưỡng lấy từ bảng tài khoản.
+
+**Mới so với 2.1-thu1**
+
+- **Nút "Báo cáo"** (thay nút "Danh sách ngày") mở ra hai mục: *Báo cáo bệnh trong ngày* và *Danh sách người bệnh* (như cũ).
+- **Báo cáo bệnh trong ngày** theo mẫu giao ca của bác sĩ. Kỳ báo cáo từ 7:00 hôm trước đến 7:00 ngày báo cáo; mở buổi sáng là báo cáo vừa chốt, từ trưa trở đi là báo cáo của ca đang chạy. Xem lại được 45 ngày.
+  1. **Tổng hợp số lượng:** Cũ đầu kỳ · Nhập mới (cấp cứu, phòng khám) · Khoa khác chuyển đến · Xuất viện · Chuyển khoa · Chuyển viện · Tử vong · Ra khoa khác (xin về) · Còn cuối kỳ. App tự tính, có dòng đối chiếu Cũ + Vào − Ra = Còn, số còn theo chuyên khoa, số lượt đi mổ.
+  2. **Nhập mới/chuyển đến:** họ tên – mã, tuổi/giới, giờ vào, nơi chuyển đến, chẩn đoán, buồng/giường; điều dưỡng ghi "tình trạng và việc cần theo dõi".
+  3. **Xuất viện**, rồi từng nhóm chuyển khoa, chuyển viện, tử vong, ra khoa khác; điều dưỡng ghi tình trạng, hồ sơ/hướng dẫn đã bàn giao, ghi chú.
+  4. **Đêm trực và sự việc phát sinh** theo 5 nhóm (người bệnh nặng, sự cố chăm sóc, an ninh trật tự, thiết bị/điện nước, khác); nhóm không có ghi "Không ghi nhận trong ca trực".
+  - **Cuối trang:** công việc cần tiếp tục, người tiếp nhận, thời điểm bàn giao, chỗ ký hai bên.
+  - **Lưu, in, quyền:** ô điều dưỡng ghi tự lưu sau khi gõ, lưu theo từng ô; nếu máy khác vừa lưu thì ô vẫn được ghi lại, không phải gõ lại. In hoặc lưu PDF khổ A4. Chỉ điều dưỡng và quản trị viên ghi được; bác sĩ và tài khoản chỉ xem thì xem và in.
+- **Giờ vào khoa** (bắt buộc khi nhận bệnh mới, mặc định là lúc nhận; lấy từ file a khi cập nhật bệnh mới).
+- **Thời điểm ra khoa, đi mổ:** mặc định là lúc bấm, sửa được khi ghi muộn. Không cho ghi giờ ở tương lai hay sớm hơn lúc vào khoa.
+- **Bác sĩ phụ trách: bấm chọn** từ danh sách của khoa; tên chưa có thì chọn "Khác (gõ tên)…".
+- **Danh sách điều dưỡng** trong Cài đặt mục 3, cạnh danh sách bác sĩ; điều dưỡng tạo tài khoản mới được tự thêm vào.
+
+**Đã thử**
+
+- **Bản một máy, dữ liệu mẫu:**
+  - Số liệu báo cáo khớp đối chiếu; số còn cuối kỳ của ngày trước bằng số cũ đầu kỳ của ngày sau.
+  - Ghi tay, thêm sự việc, ghi việc cần tiếp tục: đều lưu đúng.
+  - Bản in có đủ các mục và chỗ ký.
+  - Nhận bệnh mới có chọn bác sĩ "Khác", giờ "7g15": lưu đúng; giờ sai (25:00) bị chặn.
+  - Ra khoa ghi lùi giờ: lưu đúng; giờ sớm hơn lúc vào, giờ ở tương lai: bị chặn.
+- **Bản dùng chung trên máy chủ giả lập:**
+  - Máy khác lưu đúng lúc đang ghi báo cáo: phần báo cáo được ghi lại, phần của máy kia vẫn còn, không hiện cảnh báo.
+  - Thao tác thường bị máy khác lưu trước: vẫn cảnh báo như cũ.
+  - Tài khoản bác sĩ: báo cáo chỉ xem.
+- **Cơ sở dữ liệu thật** (thử rồi hủy, không để lại dữ liệu): bác sĩ sửa báo cáo bị từ chối, bác sĩ sửa phần khác vẫn được, điều dưỡng sửa báo cáo được.
+
+**Chưa thử**
+
+- Chưa thử trên máy Windows 7 ở khoa, chưa in ra giấy thật, chưa thử với tài khoản điều dưỡng thật.
+
+**Hạn chế**
+
+- **Số liệu tính theo giờ đã ghi trên app:** nếu ra viện trên phần mềm bệnh viện mà chưa bấm ra khoa trên app thì báo cáo sẽ thiếu. Nên bấm "Cập nhật bệnh mới" trước khi in để đối chiếu.
+- **Người nhận trước bản này chưa có giờ vào khoa:** tạm tính là 7:00 ngày vào, có ghi "(chưa ghi giờ)".
+- **Đi mổ không tính là ra khoa:** người đang ở phòng mổ vẫn tính trong "Còn cuối kỳ", số lượt đi mổ ghi riêng.
+- **Buồng/giường trong báo cáo** là vị trí hiện tại, không phải vị trí lúc 7 giờ.
+- **Lịch sử ra khoa giữ 300 người gần nhất**, nên báo cáo của những ngày quá xa có thể thiếu.
+
+---
+
 ## 2.1-thu1 — 15/10/2026 — Lấy bệnh mới từ phần mềm bệnh viện, phân khu mới, phòng dự phòng, danh sách khoa
 
 - **File:** `phien-ban/v2.1-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.1-thu1`. Máy chủ: cơ sở dữ liệu và Edge Function không đổi; sơ đồ chung trên máy chủ được cập nhật phân khu mới (lúc đó chưa có người bệnh nào).
