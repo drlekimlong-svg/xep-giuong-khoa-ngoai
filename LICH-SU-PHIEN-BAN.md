@@ -23,6 +23,45 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.3-thu1 — 15/10/2026 — Nhận ra ca nhập tay sai/thiếu tên, bản xem thử để tập huấn
+
+- **File:** `phien-ban/v2.3-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.3-thu1`. Máy chủ không đổi.
+- **Bộ tập huấn** (ngoài kho, vì có file .xls): `K:\BV AN BÌNH	ap-huan-xep-giuong\`, gồm 5 file `a_TH1…TH5.xls` tên giả, mã giả 99…, và `KICH-BAN-TAP-HUAN.md`.
+
+**Mới so với 2.2-thu2**
+
+- **Đối chiếu ca nhập tay lúc gấp.** Trước đây app chỉ nhận ra khi trùng đúng họ tên (không kể dấu). Nay có thêm mục **"Có thể là người đã nhập tay lúc gấp"** cho các trường hợp:
+  - Họ tên nhập thiếu, kể cả có cách gọi ở đầu như "Bà Lụa" ↔ Phạm Thị Lụa. Chỉ xét ca nhận trong 3 ngày nếu chỉ có một chữ tên.
+  - Gõ sai 1–2 chữ, ví dụ Khanh ↔ Khang.
+  - Cùng họ tên nhưng khác năm sinh.
+  - Luôn phải cùng giới; năm sinh lệch quá 2 năm thì không xét.
+  - Người nhận bệnh bấm **Đúng người – gắn mã** (có hỏi xác nhận) hoặc **Không phải**.
+  - Có ca cần xác nhận thì app hiện bảng đối chiếu trước, không mở ngay bảng nhận bệnh, để tránh nhận trùng.
+- **Khi gắn mã:** sửa họ tên, năm sinh, giới theo bệnh viện; điền thêm nơi chuyển đến và mã ICD nếu lúc nhập còn trống; nhật ký ghi lại tên cũ đã nhập.
+- **Bản xem thử (`#mau`):**
+  - Lưu riêng (khóa `xepgiuong.khoangoai.mau`), không bao giờ nối máy chủ. Nhờ vậy mở bản xem thử trên máy đang dùng bản một máy thật không đụng tới dữ liệu thật.
+  - Tự nạp lại dữ liệu mẫu mới khi đổi phiên bản dữ liệu mẫu (`SAMPLE_VER`).
+  - Dữ liệu mẫu có mã bệnh nhân giả, để tập "Cập nhật bệnh mới". Dải vàng có nút **Nạp lại dữ liệu mẫu**.
+  - Nhớ file a riêng với bản thật; không cảnh báo file cũ.
+- **Chặn lẫn file:**
+  - File mẫu tập huấn có dòng "FILE MẪU TẬP HUẤN": bản thật từ chối đọc.
+  - Bản xem thử chỉ đọc file mẫu, không đọc danh sách thật của bệnh viện.
+
+**Đã thử** (trình duyệt, bản xem thử với 5 file mẫu)
+
+- **TH1:** 3 bệnh mới mở lần lượt, lưu đủ; đọc lại thì báo không có bệnh mới.
+- **TH2:** nhập tay "Nguyen Van Hai", "Bà Lụa", "Võ Minh Khanh". App nhận ra đủ 3 người; gắn mã thì sửa đúng họ tên, năm sinh, điền nơi chuyển đến và ICD, giường giữ nguyên. "Không phải" đưa người đó sang bệnh mới.
+- **TH3:** 3 người không còn trong danh sách; người đang đi mổ có ghi chú.
+- **TH4:** sai năm sinh, sai dấu, người đã cho ra viện mà bệnh viện vẫn còn.
+- **TH5:** 26 người, hiện danh sách trước; đưa tất cả vào danh sách chờ đúng; gợi ý 16 Tiêu hóa, 8 Niệu, 2 Thần kinh.
+- **Chặn lẫn file:** bản thật từ chối file mẫu; bản xem thử từ chối file không phải file mẫu. Dữ liệu bản xem thử không ghi vào chỗ lưu của bản thật.
+
+**Chưa thử**
+
+- Chưa thử trên máy Windows 7 ở khoa.
+
+---
+
 ## 2.2-thu2 — 15/10/2026 — Đi mổ tính như chuyển khoa, thêm "Trốn viện"
 
 - **File:** `phien-ban/v2.2-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.2-thu2`. Máy chủ không đổi.

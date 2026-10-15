@@ -352,8 +352,12 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.2-thu2', VERSION_DATE = '15/10/2026';
-var KEY = 'xepgiuong.khoangoai.v1';
+var VERSION = '2.3-thu1', VERSION_DATE = '15/10/2026';
+// Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
+// Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
+var DEMO = location.hash === '#mau';
+var KEY = DEMO ? 'xepgiuong.khoangoai.mau' : 'xepgiuong.khoangoai.v1';
+var SAMPLE_VER = 3;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
 // Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
@@ -363,7 +367,7 @@ var ACCOUNT_FN = '/functions/v1/quan-ly-tai-khoan';
 var ROLE_NAMES = {admin: 'Quản trị', nurse: 'Điều dưỡng', doctor: 'Bác sĩ', view: 'Chỉ xem'};
 var ROLE_ACTS = {
   nurse: ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait', 'undo', 'backup',
-    'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick',
+    'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
     'repEdit', 'repAddEv', 'repDelEv'],   // ghi báo cáo giao ca
   doctor: ['edit', 'saveForm'],   // bác sĩ: xem và bổ sung thông tin, không nhận bệnh, không xếp giường
   view: []
@@ -372,7 +376,7 @@ var ROLE_ACTS = {
 var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
   'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
   'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock',
-  'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick',
+  'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
   'repEdit', 'repAddEv', 'repDelEv'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
@@ -403,8 +407,6 @@ var OTHER_DOC = '__khac__';   // mục Khác (gõ tên) trong ô chọn bác sĩ
 var SOURCES = [['CC', 'Cấp cứu'], ['PK', 'Phòng khám'], ['KK', 'Khoa khác / phòng mổ']];
 var OUT_TYPES = [['XV', 'Xuất viện'], ['CK', 'Chuyển khoa khác'], ['MO', 'Chuyển đi mổ'], ['XVE', 'Xin về'], ['TRON', 'Trốn viện'], ['CV', 'Chuyển viện'], ['TV', 'Tử vong']];
 
-// Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
-var DEMO = location.hash === '#mau';
 var outForm = null;
 // Trạng thái dùng chung: cloud = cấu hình Supabase (null nếu là bản một máy); session = người đang đăng nhập.
 var cloud = null, session = null, remoteVersion = 0, pushing = false, dirty = false, refreshing = null;
@@ -554,6 +556,7 @@ function cloudConfig() {
   // fixed = bật bởi liên kết "#chung": không ngắt được trên máy, muốn dùng bản một máy thì mở liên kết thường
   function clean(c, fixed) { return {url: String(c.url).trim().replace(/\/+$/, ''), key: String(c.key).trim(), fixed: fixed}; }
   var hasDefault = !!(CLOUD_DEFAULT.url && CLOUD_DEFAULT.key), c = null;
+  if (DEMO) return null;   // bản xem thử không bao giờ nối máy chủ dùng chung
   if (hasDefault && location.hash === '#chung') return clean(CLOUD_DEFAULT, true);
   try { c = JSON.parse(localStorage.getItem(CLOUD_KEY)); } catch (e) {}
   if (c && c.useDefault && hasDefault) return clean(CLOUD_DEFAULT, false);   // máy này đã được chuyển sang dùng chung
@@ -1306,6 +1309,7 @@ function renderNotice() {
   if (cloud && !remoteVersion) h += '<div class="notice">Đang tải dữ liệu từ máy chủ…</div>';
   else if (state.sample) {
     h += '<div class="notice"><b>Đang dùng dữ liệu mẫu</b> (tên người bệnh giả, để tập thao tác).' +
+      (can('sample') ? ' <button class="btn small" data-act="sample">Nạp lại dữ liệu mẫu</button>' : '') +
       (can('wipeSample') ? ' Khi bắt đầu dùng thật: <button class="btn small" data-act="wipeSample">Xóa dữ liệu mẫu</button>' : '') + '</div>';
   } else if (!state.patients.length && !state.discharged.length) {
     h += '<div class="notice">Chưa có người bệnh nào. Bấm <b>+ Nhận bệnh</b> hoặc bấm vào một <b>giường trống</b> trên sơ đồ để bắt đầu. ' +
@@ -2225,7 +2229,7 @@ function handleDb() {
 function handleGet() {
   return handleDb().then(function (db) {
     return new Promise(function (ok) {
-      var q = db.transaction('h').objectStore('h').get('a');
+      var q = db.transaction('h').objectStore('h').get(DEMO ? 'mau' : 'a');
       q.onsuccess = function () { ok(q.result || null); };
       q.onerror = function () { ok(null); };
     });
@@ -2235,7 +2239,7 @@ function handleSet(h) {
   return handleDb().then(function (db) {
     return new Promise(function (ok) {
       var t = db.transaction('h', 'readwrite');
-      t.objectStore('h').put(h, 'a');
+      t.objectStore('h').put(h, DEMO ? 'mau' : 'a');   // bản xem thử nhớ file riêng
       t.oncomplete = function () { ok(); };
       t.onerror = function () { ok(); };
     });
@@ -2371,6 +2375,40 @@ function prefillFrom(h) {
   return {code: h.code, name: h.name, yob: h.yob, gender: h.gender, spec: guessSpec(h.icd), src: srcFromDept(h.dept),
     srcDept: h.dept, icd: h.icd, admitAt: h.admitAt, admitTime: hisTime(h.admitTime), dept: h.dept};
 }
+// Họ tên để so: bỏ dấu, bỏ cách gọi ở đầu khi nhập vội (ông, bà, anh, chị, cô, chú, bé…).
+var CALL_RE = /^(ong|ba|anh|chi|co|chu|bac|em|be|bn|cu|o|b|a|c)$/;
+function nameWords(s) {
+  var w = fold(s).replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(Boolean);
+  while (w.length > 1 && CALL_RE.test(w[0])) w.shift();
+  return w;
+}
+function editDist(a, b) {
+  var prev = [], cur, i, j;
+  for (j = 0; j <= b.length; j++) prev[j] = j;
+  for (i = 1; i <= a.length; i++) {
+    cur = [i];
+    for (j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+// Ca nhập tay (chưa có mã) có thể là người này trong danh sách bệnh viện không: {why, s} hoặc null.
+// Người nhận bệnh xác nhận trước khi gắn mã, app không tự gộp.
+function likeHis(p, h) {
+  if (h.gender && p.gender && h.gender !== p.gender) return null;
+  var a = nameWords(p.name), b = nameWords(h.name);
+  if (!a.length || !b.length) return null;
+  var ja = a.join(' '), jb = b.join(' '), la = a[a.length - 1], lb = b[b.length - 1], why = '', s = 0;
+  if (ja === jb) { why = 'cùng họ tên, khác năm sinh'; s = 4; }
+  else if (la === lb && a.every(function (w) { return b.indexOf(w) >= 0; })) {
+    if (a.length === 1 && p.admittedAt < addDays(today(), -3)) return null;   // chỉ một tên: chỉ xét ca mới nhận gần đây
+    why = 'họ tên nhập thiếu'; s = 2;
+  }
+  else if (ja.length >= 6 && editDist(ja, jb) <= 2) { why = 'họ tên gần giống, có thể gõ sai'; s = 3; }
+  if (!why) return null;
+  if (s < 4 && p.yob && h.yob && Math.abs(p.yob - h.yob) > 2) return null;   // năm sinh quá khác
+  return {why: why, s: s + (p.yob && +p.yob === +h.yob ? 1 : 0)};
+}
 function hisDiffs(p, h) {
   var d = [];
   if (normName(p.name) !== normName(h.name)) d.push(['Họ tên', p.name, h.name]);
@@ -2380,8 +2418,8 @@ function hisDiffs(p, h) {
 }
 // So danh sách bệnh viện với sơ đồ.
 function reconcile(rows) {
-  var res = {news: [], diffs: [], links: [], gone: [], unmatched: [], back: []};
-  var byCode = {}, linked = {}, inHis = {};
+  var res = {news: [], diffs: [], links: [], maybe: [], gone: [], unmatched: [], back: []};
+  var byCode = {}, linked = {}, inHis = {}, pend = [];
   var weekAgo = ymd(new Date(Date.now() - 7 * 86400000));
   state.patients.forEach(function (p) { if (p.hisCode) byCode[p.hisCode] = p; });
   rows.forEach(function (h) {
@@ -2395,8 +2433,25 @@ function reconcile(rows) {
     if (m) { linked[m.id] = 1; res.links.push({p: m, h: h, d: hisDiffs(m, h)}); return; }
     var dc = state.discharged.filter(function (x) { return x.hisCode === h.code && (x.outDay || '') >= weekAgo; })[0];
     if (dc) { res.back.push({p: dc, h: h}); return; }
-    res.news.push(h);
+    pend.push(h);
   });
+  // còn lại: so với các ca nhập tay chưa có mã (nhập lúc gấp, có thể sai hoặc thiếu họ tên); ghép cặp giống nhất trước
+  var rej = (imp && imp.rejects) || {}, pairs = [], usedH = {};
+  var free = state.patients.filter(function (x) { return !x.hisCode && !linked[x.id]; });
+  pend.forEach(function (h) {
+    free.forEach(function (p) {
+      if (rej[p.id + '|' + h.code]) return;
+      var w = likeHis(p, h);
+      if (w) pairs.push({p: p, h: h, why: w.why, s: w.s});
+    });
+  });
+  pairs.sort(function (x, y) { return y.s - x.s; });
+  pairs.forEach(function (x) {
+    if (linked[x.p.id] || usedH[x.h.code]) return;
+    linked[x.p.id] = 1; usedH[x.h.code] = 1;
+    res.maybe.push({p: x.p, h: x.h, d: hisDiffs(x.p, x.h), why: x.why});
+  });
+  pend.forEach(function (h) { if (!usedH[h.code]) res.news.push(h); });
   state.patients.forEach(function (p) {
     if (p.hisCode) { if (!inHis[p.hisCode]) res.gone.push(p); }
     else if (!linked[p.id]) res.unmatched.push(p);
@@ -2407,13 +2462,16 @@ function importHis(repick) {
   getImportFile(repick).then(function (file) {
     toast('Đang đọc ' + file.name + '…');
     return parseHisFile(file).then(function (r) {
+      var training = fold(r.title).indexOf('tap huan') >= 0;
+      if (training && !DEMO) throw new Error('Đây là file mẫu để tập huấn (tên giả), không dùng cho sơ đồ thật. Hãy xuất lại file “a” từ phần mềm bệnh viện, lưu đè lên file cũ, rồi bấm lại.');
+      if (!training && DEMO) throw new Error('Bản xem thử chỉ đọc các file a mẫu để tập huấn (tên giả), không đọc danh sách thật của bệnh viện.');
       imp = {fileName: file.name, fileTime: file.lastModified || Date.now(), exportDate: r.exportDate, title: r.title, rows: r.rows, queue: [], total: 0};
       // khoa mới gặp trong file được thêm vào danh sách khoa
       var before = state.depts.length;
       r.rows.forEach(function (h) { addDept(h.dept); });
       if (state.depts.length !== before) commit();
       var res = reconcile(imp.rows);
-      if (res.news.length && res.news.length <= IMPORT_DIRECT_MAX) {
+      if (res.news.length && res.news.length <= IMPORT_DIRECT_MAX && !res.links.length && !res.maybe.length) {
         imp.queue = res.news.slice(); imp.total = imp.queue.length;
         importNext();
       } else openImport();
@@ -2431,19 +2489,19 @@ function importNext() {
     if (!state.patients.some(function (x) { return x.hisCode === h.code; })) { openForm('new', {prefill: prefillFrom(h)}); return; }
   }
   var res = reconcile(imp.rows);
-  var issues = res.news.length + res.links.length + res.diffs.length + res.gone.length + res.unmatched.length + res.back.length;
+  var issues = res.news.length + res.links.length + res.maybe.length + res.diffs.length + res.gone.length + res.unmatched.length + res.back.length;
   if (issues) openImport(); else toast('Đã cập nhật xong. Sơ đồ khớp với danh sách bệnh viện.');
 }
 function openImport() {
   if (!imp) return;
   var r = imp.res = reconcile(imp.rows), ageH = (Date.now() - imp.fileTime) / 3600000;
   var ft = new Date(imp.fileTime), when = pad(ft.getHours()) + ':' + pad(ft.getMinutes()) + ' ngày ' + fmtDate(ymd(ft));
-  var issues = r.links.length + r.diffs.length + r.gone.length + r.unmatched.length + r.back.length;
+  var issues = r.links.length + r.maybe.length + r.diffs.length + r.gone.length + r.unmatched.length + r.back.length;
   function bed(p) { return p.room ? bedLabel(p.room, p.bed) : p.away ? 'đi mổ' : 'chờ giường'; }
   var h = mhead('Cập nhật từ danh sách bệnh viện') + '<div class="mbody">' +
     '<p>File <b>' + esc(imp.fileName) + '</b> lưu lúc ' + when + (imp.exportDate ? ' · danh sách ngày ' + fmtDate(imp.exportDate) : '') +
     ' · <b>' + imp.rows.length + '</b> người bệnh. Trên sơ đồ đang có <b>' + state.patients.length + '</b>.</p>';
-  if (ageH > 2 || (imp.exportDate && imp.exportDate !== today())) {
+  if (!DEMO && (ageH > 2 || (imp.exportDate && imp.exportDate !== today()))) {   // bản xem thử dùng file mẫu cố định
     h += '<p class="notice" style="margin-top:8px">⚠ File này không phải vừa xuất. Nếu vừa có bệnh mới, hãy xuất lại file “a” từ phần mềm bệnh viện (lưu đè lên file cũ) rồi bấm “Đọc lại file”.</p>';
   }
   h += '<h3>Bệnh mới (' + r.news.length + ')</h3>';
@@ -2461,8 +2519,23 @@ function openImport() {
   h += '<h3>Cần đối chiếu (' + issues + ')</h3>';
   if (!issues) h += '<p class="res-ok">Thông tin trên sơ đồ khớp với danh sách bệnh viện.</p>';
   function diffText(d) { return d.map(function (x) { return x[0] + ': ' + esc(x[1]) + ' → <b>' + esc(x[2]) + '</b>'; }).join('<br>'); }
+  function who(x) {
+    return '<td>' + esc(x.p.name) + (x.p.yob ? ', ' + x.p.yob : '') + ' · ' + (GENDER[x.p.gender] || '') + '<br><small>' + bed(x.p) + ' · nhận ' +
+      fmtDate(x.p.admittedAt).slice(0, 5) + (x.p.admitTime ? ' ' + x.p.admitTime : '') + '</small></td><td>' + esc(x.h.name) + (x.h.yob ? ', ' + x.h.yob : '') +
+      ' · ' + (GENDER[x.h.gender] || '') + '<br><small>mã ' + esc(x.h.code) + (x.h.admitAt ? ' · vào ' + fmtDate(x.h.admitAt).slice(0, 5) + ' ' + esc(x.h.admitTime) : '') + '</small></td>';
+  }
+  if (r.maybe.length) {
+    h += '<p><b>Có thể là người đã nhập tay lúc gấp</b> – xem kỹ; đúng người thì gắn mã và sửa theo danh sách bệnh viện, không phải thì bấm “Không phải”:</p>' +
+      '<table class="set"><tr><th>Trên sơ đồ (nhập tay)</th><th>Danh sách bệnh viện</th><th>Vì sao nghi</th><th></th></tr>';
+    r.maybe.forEach(function (x, i) {
+      h += '<tr>' + who(x) + '<td><i>' + esc(x.why) + '</i>' + (x.d.length ? '<br>' + diffText(x.d) : '') + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn small primary" data-act="impMaybe" data-i="' + i + '">Đúng người – gắn mã</button> ' +
+        '<button class="btn small" data-act="impNot" data-i="' + i + '">Không phải</button></td></tr>';
+    });
+    h += '</table>';
+  }
   if (r.links.length) {
-    h += '<p><b>Nhập tay, trùng tên và năm sinh với danh sách bệnh viện</b> – gắn mã để lần sau tự đối chiếu:</p><table class="set">';
+    h += '<p><b>Nhập tay, trùng họ tên với danh sách bệnh viện</b> – gắn mã để lần sau tự đối chiếu:</p><table class="set">';
     r.links.forEach(function (x, i) {
       h += '<tr><td>' + esc(x.p.name) + ' (' + bed(x.p) + ')</td><td>mã ' + esc(x.h.code) + (x.d.length ? '<br>' + diffText(x.d) : '') + '</td>' +
         '<td><button class="btn small" data-act="impLink" data-i="' + i + '">Gắn mã' + (x.d.length ? ' và sửa theo bệnh viện' : '') + '</button></td></tr>';
@@ -2524,12 +2597,15 @@ function importApply(list, i, link) {
   if (!x) return;
   var p = patientById(x.p.id);
   if (!p) return;
+  var old = p.name;
   if (link) p.hisCode = x.h.code;
   if (link && !p.admitTime && x.h.admitAt === p.admittedAt) p.admitTime = hisTime(x.h.admitTime);
+  if (link && !p.srcDept && x.h.dept) { p.srcDept = x.h.dept; addDept(x.h.dept); }
+  if (link && !p.dx && x.h.icd) p.dx = x.h.icd;
   p.name = x.h.name || p.name;
   if (x.h.yob) p.yob = x.h.yob;
   if (x.h.gender) p.gender = x.h.gender;
-  addLog((link ? 'Gắn mã ' + x.h.code + ' cho ' : 'Sửa theo danh sách bệnh viện: ') + p.name);
+  addLog((link ? 'Gắn mã ' + x.h.code + ' cho ' : 'Sửa theo danh sách bệnh viện: ') + p.name + (old !== p.name ? ' (trước ghi: ' + old + ')' : ''));
   commit(); openImport();
 }
 
@@ -2604,6 +2680,8 @@ function openSettings() {
     h += '<p class="hint">Máy này đang dùng chung dữ liệu tại <b>' + esc(cloud.url) + '</b>.' +
       (cloud.fixed ? ' Đang mở bằng liên kết dùng chung (đuôi #chung); muốn dùng bản một máy thì mở liên kết thường.' : '') + '</p>' +
       (cloud.fixed ? '' : '<div class="databtns"><button class="btn" data-act="cloudOff">Ngắt kết nối, quay về bản một máy</button></div>');
+  } else if (DEMO) {
+    h += '<p class="hint">Đây là bản xem thử: dữ liệu mẫu chỉ lưu trong trình duyệt này, không nối với máy chủ dùng chung của khoa.</p>';
   } else if (CLOUD_DEFAULT.url && CLOUD_DEFAULT.key) {
     h += '<p class="hint">Máy này đang chạy bản một máy. Chuyển sang dùng chung thì mở app sẽ phải đăng nhập và sơ đồ là sơ đồ chung của khoa trên máy chủ. ' +
       'Dữ liệu đang có trong máy này vẫn được giữ nguyên và không tự gửi lên.</p>' +
@@ -2696,12 +2774,12 @@ function resetRooms() {
   if (!confirm('Đặt lại khu, giới và số giường của tất cả các phòng về mặc định?')) return;
   state.rooms = def; commit(); openSettings();
 }
-function loadSample() {
-  if ((state.patients.length || state.discharged.length) && !confirm('Dữ liệu mẫu sẽ THAY THẾ toàn bộ người bệnh hiện có. Tiếp tục?')) return;
+function loadSample(silent) {
+  if (!silent && (state.patients.length || state.discharged.length) && !confirm('Dữ liệu mẫu sẽ THAY THẾ toàn bộ người bệnh hiện có. Tiếp tục?')) return;
   function ago(n) { var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
   keepCopy('Trước khi nạp dữ liệu mẫu');
   state.patients = []; state.discharged = []; state.log = []; state.reports = {};
-  state.sample = true;
+  state.sample = true; state.sampleVer = SAMPLE_VER;
   SAMPLE_DOCTORS.forEach(addDoctor); SAMPLE_NURSES.forEach(addNurse);
   // người vào hôm nay có giờ nằm trong kỳ báo cáo đang xem, để bản xem thử có số liệu giao ca
   var k0 = addDays(shiftDefaultDay(), -1).split('-'), t0 = new Date(+k0[0], +k0[1] - 1, +k0[2], +REPORT_HOUR.slice(0, 2), 0);
@@ -2736,7 +2814,8 @@ function loadSample() {
   ];
   S.forEach(function (a, i) {
     var p = {id: state.seq++, name: a[0], yob: a[1], gender: a[2], spec: a[3], doctor: a[4], want: a[5], dx: a[6], note: 'dữ liệu mẫu',
-      admittedAt: ago(a[7]), admitTime: HM[i % HM.length], src: /cấp|Thủng|Tắc|Chấn thương|Áp xe/.test(a[6]) ? 'CC' : i % 5 === 0 ? 'KK' : 'PK', room: null, bed: null, hold: false};
+      admittedAt: ago(a[7]), admitTime: HM[i % HM.length], src: /cấp|Thủng|Tắc|Chấn thương|Áp xe/.test(a[6]) ? 'CC' : i % 5 === 0 ? 'KK' : 'PK', room: null, bed: null, hold: false,
+      hisCode: '990001' + pad(i + 1)};   // mã giả (đầu 99), khớp với các file a mẫu để tập huấn
     if (!a[7]) { var x = at(0.15 + (i % 6) * 0.14); p.admittedAt = x.day; p.admitTime = x.hm; }
     if (a[8]) { p.room = a[8]; p.bed = a[9]; }
     else { var c = candidates(p)[0]; if (c) { p.room = c.room.id; p.bed = c.bed; } }
@@ -2756,9 +2835,10 @@ function loadSample() {
   // ba người đã ra khoa trong kỳ báo cáo
   [['Kiều Văn Thành', 1962, 'M', 'TH', 'Bác sĩ A', 'Viêm ruột thừa cấp đã mổ', 3, 'XV', '', 0.3],
    ['Lục Thị Vân', 1970, 'F', 'NIEU', 'Bác sĩ E', 'Sỏi thận trái', 4, 'CK', 'Hồi Sức Tích Cực Chống Độc', 0.55],
-   ['Quách Văn Xuân', 1948, 'M', 'TH', 'Bác sĩ B', 'Bán tắc ruột', 2, 'XVE', 'Gia đình xin về', 0.8]].forEach(function (a) {
+   ['Quách Văn Xuân', 1948, 'M', 'TH', 'Bác sĩ B', 'Bán tắc ruột', 2, 'XVE', 'Gia đình xin về', 0.8]].forEach(function (a, i) {
     var x = at(a[9]);
     state.discharged.unshift({id: state.seq++, name: a[0], yob: a[1], gender: a[2], spec: a[3], doctor: a[4], want: 0, dx: a[5], note: 'dữ liệu mẫu',
+      hisCode: '990001' + (22 + i),
       admittedAt: ago(a[6]), admitTime: '10:15', src: 'PK', room: null, bed: null, hold: false,
       outAt: fmtDate(x.day) + ' ' + x.hm, outDay: x.day, outType: a[7], outNote: a[7] === 'XVE' ? a[8] : '', outDept: a[7] === 'CK' ? a[8] : ''});
   });
@@ -2787,6 +2867,16 @@ document.addEventListener('click', function (e) {
     case 'impWait': importAllWaiting(); break;
     case 'impLink': importApply('links', +d.i, true); break;
     case 'impFix': importApply('diffs', +d.i, false); break;
+    case 'impMaybe':
+      if (imp && imp.res && imp.res.maybe[+d.i]) {
+        var mx = imp.res.maybe[+d.i];
+        if (confirm('Xác nhận người nhập tay “' + mx.p.name + '” chính là ' + mx.h.name + (mx.h.yob ? ' (' + mx.h.yob + ')' : '') + ', mã ' + mx.h.code + '?\n' +
+          'Họ tên, năm sinh, giới sẽ được sửa theo danh sách bệnh viện; giường giữ nguyên.')) importApply('maybe', +d.i, true);
+      }
+      break;
+    case 'impNot':
+      if (imp && imp.res && imp.res.maybe[+d.i]) { var nx = imp.res.maybe[+d.i]; imp.rejects = imp.rejects || {}; imp.rejects[nx.p.id + '|' + nx.h.code] = 1; openImport(); }
+      break;
     case 'accPreview': accPreview(); break;
     case 'accCreate': accCreate(); break;
     case 'accPrint': accPrint(); break;
@@ -2894,7 +2984,7 @@ if (cloud) {
   else { session = null; showLogin(); }
 } else {
   state = load();
-  if (DEMO && !state.patients.length && !state.discharged.length) loadSample();
+  if (DEMO && ((!state.patients.length && !state.discharged.length) || (state.sample && state.sampleVer !== SAMPLE_VER))) loadSample(true);
   else render();
 }
 })();

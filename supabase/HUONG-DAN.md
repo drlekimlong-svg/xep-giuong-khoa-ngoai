@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.2-thu2 (15/10/2026).
+Cập nhật cho bản 2.3-thu1 (15/10/2026).
 
 ## Địa chỉ
 
@@ -62,12 +62,18 @@ Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để n
    - **Có bệnh mới (tối đa 10 người):** mở lần lượt bảng nhận bệnh cho từng người, đã điền sẵn họ tên, năm sinh, giới, mã bệnh nhân, ngày vào, mã ICD, nơi chuyển đến; chuyên khoa được **gợi ý theo mã ICD** (N… → Niệu; S06, I60–I62… → Thần kinh; còn lại → Tiêu hóa). Kiểm tra, chọn giường theo gợi ý hoặc tự chọn, rồi bấm **Lưu & xếp giường**. "Bỏ qua người này" để nhận sau; "Dừng lại" để xem bảng đối chiếu.
    - **Nhiều hơn 10 người** (ví dụ lần đầu đưa cả khoa vào): app hiện danh sách trước. Có thể xếp giường lần lượt, hoặc **đưa tất cả vào danh sách chờ giường** rồi xếp dần.
 4. Bảng **Cần đối chiếu** liệt kê:
-   - Ca **nhập tay** trùng họ tên và năm sinh với danh sách bệnh viện → **Gắn mã** (từ đó tự đối chiếu được).
+   - Ca **nhập tay lúc gấp** mà họ tên **thiếu hoặc gõ sai** (vd "Bà Lụa" ↔ Phạm Thị Lụa, "Khanh" ↔ "Khang"), cùng giới → mục **"Có thể là người đã nhập tay lúc gấp"**. Xem kỹ rồi bấm **Đúng người – gắn mã** (họ tên, năm sinh sửa theo bệnh viện, giường giữ nguyên) hoặc **Không phải**. Khi có mục này, app hiện bảng đối chiếu trước để không nhận trùng.
+   - Ca **nhập tay** trùng họ tên (không kể dấu) với danh sách bệnh viện → **Gắn mã** (từ đó tự đối chiếu được).
    - Họ tên, năm sinh, giới **khác với** danh sách bệnh viện → **Sửa theo bệnh viện**.
    - Có trên sơ đồ nhưng **không còn** trong danh sách bệnh viện → có thể đã ra viện/chuyển khoa → **Ra khoa…**.
    - Nhập tay chưa có mã và không tìm thấy trong danh sách → kiểm tra lại.
    - Đã cho ra khoa trên sơ đồ nhưng **vẫn còn** trong danh sách bệnh viện → kiểm tra phần mềm bệnh viện.
    - Nếu file không phải vừa xuất (cũ hơn 2 giờ hoặc khác ngày), app nhắc xuất lại.
+
+**Tập huấn:**
+- Dùng bản xem thử (địa chỉ không có `chung.html`) với các file a mẫu trong thư mục `tap-huan-xep-giuong` (xem `KICH-BAN-TAP-HUAN.md`).
+- File mẫu có dòng "FILE MẪU TẬP HUẤN": bản thật từ chối đọc, bản xem thử chỉ đọc file mẫu.
+- Xong buổi tập nên xóa file a.xls mẫu khỏi thư mục Tải xuống.
 
 File chỉ được đọc trong trình duyệt của máy đó. Chỉ những người được bấm Lưu mới được đưa lên sơ đồ chung. Bộ đọc file Excel (SheetJS) được tải từ internet ở lần dùng đầu tiên.
 
