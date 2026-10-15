@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.2-thu1 (15/10/2026).
+Cập nhật cho bản 2.2-thu2 (15/10/2026).
 
 ## Địa chỉ
 
@@ -91,6 +91,8 @@ Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
   - Khi nhận bệnh, ghi đúng giờ vào khoa. Mặc định là lúc nhận; bấm "Cập nhật bệnh mới" thì lấy giờ từ phần mềm bệnh viện.
   - Khi cho ra khoa, đi mổ mà ghi muộn, sửa lại ô "Thời điểm" cho đúng giờ thật.
   - Trước khi in báo cáo, nên bấm "Cập nhật bệnh mới" để biết người nào đã ra viện trên phần mềm bệnh viện mà chưa ra khoa trên sơ đồ.
+- **Đi mổ** tính như chuyển khoa: lúc đi tính vào "Chuyển khoa khác" (chuyển mổ), lúc về tính vào "Khoa khác chuyển đến" (mổ về). Người đang ở phòng mổ lúc 7 giờ không tính vào "Còn cuối kỳ". Khi bấm "Mổ về", ghi đúng giờ về rồi bấm Xác nhận (giường cũ đã chọn sẵn).
+- **Ra khoa khác** gồm xin về và trốn viện; tử vong là cột riêng.
 - **Danh sách điều dưỡng** để chọn người giao, người nhận nằm ở Cài đặt mục 3, cạnh danh sách bác sĩ.
 
 ## Cấu hình máy tối thiểu

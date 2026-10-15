@@ -23,6 +23,37 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.2-thu2 — 15/10/2026 — Đi mổ tính như chuyển khoa, thêm "Trốn viện"
+
+- **File:** `phien-ban/v2.2-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.2-thu2`. Máy chủ không đổi.
+
+**Mới so với 2.2-thu1** (theo quyết định của bác sĩ ngày 15/10/2026)
+
+- **Đi mổ trong báo cáo giao ca:**
+  - Đi mổ tính là "Chuyển khoa khác" (ghi chú "Chuyển mổ"); mổ về tính là "Khoa khác chuyển đến" (nơi chuyển đến "Phòng mổ (mổ về)"). Đi rồi về trong cùng kỳ thì có cả hai dòng.
+  - Người đang ở phòng mổ lúc 7 giờ không tính vào "Còn cuối kỳ".
+  - Đi mổ rồi không về khoa (chuyển hồi sức, tử vong…) chỉ tính một lần là chuyển mổ; ghi chú nêu kết cục.
+- **Ghi từng lần đi mổ** (`p.ops`): giờ đi và giờ về. Bấm "Mổ về" nay luôn mở bảng xếp giường có ô **thời điểm mổ về**; giường cũ còn dùng được thì đã chọn sẵn, chỉ cần bấm Xác nhận.
+- **Hình thức ra khoa "Trốn viện"**, tính vào "Ra khoa khác" cùng "Xin về". "Tử vong" vẫn là cột riêng như mẫu.
+- **Đối chiếu file bệnh viện:** người đang đi mổ mà không có trong file được ghi chú là có thể đang ở khoa gây mê, nút đổi thành "Không về…".
+
+**Đã thử** (bản một máy, dữ liệu mẫu)
+
+- Báo cáo có dòng chuyển mổ và mổ về; người đang ở phòng mổ không tính vào "Còn cuối kỳ"; đối chiếu khớp. Số còn cuối kỳ của ngày trước vẫn bằng số cũ đầu kỳ của ngày sau.
+- Mổ về: giường cũ được chọn sẵn; giờ về sớm hơn giờ đi bị chặn; lưu đúng giờ về.
+- Đi mổ rồi "Không về" (chuyển khoa hồi sức): chỉ tăng một ở "Chuyển khoa khác".
+- Trốn viện: vào cột "Ra khoa khác".
+
+**Chưa thử**
+
+- Như 2.2-thu1: chưa thử trên máy ở khoa, chưa in giấy thật, chưa thử với tài khoản điều dưỡng thật.
+
+**Hạn chế**
+
+- Những lần đi mổ ghi ở bản 2.2-thu1 mà đã về thì không có giờ về, nên không vào báo cáo. Hiện máy chủ chưa có người bệnh nào nên không ảnh hưởng.
+
+---
+
 ## 2.2-thu1 — 15/10/2026 — Báo cáo bệnh trong ngày (giao ca 7 giờ), bấm chọn bác sĩ, giờ vào/ra khoa
 
 - **File:** `phien-ban/v2.2-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.2-thu1`.
