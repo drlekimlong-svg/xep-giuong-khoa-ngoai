@@ -26,7 +26,7 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 ## 2.3-thu1 — 15/10/2026 — Nhận ra ca nhập tay sai/thiếu tên, bản xem thử để tập huấn
 
 - **File:** `phien-ban/v2.3-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.3-thu1`. Máy chủ không đổi.
-- **Bộ tập huấn** (ngoài kho, vì có file .xls): `K:\BV AN BÌNH	ap-huan-xep-giuong\`, gồm 5 file `a_TH1…TH5.xls` tên giả, mã giả 99…, và `KICH-BAN-TAP-HUAN.md`.
+- **Bộ tập huấn** (ngoài kho, vì có file .xls): thư mục `tap-huan-xep-giuong` cạnh thư mục `xep-giuong`, gồm 5 file `a_TH1…TH5.xls` tên giả, mã giả 99…, và `KICH-BAN-TAP-HUAN.md`.
 
 **Mới so với 2.2-thu2**
 
