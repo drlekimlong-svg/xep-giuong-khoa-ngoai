@@ -352,7 +352,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.3-thu1', VERSION_DATE = '15/10/2026';
+var VERSION = '2.3-thu2', VERSION_DATE = '16/10/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -2463,7 +2463,13 @@ function importHis(repick) {
     toast('Đang đọc ' + file.name + '…');
     return parseHisFile(file).then(function (r) {
       var training = fold(r.title).indexOf('tap huan') >= 0;
-      if (training && !DEMO) throw new Error('Đây là file mẫu để tập huấn (tên giả), không dùng cho sơ đồ thật. Hãy xuất lại file “a” từ phần mềm bệnh viện, lưu đè lên file cũ, rồi bấm lại.');
+      // file mẫu tập huấn mở nhầm ở bản thật: không đọc, hỏi có chuyển sang bản xem thử không
+      if (training && !DEMO) {
+        if (confirm('Đây là file mẫu để tập huấn (tên giả). Trang đang mở là ' + (cloud ? 'sơ đồ chung của khoa' : 'bản dùng trên máy này') +
+            ', không phải bản xem thử, nên không đọc file này.\n\nBấm OK để mở bản xem thử rồi bấm lại “Cập nhật bệnh mới”.\n' +
+            'Bấm Hủy nếu cần dùng thật: xuất lại file “a” từ phần mềm bệnh viện, lưu đè lên file cũ.')) location.href = location.pathname + '#mau';
+        throw cancelled();
+      }
       if (!training && DEMO) throw new Error('Bản xem thử chỉ đọc các file a mẫu để tập huấn (tên giả), không đọc danh sách thật của bệnh viện.');
       imp = {fileName: file.name, fileTime: file.lastModified || Date.now(), exportDate: r.exportDate, title: r.title, rows: r.rows, queue: [], total: 0};
       // khoa mới gặp trong file được thêm vào danh sách khoa

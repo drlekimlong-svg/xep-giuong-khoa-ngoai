@@ -23,6 +23,18 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.3-thu2 — 16/10/2026 — Mở nhầm file mẫu ở bản thật: hỏi chuyển sang bản xem thử
+
+- **File:** `phien-ban/v2.3-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.3-thu2`.
+- **Lý do sửa:**
+  - Bác sĩ đổi file TH1 thành "a" rồi mở trang `…/XepGiuong_KhoaNgoai.html` không có đuôi `#mau`, tức là bản dùng trên máy chứ không phải bản xem thử. App từ chối file mẫu (đúng như thiết kế) nhưng thông báo không chỉ cách làm tiếp.
+  - Trang đó còn dữ liệu mẫu cũ từ trước bản 2.3, khi bản xem thử và bản một máy còn lưu chung.
+- **Mới:** gặp file mẫu ở bản thật, app vẫn không đọc, nhưng hỏi "Mở bản xem thử?". Bấm OK là chuyển sang `#mau` (bản xem thử có dữ liệu mẫu mới, có mã); bấm Hủy để xuất lại file thật.
+- **Đã thử:** mở trang không có `#mau`, đọc file TH1 → app hỏi → OK → sang bản xem thử, dữ liệu của bản một máy không bị đụng tới; đọc lại TH1 ở bản xem thử thì mở bảng nhận bệnh 1/3.
+- **Kịch bản tập huấn** thêm bước kiểm tra địa chỉ có `#mau`.
+
+---
+
 ## 2.3-thu1 — 15/10/2026 — Nhận ra ca nhập tay sai/thiếu tên, bản xem thử để tập huấn
 
 - **File:** `phien-ban/v2.3-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.3-thu1`. Máy chủ không đổi.
