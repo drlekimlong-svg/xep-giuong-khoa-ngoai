@@ -25,7 +25,8 @@ alter table public.staff add column if not exists must_change boolean not null d
 alter table public.staff add column if not exists active      boolean not null default true;
 alter table public.staff add column if not exists created_at  timestamptz not null default now();
 alter table public.staff drop constraint if exists staff_role_check;
-alter table public.staff add constraint staff_role_check check (role in ('admin', 'nurse', 'doctor', 'view'));
+-- headnurse = điều dưỡng trưởng: như điều dưỡng, thêm quyền xóa/khôi phục hồ sơ nhập trùng, nhập nhầm (từ bản 2.4)
+alter table public.staff add constraint staff_role_check check (role in ('admin', 'nurse', 'headnurse', 'doctor', 'view'));
 create unique index if not exists staff_one_admin on public.staff ((true)) where role = 'admin';
 create unique index if not exists staff_login_id_key on public.staff (lower(login_id)) where login_id is not null;
 
@@ -84,9 +85,14 @@ begin
        or new.data->'discharged' is distinct from old.data->'discharged') then
     raise exception 'Bác sĩ chỉ được bổ sung thông tin, không được nhận bệnh, xếp giường hay cho ra khoa.' using errcode = '42501';
   end if;
-  -- báo cáo bệnh trong ngày (giao ca) do điều dưỡng ghi; bác sĩ chỉ xem và in (từ bản 2.2)
-  if r = 'doctor' and new.data->'reports' is distinct from old.data->'reports' then
+  -- báo cáo bệnh trong ngày (giao ca) do điều dưỡng ghi; bác sĩ chỉ xem và in (từ bản 2.2; thiếu mục = rỗng)
+  if r = 'doctor' and coalesce(new.data->'reports', '{}'::jsonb) is distinct from coalesce(old.data->'reports', '{}'::jsonb) then
     raise exception 'Báo cáo giao ca do điều dưỡng ghi; bác sĩ chỉ xem và in.' using errcode = '42501';
+  end if;
+  -- hồ sơ đã xóa (nhập trùng, nhập nhầm): chỉ quản trị viên và điều dưỡng trưởng được xóa hoặc khôi phục (từ bản 2.4)
+  if (r is null or r not in ('admin', 'headnurse'))
+     and coalesce(new.data->'deleted', '[]'::jsonb) is distinct from coalesce(old.data->'deleted', '[]'::jsonb) then
+    raise exception 'Chỉ quản trị viên và điều dưỡng trưởng được xóa hoặc khôi phục hồ sơ.' using errcode = '42501';
   end if;
   return new;
 end $$;
@@ -138,11 +144,11 @@ create policy "nhan vien doc so do" on public.ward_state
   for select to authenticated using (private.my_role() is not null);
 
 create policy "quan tri va dieu duong tao so do" on public.ward_state
-  for insert to authenticated with check (private.my_role() in ('admin', 'nurse'));
+  for insert to authenticated with check (private.my_role() in ('admin', 'nurse', 'headnurse'));
 
 create policy "quan tri dieu duong bac si cap nhat so do" on public.ward_state
-  for update to authenticated using (private.my_role() in ('admin', 'nurse', 'doctor'))
-  with check (private.my_role() in ('admin', 'nurse', 'doctor'));
+  for update to authenticated using (private.my_role() in ('admin', 'nurse', 'headnurse', 'doctor'))
+  with check (private.my_role() in ('admin', 'nurse', 'headnurse', 'doctor'));
 
 create policy "nhan vien doc ban luu ngay" on public.ward_state_daily
   for select to authenticated using (private.my_role() is not null);

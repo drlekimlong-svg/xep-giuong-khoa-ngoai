@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.3-thu1 (15/10/2026).
+Cập nhật cho bản 2.4-thu1 (16/10/2026).
 
 ## Địa chỉ
 
@@ -23,15 +23,17 @@ Phía sau, tên đăng nhập được đổi thành một địa chỉ nội b�
 
 ## Vai trò
 
-| Việc | Quản trị | Điều dưỡng | Bác sĩ | Chỉ xem |
-|---|:-:|:-:|:-:|:-:|
-| Xem sơ đồ, danh sách, báo cáo, in, xuất Excel, lịch sử | ✓ | ✓ | ✓ | ✓ |
-| Sửa, bổ sung thông tin người bệnh | ✓ | ✓ | ✓ | |
-| Ghi báo cáo bệnh trong ngày (giao ca) | ✓ | ✓ | | |
-| Nhận bệnh, xếp và chuyển giường, đi mổ, ra khoa, hoàn tác | ✓ | ✓ | | |
-| Tải file sao lưu | ✓ | ✓ | | |
-| Cài đặt (phân khu, giới phòng, phòng dịch vụ, tên khoa) | ✓ | | | |
-| Quản lý tài khoản | ✓ | | | |
+| Việc | Quản trị | Điều dưỡng trưởng | Điều dưỡng | Bác sĩ | Chỉ xem |
+|---|:-:|:-:|:-:|:-:|:-:|
+| Xem sơ đồ, danh sách, báo cáo, in, xuất Excel, lịch sử | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Sửa, bổ sung thông tin người bệnh | ✓ | ✓ | ✓ | ✓ | |
+| Ghi báo cáo bệnh trong ngày (giao ca) | ✓ | ✓ | ✓ | | |
+| Nhận bệnh, xếp và chuyển giường, đi mổ, ra khoa, hoàn tác | ✓ | ✓ | ✓ | | |
+| Xác nhận hai người cùng họ tên là khác người | ✓ | ✓ | ✓ | | |
+| **Xóa, khôi phục hồ sơ nhập trùng / nhập nhầm** (bắt ghi lý do) | ✓ | ✓ | | | |
+| Tải file sao lưu | ✓ | ✓ | ✓ | | |
+| Cài đặt (phân khu, giới phòng, phòng dịch vụ, tên khoa) | ✓ | | | | |
+| Quản lý tài khoản | ✓ | | | | |
 
 Quyền được kiểm hai lớp. Giao diện ẩn những nút không được dùng; máy chủ cũng từ chối lưu nếu thay đổi vượt quyền. Ví dụ bác sĩ đổi giường hay nhận bệnh sẽ bị máy chủ chặn dù giao diện có bị sửa.
 
@@ -78,6 +80,26 @@ Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để n
 File chỉ được đọc trong trình duyệt của máy đó. Chỉ những người được bấm Lưu mới được đưa lên sơ đồ chung. Bộ đọc file Excel (SheetJS) được tải từ internet ở lần dùng đầu tiên.
 
 **Danh sách khoa:** "Khoa chuyển đến" khi nhận bệnh và "Chuyển đến khoa" khi chuyển khoa chọn từ danh sách khoa trong Cài đặt (mục 4). Khoa mới xuất hiện trong file a được tự thêm vào; quản trị viên bổ sung các khoa còn thiếu.
+
+## Nhập trùng, nhập nhầm, cùng họ tên
+
+- **Xóa khác Ra khoa.** "Ra khoa" là người bệnh rời khoa thật và được tính vào số liệu. "Xóa…" dùng khi hồ sơ **không nên có**: một người bị nhập 2 lần, hoặc nhập nhầm người không thuộc khoa (vd khoa khác nhập nhầm trên phần mềm bệnh viện).
+- **Ai được xóa:** chỉ quản trị viên và điều dưỡng trưởng. Nút "Xóa…" có trong hồ sơ người bệnh và trong Lịch sử, dùng được cho cả người đã ra khoa.
+- **Cách xóa:** chọn lý do và ghi rõ (vd "trùng với hồ sơ giường 616 – G2").
+- **Sau khi xóa:**
+  - Hồ sơ không còn tính vào sơ đồ, báo cáo, Excel. Hồ sơ vẫn nằm ở **Lịch sử → Hồ sơ đã xóa** và **Khôi phục** được.
+  - Nếu phần mềm bệnh viện vẫn còn người đó, lúc "Cập nhật bệnh mới" app để ở mục riêng, không coi là bệnh mới. Báo khoa, phòng liên quan sửa trên phần mềm bệnh viện.
+- **Rà soát trùng:**
+  - **Lúc nhận bệnh:** nếu đã có người cùng họ tên (không kể dấu) và cùng năm sinh, app hỏi lại. Cùng một người thì bấm **Hủy**. Hai người khác nhau thì bấm **OK**, hai hồ sơ được đánh dấu "trùng".
+  - **Trên sơ đồ:** nếu có hồ sơ nghi trùng, dải đỏ "Có thể nhập trùng" hiện với nút **Rà soát**. Trong bảng rà soát: **Xóa bản thừa…** (quản trị, điều dưỡng trưởng) hoặc **Khác người – giữ cả**.
+- **Cùng họ tên, cùng năm sinh nhưng khác người:**
+  - Căn cứ là **mã bệnh nhân** (mỗi người một mã).
+  - Giường của họ có dấu "trùng"; hồ sơ và danh sách in ghi kèm mã.
+  - Khi chuyển giường, cho ra khoa, giao ca: đối chiếu mã và giường trước khi bấm.
+
+## Phiên bản mới
+
+Khi có phiên bản mới, màn hình đang mở app sẽ hiện thanh "Đã có phiên bản mới … **Tải lại**" (kiểm 10 phút một lần và mỗi khi mở lại tab). Làm xong việc đang dở rồi bấm Tải lại; app không tự tải lại để khỏi mất việc đang ghi.
 
 ## Báo cáo bệnh trong ngày (giao ca 7 giờ)
 

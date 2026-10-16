@@ -214,7 +214,9 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
   .top h1{font-size:17px}
   .tools{width:100%;justify-content:flex-start}
   .tools>*{margin:4px 6px 4px 0}
-  #q{flex:1 1 100%;width:auto}
+  .qwrap{flex:1 1 100%}
+  #q{width:100%}
+  #qres{min-width:0;width:100%}
   .stats{padding:8px 12px 0}
   .stat{flex:1 1 28%;min-width:0;margin:0 6px 6px 0;padding:5px 8px}
   .stat b{font-size:17px}
@@ -268,6 +270,24 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 .fld .dt input[type=text]+input[type=text]{flex:none;width:96px;margin-left:6px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media (max-width:900px){.two{grid-template-columns:1fr}}
+/* ---- ô mật khẩu có nút hiện/ẩn ---- */
+.pwf{position:relative}
+.pwf input{padding-right:46px!important}
+.eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;padding:6px 8px;color:var(--muted);line-height:0}
+.eye:hover,.eye.on{color:var(--accent)}
+.eye svg{width:22px;height:22px}
+/* ---- tìm kiếm: danh sách kết quả ---- */
+.qwrap{position:relative;display:inline-block}
+#qres{position:absolute;left:0;top:100%;margin-top:4px;z-index:40;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.15);min-width:330px;max-width:92vw;max-height:60vh;overflow:auto}
+#qres button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #edf0f4;background:#fff;padding:8px 12px;font-size:13.5px}
+#qres button:hover{background:var(--accent-bg)}
+#qres small{color:var(--muted)}
+#qres .none{padding:8px 12px;color:var(--muted);font-size:13px}
+.tag.g-mix{background:#eef0f3;color:#475467;border-color:#98a2b3}
+.bed .bd.same{background:#7a5b00}
+/* ---- báo phiên bản mới ---- */
+.upd{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:90;background:#0e6655;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);display:flex;align-items:center;flex-wrap:wrap;max-width:94vw;font-size:14px}
+.upd .btn{margin-left:10px}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
 @media print{
@@ -285,7 +305,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
     <div class="sub" id="todayLine"></div>
   </div>
   <div class="tools">
-    <input id="q" type="search" placeholder="Tìm người bệnh / bác sĩ…" autocomplete="off">
+    <span class="qwrap"><input id="q" type="search" placeholder="Tìm tên (không cần dấu), mã BN, phòng…" autocomplete="off"><div id="qres" hidden></div></span>
     <button class="btn primary big" data-act="new">+ Nhận bệnh</button>
     <button class="btn desk-only" data-act="importHis" title="Đọc file a.xls xuất từ phần mềm bệnh viện để thêm bệnh mới">Cập nhật bệnh mới</button>
     <button class="btn" data-act="report">Báo cáo</button>
@@ -321,7 +341,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
     <h2>Đăng nhập</h2>
     <p class="hint" style="margin-bottom:14px">Sơ đồ xếp giường – Khoa Ngoại, Bệnh viện An Bình</p>
     <div class="fld"><label for="l_email">Tên đăng nhập</label><input id="l_email" type="text" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="ví dụ: LNKhoi" required></div>
-    <div class="fld"><label for="l_pass">Mật khẩu</label><input id="l_pass" type="password" autocomplete="current-password" required></div>
+    <div class="fld"><label for="l_pass">Mật khẩu</label><div class="pwf"><input id="l_pass" type="password" autocomplete="current-password" required><button type="button" class="eye" data-eye="l_pass" title="Hiện mật khẩu" aria-label="Hiện mật khẩu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <p id="l_err" class="err"></p>
     <button class="btn primary big" type="submit" id="l_btn" style="width:100%">Đăng nhập</button>
     <p class="hint" style="margin-top:12px">Tài khoản do quản trị viên của khoa cấp. Quên mật khẩu xin báo quản trị viên để đặt lại.</p>
@@ -333,8 +353,8 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
   <form class="logincard" id="pwForm">
     <h2 id="p_title">Đổi mật khẩu</h2>
     <p class="hint" id="p_hint" style="margin-bottom:14px"></p>
-    <div class="fld"><label for="p_new">Mật khẩu mới</label><input id="p_new" type="password" autocomplete="new-password" required></div>
-    <div class="fld"><label for="p_new2">Nhập lại mật khẩu mới</label><input id="p_new2" type="password" autocomplete="new-password" required></div>
+    <div class="fld"><label for="p_new">Mật khẩu mới</label><div class="pwf"><input id="p_new" type="password" autocomplete="new-password" required><button type="button" class="eye" data-eye="p_new" title="Hiện mật khẩu" aria-label="Hiện mật khẩu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+    <div class="fld"><label for="p_new2">Nhập lại mật khẩu mới</label><div class="pwf"><input id="p_new2" type="password" autocomplete="new-password" required><button type="button" class="eye" data-eye="p_new2" title="Hiện mật khẩu" aria-label="Hiện mật khẩu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <p class="hint">Ít nhất 8 ký tự, có cả chữ và số. Không dùng lại mật khẩu ban đầu.</p>
     <p id="p_err" class="err"></p>
     <button class="btn primary big" type="submit" id="p_btn" style="width:100%">Lưu mật khẩu mới</button>
@@ -342,6 +362,7 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
   </form>
 </div>
 <div id="toast" class="toast" hidden></div>
+<div id="updBar" class="upd" hidden></div>
 <div id="printArea"></div>
 <input type="file" id="fileRestore" accept=".json,application/json" hidden>
 <input type="file" id="fileImport" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
@@ -352,19 +373,19 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.3-thu2', VERSION_DATE = '16/10/2026';
+var VERSION = '2.4-thu1', VERSION_DATE = '16/10/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
 var KEY = DEMO ? 'xepgiuong.khoangoai.mau' : 'xepgiuong.khoangoai.v1';
-var SAMPLE_VER = 3;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
+var SAMPLE_VER = 4;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
 // Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
 var LOGIN_DOMAIN = 'khoangoai.invalid';
 var ACCOUNT_FN = '/functions/v1/quan-ly-tai-khoan';
 // Vai trò và việc được làm. Quản trị viên (một người) làm được mọi thứ; máy chủ cũng kiểm lại (supabase/thiet-lap.sql).
-var ROLE_NAMES = {admin: 'Quản trị', nurse: 'Điều dưỡng', doctor: 'Bác sĩ', view: 'Chỉ xem'};
+var ROLE_NAMES = {admin: 'Quản trị', nurse: 'Điều dưỡng', headnurse: 'Điều dưỡng trưởng', doctor: 'Bác sĩ', view: 'Chỉ xem'};
 var ROLE_ACTS = {
   nurse: ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait', 'undo', 'backup',
     'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
@@ -372,12 +393,15 @@ var ROLE_ACTS = {
   doctor: ['edit', 'saveForm'],   // bác sĩ: xem và bổ sung thông tin, không nhận bệnh, không xếp giường
   view: []
 };
+ROLE_ACTS.nurse.push('dupOk');   // xác nhận hai người cùng họ tên là khác người
+// điều dưỡng trưởng: như điều dưỡng, thêm quyền xóa và khôi phục hồ sơ nhập trùng, nhập nhầm (bác sĩ quyết định 16/10/2026)
+ROLE_ACTS.headnurse = ROLE_ACTS.nurse.concat(['delRec', 'delConfirm', 'restoreDel']);
 // Các nút cần quyền; nút không có trong danh sách này (xem, in, xuất Excel, lịch sử…) ai cũng dùng được.
 var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
   'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
   'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock',
   'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
-  'repEdit', 'repAddEv', 'repDelEv'];
+  'repEdit', 'repAddEv', 'repDelEv', 'delRec', 'delConfirm', 'restoreDel', 'dupOk'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
 // Một file chạy được ba kiểu, chọn bằng cách mở:
@@ -431,7 +455,7 @@ function defaultRooms() {
     R('612', 6, 'NIEU', 'M'), R('614', 6, 'NIEU', 'F'), R('615', 6, 'TH', 'auto'),
     R('616', 6, 'TH', 'M'), R('617', 6, 'TH', 'F'),
     R('618', 4, 'TH', 'M'),
-    R('619', 4, 'TH', 'M', true), R('620', 4, 'TH', 'F')
+    R('619', 4, 'TH', 'mix', true), R('620', 4, 'TH', 'F')   // 619: nam nữ chung (bác sĩ quyết định 16/10/2026)
   ];
 }
 // Các khoa đã chuyển bệnh tới (lấy từ danh sách của phần mềm bệnh viện); quản trị viên bổ sung trong Cài đặt.
@@ -451,6 +475,8 @@ function defaultState() {
     nurses: [],           // điều dưỡng: để chọn người giao, người nhận trong báo cáo giao ca
     depts: DEFAULT_DEPTS.slice(),
     reports: {},          // báo cáo bệnh trong ngày: phần điều dưỡng ghi, theo ngày báo cáo
+    deleted: [],          // hồ sơ đã xóa (nhập trùng, nhập nhầm) kèm lý do; không tính vào số liệu
+    dupOk: [],            // cặp người bệnh cùng họ tên đã xác nhận là khác người ("id1|id2")
     patients: [],
     discharged: [],
     log: [],
@@ -647,6 +673,7 @@ function setSync(s) {
 }
 function showLogin(msg) {
   $('login').hidden = false;
+  hidePws();
   $('l_err').textContent = msg || '';
   $('l_btn').disabled = false;
   $('l_local').innerHTML = cloud.fixed ? '' : '<button type="button" class="btn small" data-act="cloudOff">Ngắt kết nối, dùng bản một máy</button>';
@@ -801,7 +828,19 @@ function weakPw(pw) {
   if (!/[A-Za-z]/.test(pw) || !/[0-9]/.test(pw)) return 'Mật khẩu cần có cả chữ và số.';
   return '';
 }
+var EYE_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>', EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
+function togglePw(btn, hide) {
+  var inp = $(btn.getAttribute('data-eye')), show = !hide && inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.innerHTML = show ? EYE_OFF : EYE_ON;
+  btn.title = show ? 'Ẩn mật khẩu' : 'Hiện mật khẩu';
+  btn.setAttribute('aria-label', btn.title);
+  btn.classList.toggle('on', show);
+  if (!hide) inp.focus();
+}
+function hidePws() { Array.prototype.forEach.call(document.querySelectorAll('[data-eye]'), function (b) { togglePw(b, true); }); }
 function showPwChange(forced) {
+  hidePws();
   $('pwbox').hidden = false;
   $('p_new').value = ''; $('p_new2').value = ''; $('p_err').textContent = ''; $('p_btn').disabled = false;
   $('p_title').textContent = forced ? 'Đặt mật khẩu mới' : 'Đổi mật khẩu';
@@ -842,7 +881,7 @@ function loadAccounts() {
   return fn('danh-sach').then(function (j) { acc.list = (j && j.staff) || []; renderAccounts(); }).catch(accFail);
 }
 function roleSelect(cls, attrs, val) {
-  return '<select class="' + cls + '" ' + attrs + '>' + (val ? '' : '<option value="" selected>— chọn —</option>') + ['nurse', 'doctor', 'view'].map(function (r) {
+  return '<select class="' + cls + '" ' + attrs + '>' + (val ? '' : '<option value="" selected>— chọn —</option>') + ['nurse', 'headnurse', 'doctor', 'view'].map(function (r) {
     return '<option value="' + r + '"' + (r === val ? ' selected' : '') + '>' + ROLE_NAMES[r] + '</option>';
   }).join('') + '</select>';
 }
@@ -860,7 +899,7 @@ function renderAccounts() {
       '</td></tr>';
   });
   h += '</table>';
-  h += '<h3>Thêm tài khoản</h3><p class="hint">Mỗi dòng một người: họ tên kèm học hàm, dấu chấm phẩy, rồi vai trò: <b>dd</b> = điều dưỡng, <b>bs</b> = bác sĩ, <b>xem</b> = chỉ xem, ' +
+  h += '<h3>Thêm tài khoản</h3><p class="hint">Mỗi dòng một người: họ tên kèm học hàm, dấu chấm phẩy, rồi vai trò: <b>dd</b> = điều dưỡng, <b>ddt</b> = điều dưỡng trưởng, <b>bs</b> = bác sĩ, <b>xem</b> = chỉ xem, ' +
     '<b>qt</b> = chỉ đưa tên vào danh sách bác sĩ phụ trách, không tạo tài khoản. Ví dụ: <i>TS. BS. Lê Nguyên Khôi; bs</i></p>' +
     '<textarea id="acc_text" rows="6">' + esc(acc.text) + '</textarea><div class="databtns" style="margin-top:6px"><button class="btn" data-act="accPreview">Xem trước</button></div>';
   if (acc.preview.length) {
@@ -886,6 +925,7 @@ function renderAccounts() {
 function parseRole(tok, full) {
   var t = namePlain(tok).toLowerCase().replace(/\s+/g, ' ').trim();
   if (/^(bs|bac si|doctor)$/.test(t)) return 'doctor';
+  if (/^(ddt|dd truong|dieu duong truong|headnurse)$/.test(t)) return 'headnurse';
   if (/^(dd|dieu duong|nurse)$/.test(t)) return 'nurse';
   if (/^(xem|chi xem|view)$/.test(t)) return 'view';
   if (/^(qt|quan tri|admin)$/.test(t)) return 'qt';
@@ -1093,11 +1133,13 @@ function gendersOf(occ) {
 }
 // Phòng cố định Nam/Nữ chỉ nhận đúng giới; phòng "linh hoạt" theo giới của người đang nằm.
 function genderFits(rm, g, occ) {
+  if (rm.gender === 'mix') return true;   // phòng nam nữ chung (lẫn giới)
   if (rm.gender !== 'auto') return rm.gender === g;
   var now = gendersOf(occ);
   return now === null || now === g;
 }
 function roomGenderText(rm, occ) {
+  if (rm.gender === 'mix') return 'nam nữ chung';
   if (rm.gender !== 'auto') return GENDER[rm.gender];
   var g = gendersOf(occ);
   return g === 'X' ? 'cả Nam và Nữ' : GENDER[g];
@@ -1269,7 +1311,7 @@ function render() {
     ? '<span class="who">' + esc(session.name) + ' <small>· ' + (ROLE_NAMES[session.role] || '') + '</small></span>' +
       '<button class="btn small" data-act="accounts">Tài khoản</button>' +
       '<button class="btn small" data-act="pwChange">Đổi mật khẩu</button><button class="btn small" data-act="logout">Đăng xuất</button>' : '';
-  renderStatus(); renderStats(); renderNotice(); renderMap(); renderPanels(); renderFoot();
+  renderStatus(); renderStats(); renderNotice(); renderMap(); renderPanels(); renderFoot(); renderSearch();
   // ẩn nút không thuộc quyền của người đang đăng nhập (máy chủ cũng kiểm lại khi lưu)
   applyPerms(document);
 }
@@ -1315,6 +1357,10 @@ function renderNotice() {
     h += '<div class="notice">Chưa có người bệnh nào. Bấm <b>+ Nhận bệnh</b> hoặc bấm vào một <b>giường trống</b> trên sơ đồ để bắt đầu. ' +
       'Muốn xem thử cách hoạt động: <button class="btn small" data-act="sample">Nạp dữ liệu mẫu</button></div>';
   }
+  var sus = dupGroups().filter(function (g) { return g.suspect; });
+  if (sus.length) h += '<div class="notice err">⚠ <b>Có thể nhập trùng:</b> ' + sus.map(function (g) {
+    return esc(g.members[0].name) + ' (' + g.members.map(function (x) { return esc(placeOf(x)); }).join(', ') + ')';
+  }).join('; ') + ' <button class="btn small" data-act="dupView">Rà soát</button></div>';
   $('notice').innerHTML = h;
 }
 function renderMap() {
@@ -1332,7 +1378,8 @@ function renderMap() {
 function roomHTML(rm) {
   if (!rm) return '<div class="cell blank"></div>';
   var occ = occupantsOf(rm.id), g = gendersOf(occ), gb;
-  if (g === 'X' || (rm.gender !== 'auto' && g && g !== rm.gender)) gb = '<span class="tag g-X" title="Phòng đang có cả Nam và Nữ hoặc sai giới quy định">Lẫn giới</span>';
+  if (rm.gender === 'mix') gb = '<span class="tag g-mix" title="Phòng nam nữ chung (lẫn giới) – nhận cả Nam và Nữ">Nam nữ chung</span>';
+  else if (g === 'X' || (rm.gender !== 'auto' && g && g !== rm.gender)) gb = '<span class="tag g-X" title="Phòng đang có cả Nam và Nữ hoặc sai giới quy định">Lẫn giới</span>';
   else if (rm.gender !== 'auto') gb = '<span class="tag g-' + rm.gender + '" title="Phòng cố định ' + GENDER[rm.gender] + '">' + GENDER[rm.gender] + '</span>';
   else if (g) gb = '<span class="tag g-' + g + ' soft" title="Phòng linh hoạt – hiện đang là phòng ' + GENDER[g] + '">' + GENDER[g] + '*</span>';
   else gb = '<span class="tag g-any" title="Phòng linh hoạt – nhận Nam hoặc Nữ">Linh hoạt</span>';
@@ -1341,7 +1388,7 @@ function roomHTML(rm) {
     var p = null, hp = held[rm.id + '|' + b];
     for (var i = 0; i < occ.length; i++) if (occ[i].bed === b) { p = occ[i]; break; }
     beds += p ? bedHTML(p, rm, b)
-      : hp ? '<button class="bed free held' + (query ? (fold(hp.name + ' ' + hp.doctor).indexOf(query) >= 0 ? ' hit' : ' dim') : '') + '" data-act="patient" data-pid="' + hp.id + '" title="' +
+      : hp ? '<button class="bed free held' + (query ? (matchQ(hp) ? ' hit' : ' dim') : '') + '" data-act="patient" data-pid="' + hp.id + '" title="' +
         esc('Giường đang giữ cho ' + hp.name + ' (đi mổ ngày ' + fmtDate(hp.opAt) + ').\nBấm để ghi nhận mổ về.') + '"><span class="bn">' + b + '</span><span class="nm">' + esc(shortName(hp.name)) + '</span><span class="bd op">mổ</span></button>'
       : '<button class="bed free' + (query ? ' dim' : '') + '" data-act="admit" data-room="' + rm.id + '" data-bed="' + b + '"' + (rm.active ? '' : ' disabled') + '><span class="bn">' + b + '</span><span class="nm">trống</span></button>';
   }
@@ -1354,12 +1401,14 @@ function roomHTML(rm) {
 function bedHTML(p, rm, b) {
   var board = homeZone(p.spec) !== rm.zone;
   var cls = 'bed occ s-' + p.spec + (board ? ' board' : '');
-  if (query) cls += fold(p.name + ' ' + p.doctor + ' ' + p.dx + ' ' + (p.hisCode || '')).indexOf(query) >= 0 ? ' hit' : ' dim';
+  if (query) cls += matchQ(p) ? ' hit' : ' dim';
+  var twin = twinsOf(p).length;
   var title = p.name + ' – ' + GENDER[p.gender] + (p.yob ? ', ' + p.yob : '') + '\n' + specName(p.spec) +
-    (p.doctor ? ' – BS: ' + p.doctor : '') + (p.dx ? '\n' + p.dx : '') + (board ? '\n(Đang nằm nhờ khu ' + ZONES[rm.zone] + ')' : '');
+    (p.doctor ? ' – BS: ' + p.doctor : '') + (p.dx ? '\n' + p.dx : '') + (board ? '\n(Đang nằm nhờ khu ' + ZONES[rm.zone] + ')' : '') +
+    (p.hisCode ? '\nMã BN ' + p.hisCode : '') + (twin ? '\n⚠ Có hồ sơ khác cùng họ tên – đối chiếu mã bệnh nhân' : '');
   return '<button class="' + cls + '" data-act="patient" data-pid="' + p.id + '" title="' + esc(title) + '">' +
     '<span class="bn">' + b + '</span><span class="nm">' + esc(shortName(p.name)) + '</span>' +
-    (board ? '<span class="bd">nhờ</span>' : '') +
+    (board ? '<span class="bd">nhờ</span>' : '') + (twin ? '<span class="bd same">trùng</span>' : '') +
     '<span class="gx g-' + p.gender + '">' + (p.gender === 'M' ? '♂' : '♀') + '</span></button>';
 }
 function patientChip(p) {
@@ -1416,6 +1465,7 @@ function renderPanels() {
     visibleSpecs().map(function (s) { return '<span class="chip s-' + s.id + '">' + esc(s.name) + '</span>'; }).join('') + '</div>' +
     '<div class="lg"><span class="tag g-M">Nam</span><span class="tag g-F">Nữ</span> phòng cố định giới</div>' +
     '<div class="lg"><span class="tag g-M soft">Nam*</span><span class="tag g-any">Linh hoạt</span> phòng theo giới người vào trước</div>' +
+    (state.rooms.some(function (r) { return r.active && r.gender === 'mix'; }) ? '<div class="lg"><span class="tag g-mix">Nam nữ chung</span> phòng không phân giới (lẫn giới)</div>' : '') +
     '<div class="lg"><span class="tag svc">DV</span> phòng dịch vụ, chỉ xếp khi người bệnh yêu cầu</div>' +
     '<div class="lg"><span class="tag rsv">Dự phòng</span> chỉ dùng khi thiếu giường hoặc trường hợp đặc biệt</div>' +
     '<div class="lg"><span class="bed occ s-NIEU board" style="width:96px;margin:0"><span class="nm">N.V. A</span><span class="bd">nhờ</span></span> nằm nhờ khu khác</div>' +
@@ -1552,7 +1602,7 @@ function refreshSug() {
     if (!rm.active) return;
     var occ = occupantsOf(rm.id);
     freeBedsOf(rm, occ).forEach(function (b) {
-      var g = rm.gender !== 'auto' ? GENDER[rm.gender] : (gendersOf(occ) ? roomGenderText(rm, occ) : 'linh hoạt');
+      var g = rm.gender === 'mix' ? 'nam nữ chung' : rm.gender !== 'auto' ? GENDER[rm.gender] : (gendersOf(occ) ? roomGenderText(rm, occ) : 'linh hoạt');
       var hp = held[rm.id + '|' + b];
       opts += '<option value="' + rm.id + '|' + b + '"' + (f.manual && isPick(rm.id, b) ? ' selected' : '') + '>' +
         bedLabel(rm.id, b) + ' · ' + rm.size + ' giường · ' + ZONES[rm.zone] + ' · ' + g + (rm.reserve ? ' · dự phòng' : '') +
@@ -1609,6 +1659,19 @@ function saveForm() {
     if (f.yob &&!(+f.yob >= 1900 && +f.yob <= new Date().getFullYear())) return fail('Năm sinh chưa hợp lệ.');
     var same = f.hisCode && state.patients.filter(function (x) { return x.hisCode === f.hisCode && x.id !== f.pid; })[0];
     if (same) return fail('Mã ' + f.hisCode + ' đã có ở người bệnh ' + same.name + (same.room ? ' (' + bedLabel(same.room, same.bed) + ')' : '') + '.');
+    // cùng họ tên, cùng năm sinh với người đang nằm: hỏi lại (trừ khi mỗi người một mã bệnh nhân khác nhau)
+    var cur = f.pid ? patientById(f.pid) : null;
+    f.dupWith = [];
+    if (!cur || nameKey(cur) !== nameKey({name: f.name}) || +(cur.yob || 0) !== +(f.yob || 0)) {
+      var tw = state.patients.filter(function (x) {
+        return x.id !== f.pid && sameName(x, {name: f.name, yob: f.yob}) && !(x.hisCode && f.hisCode && x.hisCode !== f.hisCode);
+      });
+      if (tw.length && !confirm('Trên sơ đồ đã có người cùng họ tên:\n' + tw.map(function (x) {
+          return '• ' + x.name + (x.yob ? ', ' + x.yob : '') + ', ' + GENDER[x.gender] + ' – ' + placeOf(x) + (x.hisCode ? ', mã ' + x.hisCode : ', chưa có mã');
+        }).join('\n') + '\n\nNếu là CÙNG MỘT NGƯỜI: bấm Hủy, không nhập thêm hồ sơ (muốn đổi giường thì dùng Chuyển giường).\n' +
+        'Nếu là NGƯỜI KHÁC cùng họ tên: bấm OK để lưu; hai hồ sơ sẽ có dấu “trùng” để mọi người đối chiếu mã bệnh nhân khi thao tác.')) return false;
+      f.dupWith = tw.map(function (x) { return x.id; });
+    }
   }
   if (f.mode === 'new') {
     p = {id: null, name: f.name, yob: f.yob ? +f.yob : null, gender: f.gender, spec: f.spec, doctor: f.doctor, want: f.want,
@@ -1652,6 +1715,7 @@ function saveForm() {
       msg = 'Đã chuyển ' + p.name + ' sang ' + bedLabel(p.room, p.bed);
     }
   }
+  if (p && f.dupWith && f.dupWith.length) f.dupWith.forEach(function (id) { markDupOk([id, p.id]); });
   var nextImport = f.fromImport && f.mode === 'new';
   closeModal(); commit(); toast(msg);
   if (nextImport) importNext();
@@ -1675,12 +1739,15 @@ function openPatient(pid) {
     row('Ngày vào khoa', fmtDate(p.admittedAt) + (p.admitTime ? ' lúc ' + p.admitTime : '') + ' (ngày thứ ' + dayN(p.admittedAt) + ')') +
     row('Nhận từ', esc(labelOf(SOURCES, p.src) || '—') + (p.srcDept ? ' – ' + esc(p.srcDept) : '')) +
     row('Mã bệnh nhân', esc(p.hisCode || '— (chưa có, nhập tay)')) +
+    (twinsOf(p).length ? row('Trùng họ tên', '<span class="chip warn">đối chiếu mã</span> ' + twinsOf(p).map(function (x) {
+      return esc(placeOf(x)) + (x.hisCode ? ' (mã ' + esc(x.hisCode) + ')' : ' (chưa có mã)'); }).join('; ') + ' <button class="btn small" data-act="dupView">Rà soát</button>') : '') +
     (lastTrip(p) ? row('Đi mổ', opText(p)) : p.opAt ? row('Đi mổ', 'ngày ' + fmtDate(p.opAt) + (p.away ? ' – chưa về khoa' : '')) : '') +
     row('Loại phòng yêu cầu', p.want ? p.want + ' giường' + (rm && rm.size !== p.want ? ' <span class="chip warn">chưa đáp ứng</span>' : '')
       : 'Không yêu cầu' + (rm && rm.svc ? ' <span class="chip warn">đang tạm nằm phòng dịch vụ</span>' : '')) +
     row('Ghi chú', esc(p.note || '—')) + '</table>' +
     (rm && can('hold') ? '<label class="chk"><input type="checkbox" id="p_hold" data-pid="' + p.id + '"' + (p.hold ? ' checked' : '') + '> Giữ nguyên giường này (không nhắc chuyển phòng)</label>' : '') +
-    '</div><div class="mfoot"><button class="btn danger" data-act="discharge" data-pid="' + p.id + '">' + (p.away ? 'Không về khoa' : 'Ra khoa') + '</button><span class="sp"></span>' +
+    '</div><div class="mfoot"><button class="btn danger" data-act="discharge" data-pid="' + p.id + '">' + (p.away ? 'Không về khoa' : 'Ra khoa') + '</button>' +
+    (can('delRec') ? '<button class="btn small danger" data-act="delRec" data-pid="' + p.id + '" title="Xóa hồ sơ nhập trùng hoặc nhập nhầm">Xóa…</button>' : '') + '<span class="sp"></span>' +
     '<button class="btn" data-act="edit" data-pid="' + p.id + '">Sửa thông tin</button>' +
     (p.away ? '<button class="btn primary" data-act="back" data-pid="' + p.id + '">Mổ về – nhận lại</button>'
       : '<button class="btn primary" data-act="move" data-pid="' + p.id + '">' + (rm ? 'Chuyển giường' : 'Xếp giường') + '</button>') + '</div>';
@@ -2042,6 +2109,194 @@ function openReportMenu() {
     '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
 }
 
+/* ---- xóa hồ sơ nhập trùng, nhập nhầm (quản trị viên, điều dưỡng trưởng) ---- */
+// Xóa khác ra khoa: hồ sơ rời khỏi sơ đồ, lịch sử và mọi số liệu, báo cáo. Bản ghi được giữ ở state.deleted
+// kèm lý do, người xóa, giờ xóa để tra lại hoặc khôi phục. Máy chủ chỉ cho quản trị viên và điều dưỡng trưởng sửa mục này.
+var DEL_KINDS = [['TRUNG', 'Nhập trùng (một người nhập 2 lần)'], ['NHAM', 'Nhập nhầm – không phải người bệnh của khoa'], ['KHAC', 'Lý do khác']];
+var delForm = null;
+function recById(pid) {
+  var p = patientById(pid);
+  if (p) return {p: p, from: 'patients'};
+  var d = state.discharged.filter(function (x) { return x.id === pid; })[0];
+  return d ? {p: d, from: 'discharged'} : null;
+}
+function nameKey(p) { return fold(p.name).replace(/[^a-z0-9]+/g, ' ').trim(); }
+// Cùng họ tên (không kể dấu) và cùng năm sinh, hoặc một bên chưa ghi năm sinh.
+function sameName(a, b) { return !!nameKey(a) && nameKey(a) === nameKey(b) && (!a.yob || !b.yob || +a.yob === +b.yob); }
+function placeOf(p) { return p.outAt ? 'đã ra khoa ' + p.outAt : p.room ? bedLabel(p.room, p.bed) : p.away ? 'đang đi mổ' : 'chờ giường'; }
+function recLine(x) {
+  return esc(x.name) + (x.yob ? ', ' + x.yob : '') + ' · ' + (GENDER[x.gender] || '') + (x.hisCode ? ' · mã ' + esc(x.hisCode) : ' · <i>chưa có mã</i>') +
+    ' · ' + esc(placeOf(x)) + ' · nhận ' + fmtDate(x.admittedAt).slice(0, 5) + (x.admitTime ? ' ' + x.admitTime : '');
+}
+function openDelete(pid) {
+  var r = recById(pid);
+  if (!r) return;
+  var p = r.p, twins = state.patients.concat(state.discharged).filter(function (x) { return x.id !== p.id && sameName(x, p); });
+  delForm = {pid: p.id, kind: twins.length ? 'TRUNG' : ''};
+  var h = mhead('Xóa hồ sơ nhập trùng, nhập nhầm') + '<div class="mbody"><p class="psum">' + recLine(p) + '</p>' +
+    '<p class="notice">Chỉ dùng khi hồ sơ này <b>không nên có trên sơ đồ</b>: một người bị nhập 2 lần, hoặc nhập nhầm người không thuộc khoa. ' +
+    'Người bệnh ra khoa thật thì dùng <b>Ra khoa</b>. Hồ sơ bị xóa không còn tính vào số liệu, báo cáo; vẫn xem lại và khôi phục được ở <b>Lịch sử → Hồ sơ đã xóa</b>.</p>';
+  if (twins.length) {
+    h += '<p style="margin:8px 0 4px"><b>Hồ sơ cùng họ tên</b> – kiểm tra mã bệnh nhân để xóa đúng bản thừa:</p><ul class="steps">' +
+      twins.map(function (x) { return '<li>' + recLine(x) + '</li>'; }).join('') + '</ul>';
+  }
+  h += field('Lý do *', seg('delKind', DEL_KINDS, delForm.kind)) +
+    field('Ghi rõ *', '<input id="del_note" type="text" autocomplete="off" placeholder="vd: trùng với hồ sơ giường 616 – G2, nhập 2 lần; hoặc: khoa Nội nhập nhầm trên phần mềm bệnh viện">') +
+    '<p id="f_err" class="err"></p></div><div class="mfoot"><button class="btn" data-act="close">Hủy</button>' +
+    '<button class="btn danger" data-act="delConfirm">Xóa hồ sơ</button></div>';
+  showModal(h);
+}
+function confirmDelete() {
+  var r = delForm ? recById(delForm.pid) : null;
+  if (!r) { closeModal(); return; }
+  var note = $('del_note').value.replace(/\s+/g, ' ').trim(), p = r.p;
+  if (!delForm.kind) { $('f_err').textContent = 'Chưa chọn lý do.'; return; }
+  if (note.length < 5) { $('f_err').textContent = 'Cần ghi rõ lý do xóa.'; return; }
+  if (!confirm('Xóa hồ sơ ' + p.name + ' khỏi sơ đồ và mọi số liệu, báo cáo?')) return;
+  if (r.from === 'patients') state.patients = state.patients.filter(function (x) { return x.id !== p.id; });
+  else state.discharged = state.discharged.filter(function (x) { return x.id !== p.id; });
+  state.deleted = state.deleted || [];
+  state.deleted.unshift({rec: p, from: r.from, kind: delForm.kind, note: note, at: nowStamp(), by: cloud && session ? session.name : ''});
+  if (state.deleted.length > 200) state.deleted.length = 200;
+  addLog('Xóa hồ sơ: ' + p.name + (p.hisCode ? ' · mã ' + p.hisCode : '') + ' · ' + labelOf(DEL_KINDS, delForm.kind) + ' – ' + note);
+  delForm = null; closeModal(); commit();
+  toast('Đã xóa hồ sơ ' + p.name + '. Có thể khôi phục ở Lịch sử → Hồ sơ đã xóa.');
+}
+function restoreDeleted(i) {
+  var d = (state.deleted || [])[i];
+  if (!d || !confirm('Khôi phục hồ sơ ' + d.rec.name + '?')) return;
+  var p = Object.assign({}, d.rec), msg;
+  if (state.patients.concat(state.discharged).some(function (x) { return x.id === p.id; })) { alert('Hồ sơ này đã có lại trên sơ đồ.'); return; }
+  if (d.from === 'discharged') {
+    state.discharged.push(p);
+    state.discharged.sort(function (a, b) { var x = outTs(a), y = outTs(b); return x < y ? 1 : x > y ? -1 : 0; });
+    msg = 'về lịch sử ra khoa';
+  } else {
+    if (p.hisCode && state.patients.some(function (x) { return x.hisCode === p.hisCode; })) { alert('Đang có người bệnh mang mã ' + p.hisCode + ' trên sơ đồ, không khôi phục được.'); return; }
+    var rm = p.room ? roomById(p.room) : null, ok = false;
+    if (rm && rm.active && p.bed <= rm.size) { var occ = occupantsOf(rm.id); ok = !occ.some(function (x) { return x.bed === p.bed; }) && genderFits(rm, p.gender, occ); }
+    if (!ok) { p.room = null; p.bed = null; }
+    state.patients.push(p);
+    msg = p.room ? 'về giường ' + bedLabel(p.room, p.bed) : p.away ? 'vào mục Đang đi mổ' : 'vào danh sách chờ giường';
+  }
+  state.deleted.splice(i, 1);
+  addLog('Khôi phục hồ sơ đã xóa: ' + p.name + ' → ' + msg);
+  commit(); openHistory(); toast('Đã khôi phục ' + p.name + ' ' + msg + '.');
+}
+
+/* ---- rà soát hồ sơ trùng họ tên ---- */
+// Mã bệnh nhân của phần mềm bệnh viện là căn cứ: hai hồ sơ cùng họ tên mà mỗi bên một mã khác nhau là hai người khác nhau.
+// Thiếu mã thì app nghi nhập trùng và nhắc rà soát, cho tới khi xóa bản thừa hoặc có người xác nhận "khác người" (state.dupOk).
+function dupKey(a, b) { return a.id < b.id ? a.id + '|' + b.id : b.id + '|' + a.id; }
+function dupGroups() {
+  var by = {}, out = [], ok = state.dupOk || [];
+  state.patients.forEach(function (p) { var k = nameKey(p); if (k) (by[k] = by[k] || []).push(p); });
+  Object.keys(by).forEach(function (k) {
+    var g = by[k], members = [], suspect = false, i, j;
+    for (i = 0; i < g.length; i++) for (j = i + 1; j < g.length; j++) {
+      if (!sameName(g[i], g[j])) continue;
+      if (members.indexOf(g[i]) < 0) members.push(g[i]);
+      if (members.indexOf(g[j]) < 0) members.push(g[j]);
+      var codes = g[i].hisCode && g[j].hisCode && g[i].hisCode !== g[j].hisCode;
+      if (!codes && ok.indexOf(dupKey(g[i], g[j])) < 0) suspect = true;
+    }
+    if (members.length) out.push({members: members.sort(cmpBed), suspect: suspect});
+  });
+  return out;
+}
+function twinsOf(p) {
+  return state.patients.filter(function (x) { return x.id !== p.id && sameName(x, p); });
+}
+function markDupOk(ids) {
+  var all = {};
+  state.patients.forEach(function (x) { all[x.id] = 1; });
+  state.dupOk = (state.dupOk || []).filter(function (k) { var a = k.split('|'); return all[a[0]] && all[a[1]]; });
+  for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) {
+    var k = dupKey({id: ids[i]}, {id: ids[j]});
+    if (state.dupOk.indexOf(k) < 0) state.dupOk.push(k);
+  }
+}
+function openDups() {
+  var gs = dupGroups(), sus = gs.filter(function (g) { return g.suspect; }), ok = gs.filter(function (g) { return !g.suspect; });
+  function table(g) {
+    var t = '<table class="set"><tr><th>Họ tên</th><th>Mã bệnh nhân</th><th>Vị trí</th><th>Nhận lúc</th><th>Nhận từ</th><th></th></tr>';
+    g.members.forEach(function (p) {
+      t += '<tr><td><b>' + esc(p.name) + '</b>' + (p.yob ? ', ' + p.yob : '') + ' · ' + (GENDER[p.gender] || '') + '</td><td>' + (p.hisCode ? esc(p.hisCode) : '<i>chưa có</i>') + '</td><td>' +
+        esc(placeOf(p)) + '</td><td>' + fmtDate(p.admittedAt).slice(0, 5) + (p.admitTime ? ' ' + p.admitTime : '') + '</td><td>' + esc(p.srcDept || labelOf(SOURCES, p.src) || '') + '</td>' +
+        '<td style="white-space:nowrap"><button class="btn small" data-act="patient" data-pid="' + p.id + '">Xem</button>' +
+        (can('delRec') ? ' <button class="btn small danger" data-act="delRec" data-pid="' + p.id + '">Xóa bản thừa…</button>' : '') + '</td></tr>';
+    });
+    return t + '</table>';
+  }
+  var h = mhead('Rà soát hồ sơ trùng họ tên') + '<div class="mbody"><p class="hint">App so họ tên (không kể dấu) và năm sinh của người bệnh đang nằm. ' +
+    '<b>Mã bệnh nhân</b> của phần mềm bệnh viện là căn cứ: mỗi người một mã. Cùng một người bị nhập 2 lần thì quản trị viên hoặc điều dưỡng trưởng xóa bản thừa (ghi lý do); ' +
+    'hai người khác nhau cùng họ tên thì bấm <b>Khác người</b>. Từ đó hai hồ sơ có dấu “trùng tên” trên sơ đồ, khi chuyển giường, ra khoa, giao ca phải đối chiếu mã và giường.</p>';
+  h += '<h3>Nghi nhập trùng (' + sus.length + ')</h3>';
+  if (!sus.length) h += '<p class="res-ok">Không có.</p>';
+  sus.forEach(function (g) {
+    h += table(g) + '<div class="databtns" style="margin:4px 0 12px"><button class="btn small" data-act="dupOk" data-ids="' + g.members.map(function (p) { return p.id; }).join(',') +
+      '">Khác người – giữ cả ' + g.members.length + ' hồ sơ</button></div>';
+  });
+  if (ok.length) {
+    h += '<h3>Cùng họ tên, đã rõ là khác người (' + ok.length + ')</h3>';
+    ok.forEach(function (g) { h += table(g) + '<div style="height:10px"></div>'; });
+  }
+  h += '</div><div class="mfoot"><button class="btn primary" data-act="close">Đóng</button></div>';
+  showModal(h, 'wide');
+}
+
+/* ---- tìm kiếm: không cần gõ dấu, có danh sách kết quả ---- */
+var qOpen = false;
+function matchQ(p) {
+  if (!query) return false;
+  var s = fold([p.name, p.doctor, p.dx, p.hisCode, p.room ? p.room + ' g' + p.bed : ''].join(' ')), qn = query.replace(/\s+/g, '');
+  return s.indexOf(query) >= 0 || (qn.length >= 3 && fold(p.name).replace(/\s+/g, '').indexOf(qn) >= 0);
+}
+function renderSearch() {
+  var box = $('qres');
+  if (!query || !qOpen) { box.hidden = true; return; }
+  // trùng tên đứng trước (đầu một chữ trong họ tên, rồi chứa trong họ tên), sau đó mới tới mã, phòng, bác sĩ, chẩn đoán
+  function rank(p) {
+    var n = ' ' + fold(p.name).replace(/\s+/g, ' ');
+    return n.indexOf(' ' + query) >= 0 ? 0 : n.replace(/\s+/g, '').indexOf(query.replace(/\s+/g, '')) >= 0 ? 1 : 2;
+  }
+  var hits = state.patients.filter(matchQ).sort(function (a, b) { return rank(a) - rank(b) || cmpBed(a, b); });
+  box.innerHTML = hits.length ? hits.slice(0, 12).map(function (p) {
+    return '<button type="button" data-act="patient" data-pid="' + p.id + '"><b>' + esc(p.name) + '</b>' + (p.yob ? ' ' + p.yob : '') + ' · ' + GENDER[p.gender] +
+      '<br><small>' + esc(placeOf(p)) + (p.hisCode ? ' · mã ' + esc(p.hisCode) : '') + ' · ' + esc(specName(p.spec)) + (p.doctor ? ' · ' + esc(p.doctor) : '') + '</small></button>';
+  }).join('') + (hits.length > 12 ? '<div class="none">… còn ' + (hits.length - 12) + ' người nữa, gõ thêm để lọc.</div>' : '')
+    : '<div class="none">Không thấy người bệnh đang nằm khớp “' + esc($('q').value.trim()) + '”. Người đã ra khoa xem ở Lịch sử.</div>';
+  box.hidden = false;
+}
+
+/* ---- báo có phiên bản mới cho các màn hình đang mở ---- */
+// Mỗi lần phát hành, file phien-ban.txt (dòng 1: số phiên bản, dòng 2: tóm tắt) được cập nhật cùng app.
+// Màn hình đang mở tự kiểm 10 phút một lần và khi mở lại tab; chỉ báo, không tự tải lại để khỏi mất việc đang làm.
+var updAt = 0, updShown = '';
+function verKey(v) {
+  var m = /^(\d+)\.(\d+)(?:-thu(\d+))?/.exec(v || '');
+  return m ? [+m[1], +m[2], m[3] ? +m[3] : 999] : null;
+}
+function newerVer(a, b) {
+  var x = verKey(a), y = verKey(b);
+  if (!x || !y) return false;
+  for (var i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i];
+  return false;
+}
+function checkUpdate(force) {
+  if (!/^https?:$/.test(location.protocol) || !window.fetch || document.hidden) return;
+  if (!force && Date.now() - updAt < 10 * 60000) return;
+  updAt = Date.now();
+  fetch('phien-ban.txt?t=' + Date.now(), {cache: 'no-store'}).then(function (r) { return r.ok ? r.text() : ''; }).then(function (t) {
+    var lines = String(t || '').split(/\r?\n/), v = (lines[0] || '').trim();
+    if (!newerVer(v, VERSION) || v === updShown) return;
+    updShown = v;
+    $('updBar').innerHTML = '<span>Đã có phiên bản mới <b>' + esc(v) + '</b>' + (lines[1] ? ': ' + esc(lines[1].trim()) : '') +
+      '. Làm xong việc đang dở rồi bấm <b>Tải lại</b>.</span><button class="btn small" data-act="updReload">Tải lại</button><button class="btn small" data-act="updLater">Để sau</button>';
+    $('updBar').hidden = false;
+  }).catch(function () {});
+}
+
 /* ---- lịch sử ---- */
 function openHistory() {
   var h = mhead('Lịch sử') + '<div class="mbody"><p style="margin-bottom:12px">' + esc(dayActivity()) + '</p><h3>Người bệnh ra khoa gần đây</h3>';
@@ -2052,7 +2307,20 @@ function openHistory() {
       var room = d.room || d.keepRoom, bed = d.room ? d.bed : d.keepBed;
       h += '<tr><td>' + esc(d.name) + '</td><td>' + esc(specName(d.spec)) + '</td><td>' + esc(labelOf(OUT_TYPES, d.outType) || '—') + (d.outDept ? ' → ' + esc(d.outDept) : '') + '</td><td>' +
         (room ? bedLabel(room, bed) : '—') + '</td><td>' + esc(d.outAt) + '</td><td>' + esc(d.outNote || '') +
-        '</td><td><button class="btn small" data-act="undo" data-pid="' + d.id + '">Hoàn tác</button></td></tr>';
+        '</td><td style="white-space:nowrap"><button class="btn small" data-act="undo" data-pid="' + d.id + '">Hoàn tác</button>' +
+        (can('delRec') ? ' <button class="btn small danger" data-act="delRec" data-pid="' + d.id + '" title="Xóa hồ sơ nhập trùng hoặc nhập nhầm">Xóa…</button>' : '') + '</td></tr>';
+    });
+    h += '</table>';
+  }
+  var dels = state.deleted || [];
+  h += '<h3>Hồ sơ đã xóa (không tính vào số liệu, báo cáo)</h3>';
+  if (!dels.length) h += '<p class="hint">Chưa có.</p>';
+  else {
+    h += '<table class="set"><tr><th>Họ và tên</th><th>Lý do</th><th>Xóa lúc</th><th></th></tr>';
+    dels.slice(0, 60).forEach(function (d, i) {
+      h += '<tr><td>' + esc(d.rec.name) + (d.rec.yob ? ', ' + d.rec.yob : '') + (d.rec.hisCode ? '<br><small>mã ' + esc(d.rec.hisCode) + '</small>' : '') + '</td><td>' +
+        esc(labelOf(DEL_KINDS, d.kind)) + ': ' + esc(d.note) + '</td><td>' + esc(d.at) + (d.by ? '<br><small>' + esc(d.by) + '</small>' : '') + '</td><td>' +
+        (can('restoreDel') ? '<button class="btn small" data-act="restoreDel" data-i="' + i + '">Khôi phục</button>' : '') + '</td></tr>';
     });
     h += '</table>';
   }
@@ -2150,7 +2418,7 @@ function reportHTML() {
       (showSpec ? '<th>Chuyên khoa</th>' : '') + '<th>Chẩn đoán</th>' + (showDoc ?'<th>BS phụ trách</th>' : '') +
       '<th class="c">Vào khoa</th><th>Ghi chú</th></tr></thead><tbody>';
     g.items.forEach(function (p, i) {
-      h += '<tr><td class="c">' + (i + 1) + '</td><td class="c">' + placeText(p) + '</td><td class="c">' + (p.bed || '') + '</td><td>' + esc(p.name) + '</td><td class="c">' + (p.yob || '') +
+      h += '<tr><td class="c">' + (i + 1) + '</td><td class="c">' + placeText(p) + '</td><td class="c">' + (p.bed || '') + '</td><td>' + esc(p.name) + (twinsOf(p).length ? ' <small>(trùng tên' + (p.hisCode ? ', mã ' + esc(p.hisCode) : '') + ')</small>' : '') + '</td><td class="c">' + (p.yob || '') +
         '</td><td class="c">' + GENDER[p.gender] + '</td>' + (showSpec ? '<td>' + esc(specName(p.spec)) + '</td>' : '') + '<td>' + esc(p.dx) + '</td>' +
         (showDoc ?'<td>' + esc(p.doctor) + '</td>' : '') + '<td class="c">' + fmtDate(p.admittedAt).slice(0, 5) + (p.src ? ' ' + p.src : '') + '</td><td>' + esc(remarkOf(p)) + '</td></tr>';
     });
@@ -2418,7 +2686,9 @@ function hisDiffs(p, h) {
 }
 // So danh sách bệnh viện với sơ đồ.
 function reconcile(rows) {
-  var res = {news: [], diffs: [], links: [], maybe: [], gone: [], unmatched: [], back: []};
+  var res = {news: [], diffs: [], links: [], maybe: [], gone: [], unmatched: [], back: [], deletedStill: []};
+  var delByCode = {};
+  (state.deleted || []).forEach(function (d, i) { if (d.rec && d.rec.hisCode && !delByCode[d.rec.hisCode]) delByCode[d.rec.hisCode] = {d: d, i: i}; });
   var byCode = {}, linked = {}, inHis = {}, pend = [];
   var weekAgo = ymd(new Date(Date.now() - 7 * 86400000));
   state.patients.forEach(function (p) { if (p.hisCode) byCode[p.hisCode] = p; });
@@ -2426,6 +2696,8 @@ function reconcile(rows) {
     inHis[h.code] = 1;
     var p = byCode[h.code];
     if (p) { var d = hisDiffs(p, h); if (d.length) res.diffs.push({p: p, h: h, d: d}); return; }
+    var dl = delByCode[h.code];   // đã xóa trên sơ đồ (nhập nhầm, nhập trùng): không coi là bệnh mới
+    if (dl) { res.deletedStill.push({p: dl.d.rec, h: h, d: dl.d, i: dl.i}); return; }
     // ca nhập tay (chưa có mã) trùng tên và năm sinh
     var m = state.patients.filter(function (x) {
       return !x.hisCode && !linked[x.id] && fold(x.name) === fold(h.name) && (!x.yob || !h.yob || +x.yob === +h.yob);
@@ -2495,14 +2767,14 @@ function importNext() {
     if (!state.patients.some(function (x) { return x.hisCode === h.code; })) { openForm('new', {prefill: prefillFrom(h)}); return; }
   }
   var res = reconcile(imp.rows);
-  var issues = res.news.length + res.links.length + res.maybe.length + res.diffs.length + res.gone.length + res.unmatched.length + res.back.length;
+  var issues = res.news.length + res.links.length + res.maybe.length + res.diffs.length + res.gone.length + res.unmatched.length + res.back.length + res.deletedStill.length;
   if (issues) openImport(); else toast('Đã cập nhật xong. Sơ đồ khớp với danh sách bệnh viện.');
 }
 function openImport() {
   if (!imp) return;
   var r = imp.res = reconcile(imp.rows), ageH = (Date.now() - imp.fileTime) / 3600000;
   var ft = new Date(imp.fileTime), when = pad(ft.getHours()) + ':' + pad(ft.getMinutes()) + ' ngày ' + fmtDate(ymd(ft));
-  var issues = r.links.length + r.maybe.length + r.diffs.length + r.gone.length + r.unmatched.length + r.back.length;
+  var issues = r.links.length + r.maybe.length + r.diffs.length + r.gone.length + r.unmatched.length + r.back.length + r.deletedStill.length;
   function bed(p) { return p.room ? bedLabel(p.room, p.bed) : p.away ? 'đi mổ' : 'chờ giường'; }
   var h = mhead('Cập nhật từ danh sách bệnh viện') + '<div class="mbody">' +
     '<p>File <b>' + esc(imp.fileName) + '</b> lưu lúc ' + when + (imp.exportDate ? ' · danh sách ngày ' + fmtDate(imp.exportDate) : '') +
@@ -2580,6 +2852,15 @@ function openImport() {
     });
     h += '</table>';
   }
+  if (r.deletedStill.length) {
+    h += '<p><b>Đã xóa trên sơ đồ nhưng vẫn còn trong danh sách bệnh viện</b> – không nhận lại; báo khoa, phòng liên quan sửa trên phần mềm bệnh viện:</p><table class="set">';
+    r.deletedStill.forEach(function (x) {
+      h += '<tr><td>' + esc(x.h.name) + ' (mã ' + esc(x.h.code) + ')</td><td>' + esc(labelOf(DEL_KINDS, x.d.kind)) + ': ' + esc(x.d.note) +
+        '<br><small>xóa lúc ' + esc(x.d.at) + (x.d.by ? ' – ' + esc(x.d.by) : '') + '</small></td><td>' +
+        (can('restoreDel') ? '<button class="btn small" data-act="restoreDel" data-i="' + x.i + '">Khôi phục</button>' : '') + '</td></tr>';
+    });
+    h += '</table>';
+  }
   h += '</div><div class="mfoot"><button class="btn" data-act="impReread">Đọc lại file</button><button class="btn" data-act="impRepick">Chọn file khác</button>' +
     '<span class="sp"></span><button class="btn primary" data-act="close">Đóng</button></div>';
   showModal(h, 'wide');
@@ -2643,7 +2924,7 @@ function openSettings() {
   state.rooms.forEach(function (r) {
     var a = 'data-room="' + r.id + '"';
     h += '<tr><td><b>' + r.id + '</b></td><td><input type="number" min="1" max="12" value="' + r.size + '" data-set="size" ' + a + '></td>' +
-      '<td>' + sel('zone', a, zoneOpts, r.zone) + '</td><td>' + sel('gender', a, [['auto', 'Linh hoạt'], ['M', 'Nam'], ['F', 'Nữ']], r.gender) + '</td>' +
+      '<td>' + sel('zone', a, zoneOpts, r.zone) + '</td><td>' + sel('gender', a, [['auto', 'Linh hoạt'], ['M', 'Nam'], ['F', 'Nữ'], ['mix', 'Nam nữ chung']], r.gender) + '</td>' +
       '<td><input type="checkbox" data-set="svc" ' + a + (r.svc ? ' checked' : '') + '></td>' +
       '<td><input type="checkbox" data-set="reserve" ' + a + (r.reserve ? ' checked' : '') + '></td>' +
       '<td><input type="checkbox" data-set="active" ' + a + (r.active ? ' checked' : '') + '></td><td>' + occupantsOf(r.id).length + '</td></tr>';
@@ -2758,7 +3039,7 @@ function wipe() {
   closeModal(); commit(); toast('Đã xóa toàn bộ người bệnh.');
 }
 function clearPatients() {
-  state.patients = []; state.discharged = []; state.log = []; state.reports = {};
+  state.patients = []; state.discharged = []; state.log = []; state.reports = {}; state.deleted = []; state.dupOk = [];
   if (state.sample) {
     state.doctors = state.doctors.filter(function (n) { return SAMPLE_DOCTORS.indexOf(n) < 0; });
     state.nurses = state.nurses.filter(function (n) { return SAMPLE_NURSES.indexOf(n) < 0; });
@@ -2784,7 +3065,7 @@ function loadSample(silent) {
   if (!silent && (state.patients.length || state.discharged.length) && !confirm('Dữ liệu mẫu sẽ THAY THẾ toàn bộ người bệnh hiện có. Tiếp tục?')) return;
   function ago(n) { var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
   keepCopy('Trước khi nạp dữ liệu mẫu');
-  state.patients = []; state.discharged = []; state.log = []; state.reports = {};
+  state.patients = []; state.discharged = []; state.log = []; state.reports = {}; state.deleted = []; state.dupOk = [];
   state.sample = true; state.sampleVer = SAMPLE_VER;
   SAMPLE_DOCTORS.forEach(addDoctor); SAMPLE_NURSES.forEach(addNurse);
   // người vào hôm nay có giờ nằm trong kỳ báo cáo đang xem, để bản xem thử có số liệu giao ca
@@ -2854,6 +3135,9 @@ function loadSample(silent) {
 
 /* ================= SỰ KIỆN ================= */
 document.addEventListener('click', function (e) {
+  var eye = e.target.closest ? e.target.closest('[data-eye]') : null;
+  if (eye) { togglePw(eye); return; }
+  if (qOpen && !(e.target.closest && e.target.closest('.qwrap'))) { qOpen = false; renderSearch(); }
   var el = e.target.closest ? e.target.closest('[data-act]') : null;
   if (!el) return;
   var d = el.dataset, p;
@@ -2892,7 +3176,19 @@ document.addEventListener('click', function (e) {
     case 'cloudOff': cloudOff(); break;
     case 'new': openForm('new'); break;
     case 'admit': openForm('new', {room: d.room, bed: +d.bed}); break;
-    case 'patient': openPatient(+d.pid); break;
+    case 'patient': qOpen = false; renderSearch(); openPatient(+d.pid); break;
+    case 'delRec': openDelete(+d.pid); break;
+    case 'delConfirm': confirmDelete(); break;
+    case 'restoreDel': restoreDeleted(+d.i); break;
+    case 'dupView': openDups(); break;
+    case 'dupOk':
+      var dids = String(d.ids || '').split(',').map(Number).filter(Boolean);
+      if (dids.length > 1 && confirm('Xác nhận đây là ' + dids.length + ' người bệnh KHÁC NHAU, chỉ cùng họ tên?\nNên đối chiếu mã bệnh nhân trên phần mềm bệnh viện trước.')) {
+        markDupOk(dids); addLog('Xác nhận khác người, cùng họ tên: ' + ((patientById(dids[0]) || {}).name || '')); commit(); openDups();
+      }
+      break;
+    case 'updReload': location.reload(); break;
+    case 'updLater': $('updBar').hidden = true; setTimeout(function () { updShown = ''; }, 30 * 60000); break;
     case 'close': closeModal(); break;
     case 'seg':
       Array.prototype.forEach.call(el.parentNode.children, function (b) { b.classList.remove('on'); });
@@ -2901,6 +3197,7 @@ document.addEventListener('click', function (e) {
       else if (d.field === 'outType') {
         if (outForm) { outForm.type = d.val; $('out_hint').textContent = outHint(patientById(outForm.pid), d.val); $('out_deptBox').hidden = d.val !== 'CK'; }
       }
+      else if (d.field === 'delKind') { if (delForm) delForm.kind = d.val; }
       else if (d.field === 'src') { if (form) form.src = d.val; }
       else if (form) { form[d.field] = d.field === 'want' ? +d.val : d.val; if (!form.preset) form.manual = false; refreshSug(); }
       break;
@@ -2960,14 +3257,19 @@ document.addEventListener('change', function (e) {
     if (can('settings')) applySetting(el);
   }
 });
-$('q').addEventListener('input', function () { query = fold(this.value.trim()); renderMap(); });
+$('q').addEventListener('input', function () { query = fold(this.value.trim()); qOpen = true; renderMap(); renderSearch(); });
+$('q').addEventListener('focus', function () { if (query) { qOpen = true; renderSearch(); } });
 // ô ghi của báo cáo giao ca: ghi từng ô, tự lưu sau khi ngừng gõ
 document.addEventListener('input', function (e) {
   var el = e.target;
   if (el.classList && el.classList.contains('rpf') && shift.day && can('repEdit')) repQueue({k: el.getAttribute('data-k'), v: el.value});
 });
 window.addEventListener('beforeunload', function () { if (shift.ops.length) repFlush(); });
-document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('overlay').hidden) closeModal(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  if (qOpen) { qOpen = false; renderSearch(); }
+  else if (!$('overlay').hidden) closeModal();
+});
 window.addEventListener('storage', function (e) {
   if (cloud || e.key !== KEY || !e.newValue || form) return;
   try { state = migrate(JSON.parse(e.newValue)); render(); } catch (x) {}
@@ -2977,7 +3279,10 @@ $('loginForm').addEventListener('submit', function (e) {
   signIn($('l_email').value.trim(), $('l_pass').value);
 });
 $('pwForm').addEventListener('submit', function (e) { e.preventDefault(); submitPwChange(); });
-document.addEventListener('visibilitychange', function () { if (!document.hidden) poll(); });
+document.addEventListener('visibilitychange', function () { if (!document.hidden) { poll(); checkUpdate(); } });
+// báo phiên bản mới: kiểm lần đầu sau 5 giây, sau đó 10 phút một lần và mỗi khi mở lại tab
+setTimeout(function () { checkUpdate(true); }, 5000);
+setInterval(checkUpdate, 60000);
 // đổi đuôi liên kết (#chung, #mau) là đổi kiểu chạy, nên tải lại trang
 window.addEventListener('hashchange', function () { location.reload(); });
 
@@ -2990,7 +3295,7 @@ if (cloud) {
   else { session = null; showLogin(); }
 } else {
   state = load();
-  if (DEMO && ((!state.patients.length && !state.discharged.length) || (state.sample && state.sampleVer !== SAMPLE_VER))) loadSample(true);
+  if (DEMO && ((!state.patients.length && !state.discharged.length) || (state.sample && state.sampleVer !== SAMPLE_VER))) { state.rooms = defaultRooms(); loadSample(true); }
   else render();
 }
 })();

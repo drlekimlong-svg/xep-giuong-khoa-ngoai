@@ -23,6 +23,59 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.4-thu1 — 16/10/2026 — Xem mật khẩu, xóa hồ sơ nhập trùng/nhầm, rà soát trùng tên, tìm không dấu, 619 nam nữ chung, báo phiên bản mới
+
+- **File:** `phien-ban/v2.4-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.4-thu1`.
+- **Bối cảnh:** bản dùng chung đã chạy chính thức ở khoa. Bác sĩ báo:
+  - Một ca bị nhập 2 lần; ca thừa đã phải cho "xuất viện" nên làm sai số liệu.
+  - Một ca do khoa khác nhập nhầm trên phần mềm bệnh viện.
+- **Máy chủ:**
+  - Thêm vai trò `headnurse` (điều dưỡng trưởng) vào bảng `staff`, các quy tắc RLS và Edge Function `quan-ly-tai-khoan`.
+  - Trigger chỉ cho quản trị viên và điều dưỡng trưởng thay đổi mục `deleted`.
+  - Điều kiện chặn bác sĩ sửa `reports` nay coi "thiếu mục" như "rỗng".
+  - `thiet-lap.sql` đã cập nhật.
+
+**Mới so với 2.3-thu2**
+
+1. **Nút con mắt** ở ô mật khẩu (đăng nhập, đổi mật khẩu): bấm để xem mật khẩu đang gõ, bấm lần nữa để ẩn.
+2. **Xóa hồ sơ** (chỉ quản trị viên và điều dưỡng trưởng):
+   - Nút "Xóa…" có trong hồ sơ người bệnh và trong Lịch sử, dùng được cho cả người đã ra khoa.
+   - Bắt chọn lý do (nhập trùng / nhập nhầm / khác) và ghi rõ.
+   - Hồ sơ đã xóa không tính vào sơ đồ, báo cáo, Excel. Hồ sơ vẫn nằm ở **Lịch sử → Hồ sơ đã xóa**, khôi phục được.
+   - Đọc file a: người đã xóa mà bệnh viện vẫn còn thì hiện ở mục riêng, không bị coi là bệnh mới.
+3. **Rà soát trùng:**
+   - **Lúc nhận bệnh:** nếu đã có người cùng họ tên (không kể dấu) và cùng năm sinh, app hỏi lại. Cùng người thì bấm Hủy; khác người thì bấm OK, app đánh dấu "trùng".
+   - **Trên sơ đồ:** dải đỏ "Có thể nhập trùng" kèm nút **Rà soát**. Bảng rà soát có "Xóa bản thừa…" và "Khác người – giữ cả".
+   - **Mã bệnh nhân là căn cứ:** hai hồ sơ mỗi bên một mã khác nhau được coi là hai người khác nhau.
+   - **Người cùng họ tên** có dấu "trùng" ở giường, có ghi chú trong hồ sơ và danh sách in, để đối chiếu mã khi thao tác.
+4. **Phòng 619 "Nam nữ chung"** (giới mới `mix`, chọn được trong Cài đặt): nhận cả Nam và Nữ, vẫn là phòng dự phòng. 618 (Nam), 620 (Nữ) giữ nguyên; người đang nằm không bị chuyển.
+5. **Tìm kiếm:**
+   - Gõ không dấu được; khi gõ hiện danh sách kết quả, tên trùng đứng đầu, bấm vào là mở hồ sơ.
+   - Tìm được cả theo mã bệnh nhân, số phòng, bác sĩ, chẩn đoán.
+6. **Báo phiên bản mới:**
+   - Màn hình đang mở tự kiểm file `phien-ban.txt` 10 phút một lần và khi mở lại tab.
+   - Có bản mới thì hiện thanh "Đã có phiên bản mới … Tải lại / Để sau"; app không tự tải lại.
+   - Mỗi lần phát hành phải sửa file này.
+
+**Đã thử**
+
+- **Bản một máy và bản xem thử:**
+  - Nút con mắt; tìm "dung", "ngothikim" ra đúng người, tên trùng lên đầu.
+  - Hai hồ sơ trùng: hiện dải đỏ và bảng rà soát; xóa có bắt ghi lý do; khôi phục được; "Khác người" làm hết cảnh báo.
+  - Nhận mới cùng họ tên: app hỏi lại, Hủy thì không lưu.
+  - Xóa người có mã rồi đọc file a: người đó nằm ở mục "đã xóa nhưng bệnh viện vẫn còn", không thành bệnh mới.
+  - Phòng 619 hiện "Nam nữ chung"; thanh báo phiên bản mới hiện đúng.
+- **Máy chủ giả lập:** điều dưỡng không thấy nút Xóa; tự gửi lệnh xóa thì bị máy chủ từ chối. Điều dưỡng trưởng xóa được. Điều dưỡng vẫn lưu thao tác thường bình thường.
+- **Máy chủ thật (thử rồi hủy, không để lại dữ liệu):**
+  - Điều dưỡng, bác sĩ sửa mục `deleted` thì bị từ chối; điều dưỡng trưởng được.
+  - Điều dưỡng thêm mục rỗng và làm thao tác thường vẫn được.
+
+**Chưa thử:** điện thoại, iPad thật; máy Windows 7 ở khoa.
+
+**Lưu ý:** các màn hình đang mở bản cũ (2.3-thu2 trở về trước) chưa có thanh báo phiên bản, lần này cần bấm F5 một lần.
+
+---
+
 ## 2.3-thu2 — 16/10/2026 — Mở nhầm file mẫu ở bản thật: hỏi chuyển sang bản xem thử
 
 - **File:** `phien-ban/v2.3-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.3-thu2`.

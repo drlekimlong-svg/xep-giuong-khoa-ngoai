@@ -1,0 +1,2 @@
+2.4-thu1
+Nút xem mật khẩu, xóa hồ sơ nhập trùng/nhầm (có lý do), rà soát trùng họ tên, tìm không cần dấu, phòng 619 nam nữ chung

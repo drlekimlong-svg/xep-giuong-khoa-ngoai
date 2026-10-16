@@ -9,7 +9,8 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const DOMAIN = "khoangoai.invalid";
-const ROLES = ["nurse", "doctor", "view"]; // quản trị viên chỉ có một, không tạo thêm qua đây
+// quản trị viên chỉ có một, không tạo thêm qua đây; "headnurse" = điều dưỡng trưởng (như điều dưỡng, thêm quyền xóa hồ sơ nhập trùng/nhầm)
+const ROLES = ["nurse", "headnurse", "doctor", "view"];
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
