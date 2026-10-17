@@ -89,6 +89,10 @@ begin
   if r = 'doctor' and coalesce(new.data->'reports', '{}'::jsonb) is distinct from coalesce(old.data->'reports', '{}'::jsonb) then
     raise exception 'Báo cáo giao ca do điều dưỡng ghi; bác sĩ chỉ xem và in.' using errcode = '42501';
   end if;
+  -- kho hồ sơ ra khoa rút gọn cho báo cáo lưu lượng: chỉ đổi cùng lúc với cho ra khoa (từ bản 2.5; thiếu mục = rỗng)
+  if r = 'doctor' and coalesce(new.data->'flowArc', '[]'::jsonb) is distinct from coalesce(old.data->'flowArc', '[]'::jsonb) then
+    raise exception 'Bác sĩ chỉ được bổ sung thông tin, không được nhận bệnh, xếp giường hay cho ra khoa.' using errcode = '42501';
+  end if;
   -- hồ sơ đã xóa (nhập trùng, nhập nhầm): chỉ quản trị viên và điều dưỡng trưởng được xóa hoặc khôi phục (từ bản 2.4)
   if (r is null or r not in ('admin', 'headnurse'))
      and coalesce(new.data->'deleted', '[]'::jsonb) is distinct from coalesce(old.data->'deleted', '[]'::jsonb) then

@@ -288,6 +288,17 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 /* ---- báo phiên bản mới ---- */
 .upd{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:90;background:#0e6655;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);display:flex;align-items:center;flex-wrap:wrap;max-width:94vw;font-size:14px}
 .upd .btn{margin-left:10px}
+/* ---- lưu lượng người bệnh ---- */
+.flw table.fl{min-width:760px}
+.flw table.fl th{text-align:center;font-size:11.5px}
+.flw th span{font-weight:400}
+.flw td small{display:block;color:#555;font-size:10.5px;font-weight:400;white-space:nowrap}
+.flw td.warn{background:#fff1bf;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.flw td.bad{background:#fbd5d2;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.flw table.sum{min-width:700px}
+.flw table.sum td:first-child{white-space:nowrap}
+#flowNav .nav{margin-left:auto;display:inline-flex;flex-wrap:wrap}
+#flowNav .nav .btn{margin:3px 0 3px 6px}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
 @media print{
@@ -373,12 +384,12 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.4-thu1', VERSION_DATE = '16/10/2026';
+var VERSION = '2.5-thu1', VERSION_DATE = '18/10/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
 var KEY = DEMO ? 'xepgiuong.khoangoai.mau' : 'xepgiuong.khoangoai.v1';
-var SAMPLE_VER = 4;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
+var SAMPLE_VER = 5;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
 // Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
@@ -401,7 +412,7 @@ var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirm
   'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
   'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock',
   'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
-  'repEdit', 'repAddEv', 'repDelEv', 'delRec', 'delConfirm', 'restoreDel', 'dupOk'];
+  'repEdit', 'repAddEv', 'repDelEv', 'delRec', 'delConfirm', 'restoreDel', 'dupOk', 'flowFrom'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
 // Một file chạy được ba kiểu, chọn bằng cách mở:
@@ -477,6 +488,7 @@ function defaultState() {
     reports: {},          // báo cáo bệnh trong ngày: phần điều dưỡng ghi, theo ngày báo cáo
     deleted: [],          // hồ sơ đã xóa (nhập trùng, nhập nhầm) kèm lý do; không tính vào số liệu
     dupOk: [],            // cặp người bệnh cùng họ tên đã xác nhận là khác người ("id1|id2")
+    flowArc: [],          // hồ sơ ra khoa cũ rút gọn, không có họ tên, cho báo cáo lưu lượng (xem trimDischarged)
     patients: [],
     discharged: [],
     log: [],
@@ -496,6 +508,7 @@ function migrate(s) {
     // bản 1 để 616, 617 cho Tiêu hóa; Niệu cần cả phòng 6 giường Nam và Nữ
     if (old && r.zone === 'TH' && r.gender === 'auto' && (r.id === '616' || r.id === '617')) { r.zone = 'NIEU'; r.gender = r.id === '616' ? 'M' : 'F'; }
   });
+  if (!s.flowFrom) s.flowFrom = guessFlowFrom(s);
   s.version = 2;
   return s;
 }
@@ -1802,7 +1815,7 @@ function confirmOut() {
   }
   state.patients = state.patients.filter(function (x) { return x.id !== p.id; });
   state.discharged.unshift(Object.assign({}, p, {outAt: fmtDate(od) + ' ' + ot, outDay: od, outType: type, outNote: note, outDept: dept}));
-  if (state.discharged.length > 300) state.discharged.length = 300;
+  trimDischarged();
   addDept(dept);
   addLog(label + (dept ? ' → ' + dept : '') + when + ': ' + p.name + (bed ? ' · trả giường ' + bed : '') + (note ? ' · ' + note : ''));
   closeModal(); commit();
@@ -2106,7 +2119,263 @@ function openReportMenu() {
   showModal(mhead('Báo cáo') + '<div class="mbody">' +
     '<button class="btn menu" data-act="shift"><b>Báo cáo bệnh trong ngày</b><br><small>Giao ca lúc 7 giờ: tổng hợp số lượng, người bệnh mới, ra viện, chuyển khoa, sự việc trong ca trực</small></button>' +
     '<button class="btn menu" data-act="list"><b>Danh sách người bệnh</b><br><small>In theo chuyên khoa, bác sĩ phụ trách hoặc phòng; in riêng cho một bác sĩ; xuất Excel</small></button>' +
+    '<button class="btn menu" data-act="flow"><b>Lưu lượng người bệnh theo chuyên khoa</b><br><small>Niệu, Tiêu hóa + Thần kinh theo ngày, tuần, tháng: vào, ra, số nằm trung bình, cao nhất, so với số giường đang phân – để phân bổ phòng</small></button>' +
     '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
+}
+
+/* ---- lưu lượng người bệnh theo chuyên khoa (bản 2.5) ---- */
+// Bác sĩ cần số liệu để phân bổ phòng (18/10/2026): Niệu và Tiêu hóa + Thần kinh theo ngày, tuần, tháng.
+// Tính lại mỗi lần mở từ giờ vào khoa, giờ ra khoa của người đang nằm, người đã ra khoa và kho rút gọn state.flowArc.
+// Lịch sử ra khoa chỉ giữ 300 hồ sơ đầy đủ; hồ sơ cũ hơn được rút thành một dòng KHÔNG có họ tên:
+//   "chuyên khoa|giới|giờ vào|giờ ra|nơi nhận|loại phòng yêu cầu|hình thức ra" (giờ dạng yymmddhhmm), giữ 400 ngày.
+var DIS_MAX = 300, ARC_DAYS = 400;
+var FLOW_N = {day: 31, week: 12, month: 12}, FLOW_UNIT = {day: 'ngày', week: 'tuần', month: 'tháng'};
+var FLOW_ZONES = [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa + Thần kinh']];
+var WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+var flow = {by: 'day', off: 0};
+function arcTs(ts) { return ts ? ts.slice(2, 4) + ts.slice(5, 7) + ts.slice(8, 10) + ts.slice(11, 13) + ts.slice(14, 16) : ''; }
+function arcTsBack(x) { return x && x.length === 10 ? '20' + x.slice(0, 2) + '-' + x.slice(2, 4) + '-' + x.slice(4, 6) + ' ' + x.slice(6, 8) + ':' + x.slice(8, 10) : ''; }
+function tsMin(ts) {
+  var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/.exec(ts || '');
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]).getTime() / 60000 : NaN;
+}
+function minTs(m) { var d = new Date(m * 60000); return ymd(d) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function weekday(d) { var a = d.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]).getDay(); }
+function addMonths(d, n) { var a = d.split('-'); return ymd(new Date(+a[0], +a[1] - 1 + n, 1)); }
+// Thời gian có mặt ở khoa: từ lúc vào đến lúc ra hẳn, kể cả lúc đi mổ (giường được giữ); đi mổ rồi không về thì tính đến lúc đi mổ.
+function stayOf(p) {
+  var a = admitTs(p), o = '';
+  if (p.outAt) { var lt = lastTrip(p); o = lt && !lt.back && lt.out >= a ? lt.out : outTs(p); }
+  return {a: a, o: o};
+}
+function arcLine(p) { var st = stayOf(p); return [p.spec, p.gender, arcTs(st.a), arcTs(st.o), p.src || '', p.want || 0, p.outType || ''].join('|'); }
+function trimDischarged() {
+  if (!Array.isArray(state.flowArc)) state.flowArc = [];
+  while (state.discharged.length > DIS_MAX) state.flowArc.push(arcLine(state.discharged.pop()));
+  var lim = arcTs(addDays(today(), -ARC_DAYS) + ' 00:00');
+  state.flowArc = state.flowArc.filter(function (x) { return String(x).split('|')[3] >= lim; });
+}
+// Ngày bắt đầu tính: lần nhận bệnh đầu tiên còn trong nhật ký (bản dùng chung: ngày đưa cả khoa vào app, 16/10/2026).
+// Trước ngày đó app chưa có đủ người bệnh của khoa nên không tính. Quản trị viên đổi được trong báo cáo.
+function guessFlowFrom(st) {
+  var d = '', any = '';
+  (st.log || []).forEach(function (e) {
+    var t = tsOfStamp(e.t).slice(0, 10);
+    if (!t) return;
+    if (!any || t < any) any = t;
+    if (/^Nhận /.test(e.x || '') && (!d || t < d)) d = t;
+  });
+  return d || any || today();
+}
+function flowStart() { if (!state.flowFrom) state.flowFrom = guessFlowFrom(state); return state.flowFrom; }
+function flowRecs() {
+  var out = [];
+  function add(sp, g, a, o, src, want) {
+    var am = tsMin(a), om = o ? tsMin(o) : null;
+    if (isNaN(am) || om !== null && !(om > am)) return;   // thiếu giờ vào, hoặc giờ ra không sau giờ vào
+    var z = homeZone(sp);
+    out.push({a: am, o: om, src: src || '', want: +want || 0, keys: [z, z + g, 'ALL', 'ALL' + g, 'sp' + sp]});
+  }
+  state.patients.concat(state.discharged).forEach(function (p) { var st = stayOf(p); add(p.spec, p.gender, st.a, st.o, p.src, p.want); });
+  (state.flowArc || []).forEach(function (x) { var f = String(x).split('|'); add(f[0], f[1], arcTsBack(f[2]), arcTsBack(f[3]), f[4], f[5]); });
+  return out;
+}
+// Các kỳ đang xem, theo thứ tự thời gian: 31 ngày, 12 tuần (thứ Hai → Chủ nhật) hoặc 12 tháng; flow.off lùi về trước từng cụm.
+function flowPeriods() {
+  var by = flow.by, n = FLOW_N[by], t = today(), ps = [];
+  var cur = by === 'day' ? t : by === 'week' ? addDays(t, -((weekday(t) + 6) % 7)) : t.slice(0, 8) + '01';
+  function next(d, k) { return by === 'day' ? addDays(d, k) : by === 'week' ? addDays(d, 7 * k) : addMonths(d, k); }
+  var last = next(cur, -flow.off * n);
+  for (var i = n - 1; i >= 0; i--) {
+    var from = next(last, -i), to = next(from, 1);
+    ps.push({from: from, to: to, cur: from <= t && t < to,
+      label: by === 'day' ? WEEKDAY[weekday(from)] + ' ' + fmtDate(from).slice(0, 5)
+        : by === 'week' ? fmtDate(from).slice(0, 5) + ' – ' + fmtDate(addDays(to, -1)).slice(0, 5) : 'Tháng ' + fmtDate(from).slice(3)});
+  }
+  return ps;
+}
+// Số liệu một khoảng [t0, t1) (phút) cho từng nhóm: NIEU, NIEUM, NIEUF, TH…, ALL…, spTH, spTK…
+function flowStats(recs, t0, t1) {
+  var S = {};
+  function st(k) { return S[k] || (S[k] = {inN: 0, outN: 0, bd: 0, cur: 0, ev: [], los: 0, want: 0, src: {}}); }
+  recs.forEach(function (r) {
+    var o = r.o === null ? Infinity : r.o;
+    if (!(r.a < t1 && o > t0)) return;
+    r.keys.forEach(function (k) {
+      var x = st(k);
+      x.bd += Math.min(o, t1) - Math.max(r.a, t0);
+      if (r.a >= t0) { x.inN++; x.ev.push([r.a, 1]); if (r.want) x.want++; x.src[r.src] = (x.src[r.src] || 0) + 1; } else x.cur++;
+      if (o < t1) { x.outN++; x.ev.push([o, -1]); x.los += o - r.a; }
+    });
+  });
+  Object.keys(S).forEach(function (k) {
+    var x = S[k], c = x.cur, pk = c;
+    x.ev.sort(function (p, q) { return p[0] - q[0] || p[1] - q[1]; });   // cùng lúc: ra trước, vào sau
+    x.ev.forEach(function (v) { c += v[1]; if (c > pk) pk = c; });
+    x.peak = pk; x.avg = x.bd / (t1 - t0); x.los = x.outN ? x.los / x.outN / 1440 : null; delete x.ev;
+  });
+  return S;
+}
+function flowData() {
+  var recs = flowRecs(), start = tsMin(flowStart() + ' 00:00'), now = tsMin(nowTs()), rows = [];
+  flowPeriods().forEach(function (p) {
+    var p0 = tsMin(p.from + ' 00:00'), t0 = Math.max(p0, start), t1 = Math.min(tsMin(p.to + ' 00:00'), now);
+    if (t1 > t0) rows.push({p: p, t0: t0, t1: t1, part: t0 > p0, s: flowStats(recs, t0, t1)});
+  });
+  return {rows: rows, all: rows.length ? flowStats(recs, rows[0].t0, rows[rows.length - 1].t1) : null};
+}
+// Giường đang phân theo khu: riêng Nam, riêng Nữ, dùng chung (phòng linh hoạt và phòng nam nữ chung).
+function flowBeds() {
+  var b = {NIEU: {t: 0, M: 0, F: 0, sh: 0}, TH: {t: 0, M: 0, F: 0, sh: 0}};
+  state.rooms.forEach(function (rm) {
+    var x = rm.active && b[rm.zone];
+    if (!x) return;
+    x.t += rm.size;
+    if (rm.gender === 'M' || rm.gender === 'F') x[rm.gender] += rm.size; else x.sh += rm.size;
+  });
+  b.ALL = {t: b.NIEU.t + b.TH.t};
+  return b;
+}
+var FLOW_DEC = (1.5).toLocaleString().indexOf(',') >= 0 ? ',' : '.';
+function dec1(v, sep) { return v == null || isNaN(v) ? '' : (Math.round(v * 10) / 10).toFixed(1).replace('.', sep || ','); }
+function flowHTML(screen) {
+  var F = flowData(), b = flowBeds(), by = flow.by, unit = FLOW_UNIT[by], ps = flowPeriods(), n = F.rows.length;
+  // khoảng thật sự có số liệu: không trước ngày bắt đầu tính, không sau lúc này
+  var r0 = n ? minTs(F.rows[0].t0).slice(0, 10) : ps[0].from, rl = n ? F.rows[n - 1] : null;
+  var r1 = rl && rl.p.cur ? 'hiện tại (' + nowStamp() + ')' : fmtDate(addDays(rl ? rl.p.to : ps[ps.length - 1].to, -1));
+  var h = '<div class="rp flw"><div class="rp-top"><b>' + esc(state.ward.toUpperCase()) + '</b><span>In lúc ' + nowStamp() + '</span></div>' +
+    '<h2>LƯU LƯỢNG NGƯỜI BỆNH THEO CHUYÊN KHOA</h2>' +
+    '<p class="rp-sum">Theo ' + unit + ' · từ ' + fmtDate(r0) + ' đến ' + r1 + '</p>' +
+    '<p class="rp-sum">Số liệu bắt đầu tính từ ngày <b>' + fmtDate(flowStart()) + '</b>' +
+    (screen && can('flowFrom') ? ' <button class="btn small" data-act="flowFrom">Đổi ngày</button>' : '') + '</p>';
+  if (!F.rows.length) return h + '<p class="rp-sum">Chưa có số liệu trong khoảng này.</p></div>';
+  var A = F.all, Z = {inN: 0, outN: 0, avg: 0, peak: 0, los: null, want: 0, src: {}};
+  function g(S, k) { return S[k] || Z; }
+  function pct(v, t) { return t ? Math.round(v / t * 100) + '%' : ''; }
+  // ô "cao nhất": vàng = vượt số giường riêng của giới đó (phải dùng phòng chung), đỏ = vượt cả phòng chung (nằm nhờ, chờ giường)
+  function pk(v, own, all) { return '<td class="c' + (all != null && v > all ? ' bad' : own != null && v > own ? ' warn' : '') + '">' + v + '</td>'; }
+
+  // 1. tổng hợp cả khoảng đang xem
+  h += '<h3>1. Tổng hợp ' + F.rows.length + ' ' + unit + ' và so với giường đang phân</h3>' +
+    '<table class="sum"><thead><tr><th>Khu – giới</th><th>Giường đang phân</th><th>Vào</th><th>Ra</th><th>Nằm trung bình</th><th>Cao nhất</th>' +
+    '<th>Công suất</th><th>Ngày nằm TB (người ra)</th><th>Yêu cầu phòng dịch vụ</th></tr></thead><tbody>';
+  function sumRow(label, x, beds, own, all, total, strong) {
+    return '<tr' + (strong ? ' class="grp"' : '') + '><td>' + label + '</td><td class="c">' + beds + '</td><td class="c">' + x.inN + '</td><td class="c">' + x.outN + '</td>' +
+      '<td class="c">' + dec1(x.avg) + '</td>' + pk(x.peak, own, all) + '<td class="c">' + (total ? pct(x.avg, total) : '') + '</td>' +
+      '<td class="c">' + dec1(x.los) + '</td><td class="c">' + x.want + '</td></tr>';
+  }
+  FLOW_ZONES.forEach(function (z) {
+    var bz = b[z[0]];
+    ['M', 'F'].forEach(function (gd) {
+      h += sumRow(z[1] + ' – ' + GENDER[gd], g(A, z[0] + gd), bz[gd] + (bz.sh ? ' + ' + bz.sh + '*' : ''), bz[gd], bz[gd] + bz.sh);
+    });
+    h += sumRow(z[1], g(A, z[0]), bz.t, null, bz.t, bz.t, true);
+  });
+  h += sumRow('Toàn khoa', g(A, 'ALL'), b.ALL.t, null, b.ALL.t, b.ALL.t, true) + '</tbody></table>';
+  var bySpec = state.specs.filter(function (sp) { return A['sp' + sp.id]; }).map(function (sp) {
+    var x = A['sp' + sp.id]; return sp.name + ': vào ' + x.inN + ', nằm TB ' + dec1(x.avg);
+  }).join(' · ');
+  var src = g(A, 'ALL').src, bySrc = SOURCES.filter(function (x) { return src[x[0]]; }).map(function (x) { return x[1].toLowerCase() + ' ' + src[x[0]]; }).join(', ');
+  h += '<p class="rp-note">* Giường dùng chung cho cả hai giới: phòng linh hoạt' + (b.TH.sh || b.NIEU.sh ? ' và phòng nam nữ chung (619)' : '') + '.' +
+    (bySpec ? '<br>Theo chuyên khoa – ' + esc(bySpec) + '.' : '') + (bySrc ? '<br>Người bệnh vào từ: ' + esc(bySrc) + '.' : '') + '</p>';
+
+  // 2. từng ngày / tuần / tháng
+  h += '<h3>2. Theo từng ' + unit + ' <span>(số nhỏ: Nam · Nữ)</span></h3><table class="fl"><thead><tr><th rowspan="2">' + unit.charAt(0).toUpperCase() + unit.slice(1) + '</th>' +
+    FLOW_ZONES.map(function (z) { return '<th colspan="4">' + z[1] + ' <span>(' + b[z[0]].t + ' giường)</span></th>'; }).join('') +
+    '<th colspan="2">Toàn khoa <span>(' + b.ALL.t + ')</span></th></tr><tr>' +
+    FLOW_ZONES.map(function () { return '<th>Vào</th><th>Ra</th><th>Nằm TB</th><th>Cao nhất</th>'; }).join('') + '<th>Nằm TB</th><th>Công suất</th></tr></thead><tbody>';
+  function two(S, k, f) { var m = g(S, k + 'M'), w = g(S, k + 'F'); return '<small>' + f(m) + ' · ' + f(w) + '</small>'; }
+  F.rows.slice().reverse().forEach(function (r) {
+    var S = r.s, lab = r.p.label + (r.p.cur ? ' <small>đang chạy</small>' : r.part ? ' <small>từ ' + fmtDate(minTs(r.t0).slice(0, 10)).slice(0, 5) + '</small>' : '');
+    h += '<tr><td>' + lab + '</td>';
+    FLOW_ZONES.forEach(function (z) {
+      var k = z[0], x = g(S, k), bz = b[k], m = g(S, k + 'M'), w = g(S, k + 'F');
+      var over = x.peak > bz.t ? ' bad' : m.peak > bz.M + bz.sh || w.peak > bz.F + bz.sh ? ' warn' : '';
+      h += '<td class="c">' + x.inN + two(S, k, function (y) { return y.inN; }) + '</td>' +
+        '<td class="c">' + x.outN + two(S, k, function (y) { return y.outN; }) + '</td>' +
+        '<td class="c">' + dec1(x.avg) + two(S, k, function (y) { return dec1(y.avg); }) + '</td>' +
+        '<td class="c' + over + '">' + x.peak + two(S, k, function (y) { return y.peak; }) + '</td>';
+    });
+    var all = g(S, 'ALL');
+    h += '<td class="c">' + dec1(all.avg) + two(S, 'ALL', function (y) { return dec1(y.avg); }) + '</td><td class="c">' + pct(all.avg, b.ALL.t) + '</td></tr>';
+  });
+  h += '</tbody></table>';
+  h += '<p class="rp-note"><b>Cách tính.</b> Vào = người bệnh mới vào khoa (cấp cứu, phòng khám, khoa khác chuyển đến); đi mổ rồi về không tính lại. ' +
+    'Ra = ra hẳn khỏi khoa (xuất viện, chuyển khoa, chuyển viện, xin về, trốn viện, tử vong). ' +
+    'Nằm trung bình = số người bệnh có mặt cùng lúc tính trung bình (tổng ngày nằm ÷ số ngày); cao nhất = số người cùng lúc nhiều nhất. ' +
+    'Tính cả người đang đi mổ (giường được giữ) và người chờ giường. Công suất = nằm trung bình ÷ số giường của khu. ' +
+    'Ô vàng: số cao nhất của một giới vượt số giường riêng của giới đó, phải dùng giường chung; ô đỏ: vượt cả giường chung, phải nằm nhờ hoặc chờ giường. ' +
+    'Giường đang phân lấy theo Cài đặt hiện tại. Ngày tính từ 0 giờ đến 24 giờ; tuần từ thứ Hai đến Chủ nhật.</p>';
+  return h + '</div>';
+}
+function renderFlow() {
+  if (!$('flowBox')) return;
+  var ps = flowPeriods();
+  $('flowNav').innerHTML = seg('flowBy', [['day', 'Theo ngày'], ['week', 'Theo tuần'], ['month', 'Theo tháng']], flow.by) +
+    '<span class="nav"><button class="btn small" data-act="flowNav" data-n="1"' + (ps[0].from <= flowStart() ? ' disabled' : '') + '>‹ Trước</button>' +
+    '<button class="btn small" data-act="flowNav" data-n="-1"' + (flow.off ? '' : ' disabled') + '>Sau ›</button>' +
+    (flow.off ? '<button class="btn small" data-act="flowNav" data-n="0">Về hiện tại</button>' : '') + '</span>';
+  $('flowBox').innerHTML = flowHTML(true);
+  applyPerms($('flowBox'));
+}
+function openFlow() {
+  flow.off = 0;
+  showModal(mhead('Lưu lượng người bệnh theo chuyên khoa') + '<div class="mbody"><div class="rbar" id="flowNav"></div><div id="flowBox" class="reportbox"></div></div>' +
+    '<div class="mfoot"><button class="btn" data-act="close">Đóng</button><span class="sp"></span><button class="btn" data-act="flowCsv">Xuất Excel</button>' +
+    '<button class="btn primary" data-act="flowPrint">In / Lưu PDF</button></div>', 'wide');
+  renderFlow();
+}
+function flowNav(n) { flow.off = n ? Math.max(0, flow.off + n) : 0; renderFlow(); }
+function printFlow() { $('printArea').innerHTML = flowHTML(false); window.print(); }
+function changeFlowFrom() {
+  var v = prompt('Tính số liệu lưu lượng từ ngày (ngày/tháng/năm).\nChọn ngày đã đưa đủ người bệnh của khoa vào app; trước ngày đó số liệu chưa đầy đủ.', fmtDate(flowStart()));
+  if (v == null) return;
+  var d = parseDate(v);
+  if (!d) { alert('Ngày chưa đúng (ghi ngày/tháng/năm, không sau hôm nay).'); return; }
+  if (d === state.flowFrom) return;
+  state.flowFrom = d; addLog('Đổi ngày bắt đầu tính lưu lượng người bệnh: ' + fmtDate(d)); commit(); renderFlow();
+}
+function flowCsv() {
+  var F = flowData(), head = ['Kỳ', 'Từ', 'Đến'], cols = [], rows;
+  [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa + Thần kinh'], ['ALL', 'Toàn khoa']].forEach(function (z) {
+    [['inN', 'Vào'], ['outN', 'Ra'], ['avg', 'Nằm TB'], ['peak', 'Cao nhất']].forEach(function (m) {
+      ['', 'M', 'F'].forEach(function (gd) { head.push(z[1] + ' – ' + m[1] + (gd ? ' ' + GENDER[gd] : '')); cols.push([z[0] + gd, m[0]]); });
+    });
+    head.push(z[1] + ' – Ngày nằm TB (người ra)', z[1] + ' – Yêu cầu phòng dịch vụ');
+    cols.push([z[0], 'los'], [z[0], 'want']);
+  });
+  state.specs.forEach(function (sp) {
+    if (!F.all || !F.all['sp' + sp.id]) return;
+    head.push(sp.name + ' – Vào', sp.name + ' – Nằm TB'); cols.push(['sp' + sp.id, 'inN'], ['sp' + sp.id, 'avg']);
+  });
+  function stamp(m) { var t = minTs(m); return fmtDate(t.slice(0, 10)) + ' ' + t.slice(11); }
+  rows = [head].concat(F.rows.map(function (r) {
+    return [r.p.label + (r.p.cur ? ' (đang chạy)' : ''), stamp(r.t0), stamp(r.t1)].concat(cols.map(function (c) {
+      var x = r.s[c[0]], v = x ? x[c[1]] : c[1] === 'los' ? null : 0;
+      return c[1] === 'avg' || c[1] === 'los' ? dec1(v, FLOW_DEC) : v;
+    }));
+  }));
+  saveTsv('luu-luong-theo-' + {day: 'ngay', week: 'tuan', month: 'thang'}[flow.by] + '-' + today() + '.csv', rows);
+}
+// Dữ liệu mẫu cho bản xem thử: lịch sử rút gọn (không có họ tên) của những ngày trước, sinh giả theo một hạt cố định.
+function sampleArc(days) {
+  var seed = 20261018, a = [], cut = tsMin(addDays(today(), -1) + ' 00:00');
+  function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+  function count(mean) { var n = 0, L = Math.exp(-mean), q = rnd(); while (q > L) { n++; q *= rnd(); } return n; }
+  for (var i = days; i >= 2; i--) {
+    var day = addDays(today(), -i), wk = weekday(day), base = tsMin(day + ' 00:00');
+    [['NIEU', 3, 0.68], ['TH', 4.2, 0.5], ['TK', 0.3, 0.6]].forEach(function (sp) {
+      var n = count(sp[1] * (wk === 0 || wk === 6 ? 0.6 : 1));
+      for (var k = 0; k < n; k++) {
+        var am = base + 360 + Math.floor(rnd() * 960), los = 1 + Math.floor(rnd() * rnd() * 10);
+        var om = tsMin(addDays(day, los) + ' 00:00') + 480 + Math.floor(rnd() * 540);
+        if (om >= cut) continue;
+        var src = rnd() < 0.55 ? 'CC' : rnd() < 0.8 ? 'PK' : 'KK', want = rnd() < 0.12 ? (rnd() < 0.5 ? 2 : 3) : 0;
+        a.push([sp[0], rnd() < sp[2] ? 'M' : 'F', arcTs(minTs(am)), arcTs(minTs(om)), src, want, rnd() < 0.9 ? 'XV' : 'CK'].join('|'));
+      }
+    });
+  }
+  return a;
 }
 
 /* ---- xóa hồ sơ nhập trùng, nhập nhầm (quản trị viên, điều dưỡng trưởng) ---- */
@@ -2170,6 +2439,7 @@ function restoreDeleted(i) {
   if (d.from === 'discharged') {
     state.discharged.push(p);
     state.discharged.sort(function (a, b) { var x = outTs(a), y = outTs(b); return x < y ? 1 : x > y ? -1 : 0; });
+    trimDischarged();
     msg = 'về lịch sử ra khoa';
   } else {
     if (p.hisCode && state.patients.some(function (x) { return x.hisCode === p.hisCode; })) { alert('Đang có người bệnh mang mã ' + p.hisCode + ' trên sơ đồ, không khôi phục được.'); return; }
@@ -2445,10 +2715,6 @@ function download(name, blob) {
 }
 // Xuất dạng văn bản ngăn cách bằng tab, mã UTF-16: Excel mở thẳng được, không lỗi dấu tiếng Việt.
 function exportExcel() {
-  function cell(v) {
-    v = String(v == null ? '' : v).replace(/[\t\r\n]+/g, ' ');
-    return /^[=+\-@]/.test(v) ? "'" + v : v;
-  }
   var rows = [['Chuyên khoa', 'Phòng', 'Giường', 'Mã BN', 'Họ và tên', 'Năm sinh', 'Giới', 'Chẩn đoán', 'BS phụ trách', 'Ngày vào khoa', 'Nhận từ', 'Từ khoa', 'Ngày nằm thứ', 'Ghi chú']];
   var order = {};
   state.specs.forEach(function (s, i) { order[s.id] = i; });
@@ -2456,12 +2722,19 @@ function exportExcel() {
     rows.push([specName(p.spec), p.room || (p.away ? 'Đi mổ' : 'Chờ giường'), p.bed || '', p.hisCode || '', p.name, p.yob || '', GENDER[p.gender], p.dx, p.doctor,
       fmtDate(p.admittedAt) + (p.admitTime ? ' ' + p.admitTime : ''), labelOf(SOURCES, p.src), p.srcDept || '', dayN(p.admittedAt), remarkOf(p)]);
   });
+  var who = reportDoctor ? '-' + (fold(reportDoctorName()).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bac-si') : '';
+  saveTsv('danh-sach-nguoi-benh' + who + '-' + today() + '.csv', rows);
+}
+function saveTsv(name, rows) {
+  function cell(v) {
+    v = String(v == null ? '' : v).replace(/[\t\r\n]+/g, ' ');
+    return /^[=+\-@]/.test(v) ? "'" + v : v;
+  }
   var text = rows.map(function (r) { return r.map(cell).join('\t'); }).join('\r\n');
   var buf = new Uint16Array(text.length + 1);
   buf[0] = 0xFEFF;
   for (var i = 0; i < text.length; i++) buf[i + 1] = text.charCodeAt(i);
-  var who = reportDoctor ? '-' + (fold(reportDoctorName()).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'bac-si') : '';
-  download('danh-sach-nguoi-benh' + who + '-' + today() + '.csv', new Blob([buf], {type: 'text/csv;charset=utf-16le'}));
+  download(name, new Blob([buf], {type: 'text/csv;charset=utf-16le'}));
 }
 
 /* ---- cập nhật bệnh mới từ danh sách của phần mềm bệnh viện ---- */
@@ -3040,6 +3313,7 @@ function wipe() {
 }
 function clearPatients() {
   state.patients = []; state.discharged = []; state.log = []; state.reports = {}; state.deleted = []; state.dupOk = [];
+  state.flowArc = []; state.flowFrom = today();   // dùng thật từ hôm nay
   if (state.sample) {
     state.doctors = state.doctors.filter(function (n) { return SAMPLE_DOCTORS.indexOf(n) < 0; });
     state.nurses = state.nurses.filter(function (n) { return SAMPLE_NURSES.indexOf(n) < 0; });
@@ -3066,6 +3340,7 @@ function loadSample(silent) {
   function ago(n) { var d = new Date(); d.setDate(d.getDate() - n); return ymd(d); }
   keepCopy('Trước khi nạp dữ liệu mẫu');
   state.patients = []; state.discharged = []; state.log = []; state.reports = {}; state.deleted = []; state.dupOk = [];
+  state.flowArc = sampleArc(70); state.flowFrom = ago(70);   // lịch sử rút gọn 70 ngày để xem thử báo cáo lưu lượng
   state.sample = true; state.sampleVer = SAMPLE_VER;
   SAMPLE_DOCTORS.forEach(addDoctor); SAMPLE_NURSES.forEach(addNurse);
   // người vào hôm nay có giờ nằm trong kỳ báo cáo đang xem, để bản xem thử có số liệu giao ca
@@ -3198,6 +3473,7 @@ document.addEventListener('click', function (e) {
         if (outForm) { outForm.type = d.val; $('out_hint').textContent = outHint(patientById(outForm.pid), d.val); $('out_deptBox').hidden = d.val !== 'CK'; }
       }
       else if (d.field === 'delKind') { if (delForm) delForm.kind = d.val; }
+      else if (d.field === 'flowBy') { flow.by = d.val; flow.off = 0; renderFlow(); }
       else if (d.field === 'src') { if (form) form.src = d.val; }
       else if (form) { form[d.field] = d.field === 'want' ? +d.val : d.val; if (!form.preset) form.manual = false; refreshSug(); }
       break;
@@ -3219,6 +3495,11 @@ document.addEventListener('click', function (e) {
     case 'report': openReportMenu(); break;
     case 'list': openReport(); break;
     case 'shift': openShift(); break;
+    case 'flow': openFlow(); break;
+    case 'flowNav': flowNav(+d.n); break;
+    case 'flowPrint': printFlow(); break;
+    case 'flowCsv': flowCsv(); break;
+    case 'flowFrom': changeFlowFrom(); break;
     case 'shiftDay': shiftDay(+d.n); break;
     case 'shiftPrint': printShift(); break;
     case 'repAddEv': repAddEv(d.c); break;

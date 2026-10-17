@@ -23,6 +23,60 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.5-thu1 — 18/10/2026 — Báo cáo lưu lượng người bệnh theo chuyên khoa
+
+- **File:** `phien-ban/v2.5-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.5-thu1`.
+- **Bối cảnh:** bác sĩ cần số liệu Niệu và Tiêu hóa (+ Thần kinh) theo ngày, tuần, tháng để phân bổ phòng cho phù hợp.
+- **Máy chủ:** trigger chặn bác sĩ sửa mục `flowArc` (thiếu mục = rỗng); `thiet-lap.sql` đã cập nhật.
+
+**Mới so với 2.4-thu1**
+
+1. **Báo cáo → Lưu lượng người bệnh theo chuyên khoa.** Xem theo ngày (31 ngày), theo tuần (12 tuần, thứ Hai → Chủ nhật) hoặc theo tháng (12 tháng); "‹ Trước / Sau ›" để xem các khoảng cũ hơn.
+   - **Bảng 1 – tổng hợp cả khoảng đang xem**, từng khu và từng giới:
+     - giường đang phân (riêng giới + dùng chung), vào, ra;
+     - nằm trung bình, cao nhất, công suất;
+     - ngày nằm trung bình, số yêu cầu phòng dịch vụ.
+     - Ô vàng: số cao nhất của một giới vượt số giường riêng của giới đó. Ô đỏ: vượt cả giường dùng chung.
+   - **Bảng 2 – từng ngày / tuần / tháng:** vào, ra, nằm trung bình, cao nhất của Niệu và Tiêu hóa + Thần kinh, kèm số Nam · Nữ; nằm trung bình và công suất toàn khoa.
+   - In / Lưu PDF, Xuất Excel (đủ số theo giới và theo từng chuyên khoa).
+2. **Cách tính:**
+   - Tính lại mỗi lần mở, từ giờ vào khoa và giờ ra khoa.
+   - Người đi mổ vẫn tính là có mặt (giường được giữ); đi mổ rồi không về thì tính đến lúc đi mổ. Người chờ giường cũng tính.
+   - Ngày tính từ 0 giờ đến 24 giờ. Giường đang phân lấy theo Cài đặt hiện tại.
+3. **Lưu số liệu lâu dài:**
+   - Lịch sử ra khoa vẫn giữ 300 hồ sơ đầy đủ như trước.
+   - Hồ sơ cũ hơn không còn bị bỏ hẳn: được rút thành một dòng **không có họ tên** (chuyên khoa, giới, giờ vào, giờ ra, nơi nhận, loại phòng yêu cầu, hình thức ra) trong mục `flowArc`, giữ 400 ngày (khoảng 80–100 KB sau một năm).
+4. **Ngày bắt đầu tính** (`flowFrom`):
+   - Tự lấy theo lần nhận bệnh đầu tiên còn trong nhật ký: với sơ đồ chung là **16/10/2026**, ngày đưa cả khoa vào app. Trước ngày đó chưa có đủ người bệnh nên không tính.
+   - Quản trị viên đổi được bằng nút "Đổi ngày" trong báo cáo.
+5. **Bản xem thử** có thêm lịch sử giả 70 ngày (không họ tên) để xem báo cáo.
+
+**Đã thử**
+
+- **Bản xem thử:**
+  - Ngày, tuần, tháng và chuyển kỳ đều chạy; khoảng trước ngày bắt đầu không hiện.
+  - Số vào, ra, nằm trung bình, cao nhất của hai ngày được đối chiếu với một phép tính độc lập (quét từng phút): khớp.
+  - Khổ điện thoại: bảng cuộn ngang trong khung, trang không bị tràn.
+- **Bản một máy:** có 300 người đã ra khoa, cho thêm một người ra. Lịch sử vẫn 300; người cũ nhất được rút gọn đúng (đi mổ không về tính đến lúc đi mổ). Dòng quá 400 ngày bị bỏ. Ngày bắt đầu tự nhận là 16/10/2026.
+- **Máy chủ giả lập:**
+  - Bác sĩ lưu được lần đầu (thêm ngày bắt đầu).
+  - Điều dưỡng trưởng cho ra khoa: hồ sơ cũ được rút gọn, máy chủ nhận.
+  - Nút "Đổi ngày" chỉ quản trị viên thấy.
+- **Máy chủ thật (thử rồi hủy, không để lại dữ liệu):**
+  - Bác sĩ thêm ngày bắt đầu và kho rỗng: được.
+  - Bác sĩ sửa kho: bị chặn.
+  - Điều dưỡng cho ra khoa kèm kho: được.
+  - Bác sĩ sửa thông tin, giữ nguyên kho: được.
+
+**Chưa thử:** nút "Đổi ngày" (hộp hỏi ngày) và lệnh in trên máy thật; điện thoại, iPad thật; máy Windows 7 ở khoa.
+
+**Hạn chế:**
+- Số liệu chỉ có từ 16/10/2026, cần vài tuần mới đủ để kết luận.
+- Không biết lịch sử nằm nhờ hay đổi phòng của từng người, chỉ biết số người theo khu và giới.
+- Người đổi chuyên khoa giữa chừng được tính theo chuyên khoa cuối.
+
+---
+
 ## 2.4-thu1 — 16/10/2026 — Xem mật khẩu, xóa hồ sơ nhập trùng/nhầm, rà soát trùng tên, tìm không dấu, 619 nam nữ chung, báo phiên bản mới
 
 - **File:** `phien-ban/v2.4-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.4-thu1`.

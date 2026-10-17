@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.4-thu1 (16/10/2026).
+Cập nhật cho bản 2.5-thu1 (18/10/2026).
 
 ## Địa chỉ
 
@@ -122,6 +122,30 @@ Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
 - **Đi mổ** tính như chuyển khoa: lúc đi tính vào "Chuyển khoa khác" (chuyển mổ), lúc về tính vào "Khoa khác chuyển đến" (mổ về). Người đang ở phòng mổ lúc 7 giờ không tính vào "Còn cuối kỳ". Khi bấm "Mổ về", ghi đúng giờ về rồi bấm Xác nhận (giường cũ đã chọn sẵn).
 - **Ra khoa khác** gồm xin về và trốn viện; tử vong là cột riêng.
 - **Danh sách điều dưỡng** để chọn người giao, người nhận nằm ở Cài đặt mục 3, cạnh danh sách bác sĩ.
+
+## Lưu lượng người bệnh theo chuyên khoa
+
+Bấm **Báo cáo** → **Lưu lượng người bệnh theo chuyên khoa**. Mọi tài khoản đều xem, in, xuất Excel được.
+
+- **Mục đích:** biết Niệu và Tiêu hóa + Thần kinh thực sự cần bao nhiêu giường, Nam bao nhiêu, Nữ bao nhiêu, để phân bổ phòng trong Cài đặt.
+- **Chọn cách xem:**
+  - **Theo ngày:** 31 ngày gần nhất.
+  - **Theo tuần:** 12 tuần, thứ Hai → Chủ nhật.
+  - **Theo tháng:** 12 tháng.
+  - Nút "‹ Trước / Sau ›" để xem các khoảng cũ hơn.
+- **Bảng 1 – tổng hợp**, so với giường đang phân:
+  - **Nằm trung bình:** số người có mặt cùng lúc, tính trung bình.
+  - **Cao nhất:** số người cùng lúc nhiều nhất.
+  - **Ô vàng:** lúc đông nhất, số người của một giới vượt số giường riêng cho giới đó, phải dùng phòng linh hoạt / nam nữ chung.
+  - **Ô đỏ:** vượt cả các phòng dùng chung, phải nằm nhờ khu khác hoặc chờ giường.
+  - Khu nào thường xuyên có ô vàng, ô đỏ thì cần thêm giường cho khu (hoặc giới) đó. Khu nào nằm trung bình thấp xa số giường thì có thể nhường bớt phòng.
+- **Bảng 2:** từng ngày (tuần, tháng) – vào, ra, nằm trung bình, cao nhất; số nhỏ bên dưới là Nam · Nữ.
+- **Cách tính:**
+  - **Vào:** người bệnh mới vào khoa. Đi mổ rồi về không tính lại.
+  - **Ra:** ra hẳn khỏi khoa.
+  - Người đang đi mổ (giường được giữ) và người chờ giường vẫn tính là có mặt.
+- **Số liệu bắt đầu từ 16/10/2026** (ngày đưa cả khoa vào app); nên xem sau vài tuần để có kết luận. Quản trị viên đổi ngày bắt đầu bằng nút "Đổi ngày".
+- **Lưu trữ:** hồ sơ ra khoa cũ hơn 300 người gần nhất được rút gọn thành một dòng không có họ tên, chỉ để tính lưu lượng, giữ 400 ngày.
 
 ## Cấu hình máy tối thiểu
 

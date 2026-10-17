@@ -1,2 +1,2 @@
-2.4-thu1
-Nút xem mật khẩu, xóa hồ sơ nhập trùng/nhầm (có lý do), rà soát trùng họ tên, tìm không cần dấu, phòng 619 nam nữ chung
+2.5-thu1
+Báo cáo lưu lượng người bệnh Niệu, Tiêu hóa + Thần kinh theo ngày, tuần, tháng (Báo cáo → Lưu lượng)
