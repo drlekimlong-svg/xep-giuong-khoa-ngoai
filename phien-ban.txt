@@ -1,2 +1,2 @@
-2.5-thu1
-Báo cáo lưu lượng người bệnh Niệu, Tiêu hóa + Thần kinh theo ngày, tuần, tháng (Báo cáo → Lưu lượng)
+2.6-thu1
+Cảnh báo người bệnh nằm trên 7 ngày và từ ngày 15, đánh dấu đã làm tờ sơ kết 15 ngày điều trị (Báo cáo → Người bệnh nằm lâu)

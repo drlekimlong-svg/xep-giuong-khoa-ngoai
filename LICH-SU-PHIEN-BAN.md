@@ -23,6 +23,43 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.6-thu1 — 18/10/2026 — Người bệnh nằm lâu, sơ kết 15 ngày điều trị
+
+- **File:** `phien-ban/v2.6-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu1`.
+- **Bối cảnh:** bác sĩ cần biết ca nào nằm quá 7 ngày, ca nào từ ngày 15 (phải làm tờ sơ kết 15 ngày điều trị), và đánh dấu đã làm; bác sĩ quản lý khoa nắm các ca nằm lâu.
+- **Máy chủ:** không đổi cấu trúc. Dấu sơ kết nằm trong hồ sơ người bệnh (`p.sk`); bác sĩ được lưu, vì trigger chỉ chặn bác sĩ đổi giường, ra khoa, báo cáo, kho lưu lượng.
+- **Cùng ngày, trên máy chủ thật (theo yêu cầu, không phải mã nguồn):** cập nhật danh sách bác sĩ, điều dưỡng và chức danh; đổi tên bác sĩ phụ trách đã ghi trên hồ sơ và tên tài khoản cho khớp (xem CLAUDE.md ngoài kho).
+
+**Mới so với 2.5-thu1**
+
+1. **Ngày nằm** = ngày thứ mấy kể từ ngày vào khoa (ngày vào là ngày thứ 1), tính cả người đang đi mổ, chờ giường.
+2. **Trên sơ đồ:**
+   - **Nhãn trên giường:** N8–N14 viền vàng; từ N15 nền đỏ nếu chưa làm sơ kết, xám nếu đã làm.
+   - **Thẻ "Nằm trên 7 ngày":** số người nằm trên 7 ngày, số người từ ngày 15, số chưa sơ kết. Bấm vào thẻ để mở danh sách.
+   - **Dải nhắc:** những người từ ngày 15 chưa sơ kết, kèm giường, ngày nằm, bác sĩ phụ trách.
+3. **Báo cáo → Người bệnh nằm lâu:**
+   - Hai nhóm: từ ngày 15 (có ô đánh dấu "đã làm tờ sơ kết") và trên 7 ngày (ghi ngày đến hạn sơ kết).
+   - Lọc theo bác sĩ phụ trách; bác sĩ đăng nhập thì tự lọc các ca của mình.
+   - In / Lưu PDF, Xuất Excel.
+4. **Sơ kết lặp lại** ở ngày 30, 45… (lần 2, lần 3…). Dấu ghi người đánh dấu và giờ; bỏ dấu thì hỏi lại; mỗi lần đánh dấu ghi vào nhật ký.
+5. **Ai đánh dấu được:** bác sĩ, điều dưỡng, điều dưỡng trưởng, quản trị. Tài khoản chỉ xem thì không.
+6. **Hồ sơ người bệnh** có dòng "Sơ kết 15 ngày". **Danh sách in và Excel** ghi "ngày thứ N, chưa/đã sơ kết 15 ngày" ở cột ghi chú.
+7. **Tên đăng nhập tự tạo** bỏ được chức danh "CNĐD", "CĐĐD" (cả khi không có dấu chấm).
+8. **Bản xem thử:** 4 người mẫu nằm lâu (N9, N11, N17 chưa sơ kết, N19 đã sơ kết).
+
+**Đã thử**
+
+- **Bản xem thử:** nhãn giường, thẻ, dải nhắc, danh sách hai nhóm, lọc bác sĩ; đánh dấu từ hồ sơ người bệnh thì nhãn, thẻ, dải nhắc cập nhật; ghi chú trong danh sách in.
+- **Máy chủ giả lập:** bác sĩ đăng nhập thấy danh sách tự lọc ca của mình; đánh dấu được, máy chủ lưu kèm tên. Bảng xem trước tài khoản tạo đúng tên đăng nhập cho 20 người mới.
+- **Máy chủ thật:** đã kiểm hàm so giường của trigger không xét `sk`.
+- **Khổ điện thoại:** không tràn ngang.
+
+**Chưa thử:** bỏ dấu (hộp hỏi lại) trên máy thật; in ra giấy; điện thoại, iPad thật; máy Windows 7 ở khoa.
+
+**Hạn chế:** ngày nằm tính từ ngày vào khoa; người chuyển từ khoa khác đến chưa tính những ngày nằm ở khoa trước.
+
+---
+
 ## 2.5-thu1 — 18/10/2026 — Báo cáo lưu lượng người bệnh theo chuyên khoa
 
 - **File:** `phien-ban/v2.5-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.5-thu1`.

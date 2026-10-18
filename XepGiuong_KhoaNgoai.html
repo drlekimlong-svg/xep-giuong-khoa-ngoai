@@ -288,6 +288,19 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 /* ---- báo phiên bản mới ---- */
 .upd{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:90;background:#0e6655;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);display:flex;align-items:center;flex-wrap:wrap;max-width:94vw;font-size:14px}
 .upd .btn{margin-left:10px}
+/* ---- người bệnh nằm lâu ---- */
+.bed .bd.lng{background:#fff;color:#8a5a00;border:1px solid #d4a72c;padding:0 2px}
+.bed .bd.sk{background:var(--warn)}
+.bed .bd.skok{background:#e3e8ec;color:#3d4a57}
+button.stat{font:inherit;color:inherit;text-align:left;cursor:pointer}
+button.stat:hover{border-color:var(--accent)}
+.stat.warn{border-left-color:#d4a72c}
+.lgs table{min-width:760px}
+.lgs tr.pend td{background:#fdecea;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.lgs small{color:#555}
+.skc{display:inline-flex;align-items:center;white-space:nowrap;cursor:pointer}
+.skc input{width:18px;height:18px;margin:0 6px 0 0}
+.skw{display:block;font-size:11px;color:#555}
 /* ---- lưu lượng người bệnh ---- */
 .flw table.fl{min-width:760px}
 .flw table.fl th{text-align:center;font-size:11.5px}
@@ -384,12 +397,12 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.5-thu1', VERSION_DATE = '18/10/2026';
+var VERSION = '2.6-thu1', VERSION_DATE = '18/10/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
 var KEY = DEMO ? 'xepgiuong.khoangoai.mau' : 'xepgiuong.khoangoai.v1';
-var SAMPLE_VER = 5;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
+var SAMPLE_VER = 6;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
 // Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
@@ -401,10 +414,11 @@ var ROLE_ACTS = {
   nurse: ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait', 'undo', 'backup',
     'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
     'repEdit', 'repAddEv', 'repDelEv'],   // ghi báo cáo giao ca
-  doctor: ['edit', 'saveForm'],   // bác sĩ: xem và bổ sung thông tin, không nhận bệnh, không xếp giường
+  doctor: ['edit', 'saveForm', 'sk15'],   // bác sĩ: xem và bổ sung thông tin, đánh dấu sơ kết 15 ngày; không nhận bệnh, không xếp giường
   view: []
 };
 ROLE_ACTS.nurse.push('dupOk');   // xác nhận hai người cùng họ tên là khác người
+ROLE_ACTS.nurse.push('sk15');    // đánh dấu đã làm tờ sơ kết 15 ngày điều trị
 // điều dưỡng trưởng: như điều dưỡng, thêm quyền xóa và khôi phục hồ sơ nhập trùng, nhập nhầm (bác sĩ quyết định 16/10/2026)
 ROLE_ACTS.headnurse = ROLE_ACTS.nurse.concat(['delRec', 'delConfirm', 'restoreDel']);
 // Các nút cần quyền; nút không có trong danh sách này (xem, in, xuất Excel, lịch sử…) ai cũng dùng được.
@@ -818,7 +832,7 @@ function namePlain(s) {
   if (s.normalize) s = s.normalize('NFD').replace(/[̀-ͯ]/g, '');
   return s.replace(/đ/g, 'd').replace(/Đ/g, 'D');
 }
-var TITLE_RE = /^(gs|pgs|ts|ths|bs|bsck1|bsck2|bscki|bsckii|bsnt|bscc|ck1|ck2|cki|ckii|dd|cn|ktv|nhs|hl|ys|ds)$/i;
+var TITLE_RE = /^(gs|pgs|ts|ths|bs|bsck1|bsck2|bscki|bsckii|bsnt|bscc|ck1|ck2|cki|ckii|dd|cn|cndd|cddd|ktv|nhs|hl|ys|ds)$/i;
 function nameParts(full) {
   var p = String(full || '').replace(/[,;()]/g, ' ').split(/\s+/).filter(Boolean);
   // bỏ học hàm, chức danh ở đầu: "TS.", "BS.", "ThS.", "ĐD"…
@@ -943,7 +957,7 @@ function parseRole(tok, full) {
   if (/^(xem|chi xem|view)$/.test(t)) return 'view';
   if (/^(qt|quan tri|admin)$/.test(t)) return 'qt';
   var head = namePlain(full).toLowerCase();   // không ghi vai trò thì đoán theo chức danh
-  if (/(^|\s)(dd|cn\.? ?dd|dieu duong)\b|đd/i.test(head)) return 'nurse';
+  if (/(^|\s)(dd|cn\.? ?dd|cndd|cddd|dieu duong)\b|đd/i.test(head)) return 'nurse';
   if (/(^|\s)(bs|ths|ts|pgs|gs)\b/.test(head)) return 'doctor';
   return '';
 }
@@ -1355,7 +1369,7 @@ function renderStats() {
     '<div class="stat free"><span>Giường trống</span><b>' + free + '</b></div>' +
     '<div class="stat ' + (board ? 'bad' : 'none') + '"><span>Đang nằm nhờ</span><b>' + board + '</b></div>' +
     '<div class="stat ' + (wait ? 'bad' : 'none') + '"><span>Chờ giường</span><b>' + wait + '</b></div>' +
-    '<div class="stat none"><span>Đang đi mổ</span><b>' + away + '</b></div>' +
+    '<div class="stat none"><span>Đang đi mổ</span><b>' + away + '</b></div>' + longTile() +
     '<div class="stat now"><span>Đang nằm tại khoa: ' + (state.patients.length - away) + ' người bệnh</span>' + (chips || '<i style="margin:0">—</i>') + '</div>';
 }
 function renderNotice() {
@@ -1370,6 +1384,10 @@ function renderNotice() {
     h += '<div class="notice">Chưa có người bệnh nào. Bấm <b>+ Nhận bệnh</b> hoặc bấm vào một <b>giường trống</b> trên sơ đồ để bắt đầu. ' +
       'Muốn xem thử cách hoạt động: <button class="btn small" data-act="sample">Nạp dữ liệu mẫu</button></div>';
   }
+  var skp = state.patients.filter(skPending).sort(function (a, b) { return stayDay(b) - stayDay(a); });
+  if (skp.length) h += '<div class="notice"><b>' + skp.length + ' người bệnh nằm từ ngày ' + STAY_SK + ' chưa đánh dấu đã làm tờ sơ kết 15 ngày điều trị:</b> ' +
+    skp.slice(0, 6).map(function (p) { return esc(p.name) + ' (' + esc(placeText(p)) + (p.bed ? '-' + p.bed : '') + ', N' + stayDay(p) + (p.doctor ? ', ' + esc(p.doctor) : '') + ')'; }).join('; ') +
+    (skp.length > 6 ? '; …' : '') + ' <button class="btn small" data-act="longStay">Xem danh sách</button></div>';
   var sus = dupGroups().filter(function (g) { return g.suspect; });
   if (sus.length) h += '<div class="notice err">⚠ <b>Có thể nhập trùng:</b> ' + sus.map(function (g) {
     return esc(g.members[0].name) + ' (' + g.members.map(function (x) { return esc(placeOf(x)); }).join(', ') + ')';
@@ -1418,10 +1436,10 @@ function bedHTML(p, rm, b) {
   var twin = twinsOf(p).length;
   var title = p.name + ' – ' + GENDER[p.gender] + (p.yob ? ', ' + p.yob : '') + '\n' + specName(p.spec) +
     (p.doctor ? ' – BS: ' + p.doctor : '') + (p.dx ? '\n' + p.dx : '') + (board ? '\n(Đang nằm nhờ khu ' + ZONES[rm.zone] + ')' : '') +
-    (p.hisCode ? '\nMã BN ' + p.hisCode : '') + (twin ? '\n⚠ Có hồ sơ khác cùng họ tên – đối chiếu mã bệnh nhân' : '');
+    (p.hisCode ? '\nMã BN ' + p.hisCode : '') + (twin ? '\n⚠ Có hồ sơ khác cùng họ tên – đối chiếu mã bệnh nhân' : '') + stayTitle(p);
   return '<button class="' + cls + '" data-act="patient" data-pid="' + p.id + '" title="' + esc(title) + '">' +
     '<span class="bn">' + b + '</span><span class="nm">' + esc(shortName(p.name)) + '</span>' +
-    (board ? '<span class="bd">nhờ</span>' : '') + (twin ? '<span class="bd same">trùng</span>' : '') +
+    (board ? '<span class="bd">nhờ</span>' : '') + (twin ? '<span class="bd same">trùng</span>' : '') + stayBadge(p) +
     '<span class="gx g-' + p.gender + '">' + (p.gender === 'M' ? '♂' : '♀') + '</span></button>';
 }
 function patientChip(p) {
@@ -1750,6 +1768,7 @@ function openPatient(pid) {
     row('Bác sĩ phụ trách', esc(p.doctor || '—')) +
     row('Chẩn đoán', esc(p.dx || '—')) +
     row('Ngày vào khoa', fmtDate(p.admittedAt) + (p.admitTime ? ' lúc ' + p.admitTime : '') + ' (ngày thứ ' + dayN(p.admittedAt) + ')') +
+    (stayDay(p) > STAY_LONG ? row('Sơ kết 15 ngày', skCell(p, can('sk15'))) : '') +
     row('Nhận từ', esc(labelOf(SOURCES, p.src) || '—') + (p.srcDept ? ' – ' + esc(p.srcDept) : '')) +
     row('Mã bệnh nhân', esc(p.hisCode || '— (chưa có, nhập tay)')) +
     (twinsOf(p).length ? row('Trùng họ tên', '<span class="chip warn">đối chiếu mã</span> ' + twinsOf(p).map(function (x) {
@@ -2119,8 +2138,130 @@ function openReportMenu() {
   showModal(mhead('Báo cáo') + '<div class="mbody">' +
     '<button class="btn menu" data-act="shift"><b>Báo cáo bệnh trong ngày</b><br><small>Giao ca lúc 7 giờ: tổng hợp số lượng, người bệnh mới, ra viện, chuyển khoa, sự việc trong ca trực</small></button>' +
     '<button class="btn menu" data-act="list"><b>Danh sách người bệnh</b><br><small>In theo chuyên khoa, bác sĩ phụ trách hoặc phòng; in riêng cho một bác sĩ; xuất Excel</small></button>' +
+    '<button class="btn menu" data-act="longStay"><b>Người bệnh nằm lâu</b><br><small>Đang nằm trên 7 ngày và từ ngày 15; đánh dấu đã làm tờ sơ kết 15 ngày điều trị; lọc theo bác sĩ phụ trách</small></button>' +
     '<button class="btn menu" data-act="flow"><b>Lưu lượng người bệnh theo chuyên khoa</b><br><small>Niệu, Tiêu hóa + Thần kinh theo ngày, tuần, tháng: vào, ra, số nằm trung bình, cao nhất, so với số giường đang phân – để phân bổ phòng</small></button>' +
     '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
+}
+
+/* ---- người bệnh nằm lâu, sơ kết 15 ngày điều trị (bản 2.6) ---- */
+// Bác sĩ yêu cầu 18/10/2026: cảnh báo người đang nằm quá 7 ngày và từ ngày thứ 15; người từ ngày 15 có dấu "đã làm tờ sơ kết
+// 15 ngày điều trị" để bác sĩ phụ trách và bác sĩ quản lý khoa nắm. Ngày nằm = ngày thứ N kể từ ngày vào khoa (ngày vào là
+// ngày thứ 1). Sơ kết lặp lại mỗi 15 ngày: lần 1 từ ngày 15, lần 2 từ ngày 30… Lần đã làm ghi ở p.sk = [{k, at, by}].
+var STAY_LONG = 7, STAY_SK = 15;
+var longDoc = '';
+function stayDay(p) { return dayN(p.admittedAt); }
+function skDue(p) { return Math.floor(stayDay(p) / STAY_SK); }   // lần sơ kết đã đến hạn (0 = chưa tới ngày 15)
+function skDone(p, k) { return (p.sk || []).filter(function (e) { return e.k === k; })[0] || null; }
+function skPending(p) { var k = skDue(p); return k > 0 && !skDone(p, k); }
+function skDueDate(p, k) { return addDays(p.admittedAt, STAY_SK * k - 1); }
+function longStays() { return state.patients.filter(function (p) { return stayDay(p) > STAY_LONG; }); }
+function stayBadge(p) {
+  var n = stayDay(p);
+  if (n <= STAY_LONG) return '';
+  return '<span class="bd ' + (n < STAY_SK ? 'lng' : skPending(p) ? 'sk' : 'skok') + '">N' + n + '</span>';
+}
+function stayTitle(p) {
+  var n = stayDay(p);
+  if (n <= STAY_LONG) return '';
+  return '\nNằm ngày thứ ' + n + (n < STAY_SK ? ' – sơ kết 15 ngày đến hạn ' + fmtDate(skDueDate(p, 1))
+    : skPending(p) ? ' – CHƯA làm sơ kết 15 ngày' + (skDue(p) > 1 ? ' (lần ' + skDue(p) + ')' : '') : ' – đã làm sơ kết 15 ngày');
+}
+function longTile() {
+  var lg = longStays(), n15 = lg.filter(function (p) { return stayDay(p) >= STAY_SK; }), pend = n15.filter(skPending).length;
+  return '<button class="stat ' + (pend ? 'bad' : lg.length ? 'warn' : 'none') + '" data-act="longStay" title="Xem danh sách người bệnh nằm lâu">' +
+    '<span>Nằm trên ' + STAY_LONG + ' ngày</span><b>' + lg.length + '</b><i>' + (n15.length ? 'từ ngày ' + STAY_SK + ': ' + n15.length +
+    (pend ? ', chưa sơ kết ' + pend : '') : 'chưa ai tới ngày ' + STAY_SK) + '</i></button>';
+}
+// Ô "sơ kết 15 ngày": ô đánh dấu (người có quyền, trên màn hình) hoặc chữ (khi in, tài khoản chỉ xem).
+function skCell(p, edit) {
+  var k = skDue(p);
+  if (!k) return 'Đến hạn ngày ' + fmtDate(skDueDate(p, 1)) + ' (ngày thứ ' + STAY_SK + ')';
+  var d = skDone(p, k), lan = k > 1 ? 'Lần ' + k + ': ' : '';
+  var who = d ? '<small class="skw">' + esc(d.at) + (d.by ? ' – ' + esc(d.by) : '') + '</small>' : '';
+  if (edit) return '<label class="skc"><input type="checkbox" class="sk-chk" data-pid="' + p.id + '" data-k="' + k + '"' + (d ? ' checked' : '') + '> ' +
+    lan + (d ? 'Đã làm' : '<b class="res-bad">Chưa làm</b>') + '</label>' + who;
+  return lan + (d ? '☑ Đã làm' : '☐ Chưa làm') + who;
+}
+function toggleSk(pid, k, on) {
+  var p = patientById(pid);
+  if (!p || !can('sk15')) return;
+  if (!on && !confirm('Bỏ dấu đã làm tờ sơ kết 15 ngày' + (k > 1 ? ' (lần ' + k + ')' : '') + ' của ' + p.name + '?')) { refreshSk(pid); return; }
+  p.sk = (p.sk || []).filter(function (e) { return e.k !== k; });
+  if (on) p.sk.push({k: k, at: nowStamp(), by: cloud && session ? session.name : ''});
+  addLog((on ? 'Đã làm sơ kết 15 ngày' : 'Bỏ dấu sơ kết 15 ngày') + (k > 1 ? ' (lần ' + k + ')' : '') + ': ' + p.name);
+  commit(); refreshSk(pid);
+  if (on) toast('Đã ghi nhận: ' + p.name + ' đã có tờ sơ kết 15 ngày điều trị.');
+}
+function refreshSk(pid) {
+  if ($('longBox')) renderLong();
+  else if (!$('overlay').hidden && $('modal').querySelector('.sk-chk')) openPatient(pid);
+}
+function longFiltered() {
+  var ps = longStays().sort(function (a, b) { return stayDay(b) - stayDay(a) || cmpBed(a, b); });
+  if (longDoc === NO_DOC) return ps.filter(function (p) { return !p.doctor; });
+  return longDoc ? ps.filter(function (p) { return p.doctor === longDoc; }) : ps;
+}
+function longDocOptions() {
+  var count = {}, none = 0;
+  longStays().forEach(function (p) { if (p.doctor) count[p.doctor] = (count[p.doctor] || 0) + 1; else none++; });
+  if (longDoc && (longDoc === NO_DOC ? !none : !count[longDoc])) longDoc = '';
+  var h = '<option value="">Tất cả bác sĩ (cả khoa)</option>';
+  Object.keys(count).sort(function (a, b) { return a.localeCompare(b, 'vi'); }).forEach(function (n) {
+    h += '<option value="' + esc(n) + '"' + (n === longDoc ? ' selected' : '') + '>' + esc(n) + ' (' + count[n] + ')</option>';
+  });
+  if (none) h += '<option value="' + NO_DOC + '"' + (longDoc === NO_DOC ? ' selected' : '') + '>Chưa ghi bác sĩ (' + none + ')</option>';
+  return h;
+}
+function longHTML(screen) {
+  var ps = longFiltered(), edit = screen && can('sk15');
+  var g15 = ps.filter(function (p) { return stayDay(p) >= STAY_SK; }), g8 = ps.filter(function (p) { return stayDay(p) < STAY_SK; });
+  var pend = g15.filter(skPending).length;
+  var h = '<div class="rp lgs"><div class="rp-top"><b>' + esc(state.ward.toUpperCase()) + '</b><span>In lúc ' + nowStamp() + '</span></div>' +
+    '<h2>NGƯỜI BỆNH NẰM LÂU</h2>' +
+    (longDoc ? '<p class="rp-sum" style="font-size:15px">Bác sĩ phụ trách: <b>' + esc(longDoc === NO_DOC ? 'Chưa ghi bác sĩ' : longDoc) + '</b></p>' : '') +
+    '<p class="rp-sum">Ngày ' + fmtDate(today()) + ' · nằm trên ' + STAY_LONG + ' ngày: <b>' + ps.length + '</b> · từ ngày ' + STAY_SK + ': <b>' + g15.length + '</b>' +
+    (g15.length ? ' (chưa sơ kết: <b>' + pend + '</b>)' : '') + '</p>';
+  function table(list, sk) {
+    var t = '<table><thead><tr><th class="c">STT</th><th class="c">Phòng</th><th class="c">Giường</th><th>Họ tên – mã người bệnh</th><th class="c">Năm sinh / giới</th>' +
+      '<th>Chẩn đoán</th><th>BS phụ trách</th><th class="c">Vào khoa</th><th class="c">Ngày nằm</th><th>' + (sk ? 'Sơ kết 15 ngày' : 'Sơ kết 15 ngày đến hạn') + '</th></tr></thead><tbody>';
+    list.forEach(function (p, i) {
+      t += '<tr' + (sk && skPending(p) ? ' class="pend"' : '') + '><td class="c">' + (i + 1) + '</td><td class="c">' + esc(placeText(p)) + '</td><td class="c">' + (p.bed || '') + '</td>' +
+        '<td><b>' + esc(p.name) + '</b>' + (p.hisCode ? ' – ' + esc(p.hisCode) : '') + '<br><small>' + esc(specName(p.spec)) + '</small></td>' +
+        '<td class="c">' + (p.yob || '') + ' / ' + (GENDER[p.gender] || '') + '</td><td>' + esc(p.dx) + '</td><td>' + esc(p.doctor || '—') + '</td>' +
+        '<td class="c">' + fmtDate(p.admittedAt) + '</td><td class="c"><b>' + stayDay(p) + '</b></td>' +
+        '<td>' + (sk ? skCell(p, edit) : fmtDate(skDueDate(p, 1))) + '</td></tr>';
+    });
+    return t + '</tbody></table>';
+  }
+  h += '<h3>1. Từ ngày ' + STAY_SK + ' trở lên <span>(' + g15.length + ' người bệnh)</span></h3>' + (g15.length ? table(g15, true) : '<p class="none">Không có.</p>') +
+    '<h3>2. Trên ' + STAY_LONG + ' ngày, chưa tới ngày ' + STAY_SK + ' <span>(' + g8.length + ' người bệnh)</span></h3>' + (g8.length ? table(g8, false) : '<p class="none">Không có.</p>') +
+    '<p class="rp-note">Ngày nằm = ngày thứ mấy kể từ ngày vào khoa (ngày vào khoa là ngày thứ 1), tính cả người đang đi mổ và chờ giường. ' +
+    'Tờ sơ kết 15 ngày điều trị đến hạn từ ngày thứ ' + STAY_SK + ', rồi lặp lại ở ngày ' + 2 * STAY_SK + ', ' + 3 * STAY_SK + '… Người bệnh chuyển từ khoa khác đến được tính từ ngày vào khoa này.</p>';
+  return h + '</div>';
+}
+function renderLong() {
+  if (!$('longBox')) return;
+  $('lg_doctor').innerHTML = longDocOptions();
+  $('longBox').innerHTML = longHTML(true);
+}
+function openLong() {
+  // bác sĩ mở thì xem trước các ca của mình
+  if (cloud && session && session.role === 'doctor' && longStays().some(function (p) { return p.doctor === session.name; })) longDoc = session.name;
+  showModal(mhead('Người bệnh nằm lâu') + '<div class="mbody"><div class="rbar"><span>Bác sĩ phụ trách:</span><select id="lg_doctor"></select></div>' +
+    '<div id="longBox" class="reportbox"></div></div>' +
+    '<div class="mfoot"><button class="btn" data-act="close">Đóng</button><span class="sp"></span><button class="btn" data-act="longCsv">Xuất Excel</button>' +
+    '<button class="btn primary" data-act="longPrint">In / Lưu PDF</button></div>', 'wide');
+  renderLong();
+}
+function printLong() { $('printArea').innerHTML = longHTML(false); window.print(); }
+function longCsv() {
+  var rows = [['Phòng', 'Giường', 'Mã BN', 'Họ và tên', 'Năm sinh', 'Giới', 'Chuyên khoa', 'Chẩn đoán', 'BS phụ trách', 'Ngày vào khoa', 'Ngày nằm thứ', 'Sơ kết 15 ngày']];
+  longFiltered().forEach(function (p) {
+    var k = skDue(p), d = k ? skDone(p, k) : null;
+    rows.push([placeText(p), p.bed || '', p.hisCode || '', p.name, p.yob || '', GENDER[p.gender], specName(p.spec), p.dx, p.doctor, fmtDate(p.admittedAt), stayDay(p),
+      !k ? 'đến hạn ' + fmtDate(skDueDate(p, 1)) : (k > 1 ? 'lần ' + k + ': ' : '') + (d ? 'đã làm ' + d.at + (d.by ? ' – ' + d.by : '') : 'chưa làm')]);
+  });
+  saveTsv('nguoi-benh-nam-lau-' + today() + '.csv', rows);
 }
 
 /* ---- lưu lượng người bệnh theo chuyên khoa (bản 2.5) ---- */
@@ -2658,7 +2799,8 @@ function reportGroups(ps) {
   return groups;
 }
 function remarkOf(p) {
-  var rm = p.room ? roomById(p.room) : null, a = [];
+  var rm = p.room ? roomById(p.room) : null, a = [], n = stayDay(p);
+  if (n > STAY_LONG) a.push('ngày thứ ' + n + (n < STAY_SK ? '' : skPending(p) ? ', chưa sơ kết 15 ngày' : ', đã sơ kết 15 ngày'));
   if (p.away && p.keepRoom) a.push('giường cũ ' + bedLabel(p.keepRoom, p.keepBed));
   if (rm && rm.zone !== homeZone(p.spec)) a.push('nằm nhờ khu ' + ZONES[rm.zone]);
   if (p.want && (!rm || rm.size !== p.want)) a.push('chờ phòng ' + p.want + ' giường');
@@ -3356,10 +3498,10 @@ function loadSample(silent) {
     ['Nguyễn Văn An', 1971, 'M', 'TH', 'Bác sĩ A', 0, 'Viêm ruột thừa cấp', 2],
     ['Trần Thị Bích', 1985, 'F', 'TH', 'Bác sĩ A', 0, 'Sỏi túi mật', 1],
     ['Lê Văn Cường', 1960, 'M', 'TH', 'Bác sĩ B', 0, 'Thoát vị bẹn phải', 3],
-    ['Phạm Thị Dung', 1949, 'F', 'TH', 'Bác sĩ B', 0, 'Tắc ruột do dính', 4],
+    ['Phạm Thị Dung', 1949, 'F', 'TH', 'Bác sĩ B', 0, 'Tắc ruột do dính', 10],
     ['Huỳnh Văn Em', 1992, 'M', 'TH', 'Bác sĩ A', 0, 'Viêm ruột thừa cấp', 0],
-    ['Võ Thị Phượng', 1978, 'F', 'TH', 'Bác sĩ C', 2, 'U đại tràng sigma', 6],
-    ['Đặng Văn Giàu', 1955, 'M', 'TH', 'Bác sĩ C', 0, 'Thủng dạ dày', 5],
+    ['Võ Thị Phượng', 1978, 'F', 'TH', 'Bác sĩ C', 2, 'U đại tràng sigma', 16],
+    ['Đặng Văn Giàu', 1955, 'M', 'TH', 'Bác sĩ C', 0, 'Thủng dạ dày', 8],
     ['Bùi Thị Hoa', 1990, 'F', 'TH', 'Bác sĩ A', 0, 'Viêm túi mật cấp', 1],
     ['Đỗ Văn Hùng', 1983, 'M', 'TH', 'Bác sĩ B', 3, 'Trĩ độ III', 1],
     ['Ngô Thị Kim', 1967, 'F', 'TH', 'Bác sĩ C', 0, 'Sỏi ống mật chủ', 2],
@@ -3369,7 +3511,7 @@ function loadSample(silent) {
     ['Phan Thị Oanh', 1982, 'F', 'NIEU', 'Bác sĩ E', 0, 'Sỏi thận phải', 2],
     ['Mai Văn Phúc', 1969, 'M', 'NIEU', 'Bác sĩ E', 3, 'Sỏi bàng quang', 1],
     ['Đinh Thị Quyên', 1974, 'F', 'NIEU', 'Bác sĩ D', 2, 'Sỏi niệu quản phải', 0],
-    ['Cao Văn Rạng', 1963, 'M', 'NIEU', 'Bác sĩ E', 0, 'U bàng quang', 4],
+    ['Cao Văn Rạng', 1963, 'M', 'NIEU', 'Bác sĩ E', 0, 'U bàng quang', 18],
     ['Tạ Thị Sương', 1991, 'F', 'NIEU', 'Bác sĩ D', 0, 'Viêm thận bể thận', 1],
     ['Vũ Văn Tài', 1988, 'M', 'TK', 'Bác sĩ B', 0, 'Chấn thương sọ não nhẹ', 1],
     ['Lâm Thị Uyên', 1957, 'F', 'TH', 'Bác sĩ C', 0, 'Thoát vị rốn', 2]
@@ -3381,6 +3523,7 @@ function loadSample(silent) {
     if (!a[7]) { var x = at(0.15 + (i % 6) * 0.14); p.admittedAt = x.day; p.admitTime = x.hm; }
     if (a[8]) { p.room = a[8]; p.bed = a[9]; }
     else { var c = candidates(p)[0]; if (c) { p.room = c.room.id; p.bed = c.bed; } }
+    if (a[0] === 'Cao Văn Rạng') p.sk = [{k: 1, at: fmtDate(ago(3)) + ' 10:20', by: 'Bác sĩ E'}];   // đã làm sơ kết 15 ngày
     state.patients.push(p);
   });
   // một người đang đi mổ để thấy cách giữ giường
@@ -3496,6 +3639,9 @@ document.addEventListener('click', function (e) {
     case 'list': openReport(); break;
     case 'shift': openShift(); break;
     case 'flow': openFlow(); break;
+    case 'longStay': openLong(); break;
+    case 'longPrint': printLong(); break;
+    case 'longCsv': longCsv(); break;
     case 'flowNav': flowNav(+d.n); break;
     case 'flowPrint': printFlow(); break;
     case 'flowCsv': flowCsv(); break;
@@ -3527,6 +3673,10 @@ document.addEventListener('change', function (e) {
     if (el.value === OTHER_DOC) $('f_doctorOther').focus();
   } else if (el.id === 'f_other') {
     if (form && el.value && can('move')) { v = el.value.split('|'); form.pick = {room: v[0], bed: +v[1]}; form.manual = true; refreshSug(); }
+  } else if (el.id === 'lg_doctor') {
+    longDoc = el.value; renderLong();
+  } else if (el.classList && el.classList.contains('sk-chk')) {
+    if (can('sk15')) toggleSk(+el.dataset.pid, +el.dataset.k, el.checked); else el.checked = !el.checked;
   } else if (el.id === 'p_hold') {
     p = patientById(+el.dataset.pid);
     if (p && can('hold')) { p.hold = el.checked; commit(); }

@@ -1,6 +1,6 @@
 # Bản dùng chung nhiều máy (Supabase) – hướng dẫn
 
-Cập nhật cho bản 2.5-thu1 (18/10/2026).
+Cập nhật cho bản 2.6-thu1 (18/10/2026).
 
 ## Địa chỉ
 
@@ -122,6 +122,22 @@ Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
 - **Đi mổ** tính như chuyển khoa: lúc đi tính vào "Chuyển khoa khác" (chuyển mổ), lúc về tính vào "Khoa khác chuyển đến" (mổ về). Người đang ở phòng mổ lúc 7 giờ không tính vào "Còn cuối kỳ". Khi bấm "Mổ về", ghi đúng giờ về rồi bấm Xác nhận (giường cũ đã chọn sẵn).
 - **Ra khoa khác** gồm xin về và trốn viện; tử vong là cột riêng.
 - **Danh sách điều dưỡng** để chọn người giao, người nhận nằm ở Cài đặt mục 3, cạnh danh sách bác sĩ.
+
+## Người bệnh nằm lâu, sơ kết 15 ngày điều trị
+
+- **Ngày nằm** = ngày thứ mấy kể từ ngày vào khoa (ngày vào là ngày thứ 1).
+- **Trên sơ đồ:**
+  - **Nhãn trên giường:** N9 viền vàng = nằm trên 7 ngày; N16 nền đỏ = từ ngày 15, chưa đánh dấu sơ kết; nền xám = đã sơ kết.
+  - **Thẻ "Nằm trên 7 ngày":** số người nằm lâu; bấm vào để mở danh sách.
+  - **Dải nhắc:** những ca từ ngày 15 chưa sơ kết.
+- **Bấm Báo cáo → Người bệnh nằm lâu** (hoặc bấm thẻ):
+  - Nhóm 1 – từ ngày 15: làm xong tờ sơ kết thì **bấm vào ô đánh dấu**; app ghi người đánh dấu và giờ.
+  - Nhóm 2 – trên 7 ngày: ghi ngày đến hạn sơ kết.
+  - Chọn bác sĩ phụ trách để chỉ xem ca của một bác sĩ. Bác sĩ đăng nhập thì app tự lọc ca của mình.
+  - In / Xuất Excel để bác sĩ quản lý khoa theo dõi.
+- **Đánh dấu ở đâu:** trong danh sách nằm lâu, hoặc trong hồ sơ người bệnh (dòng "Sơ kết 15 ngày").
+- **Sơ kết lặp lại** ở ngày 30, 45… (lần 2, lần 3); lúc đó ô đánh dấu trở lại "Chưa làm".
+- **Người đánh dấu được:** bác sĩ, điều dưỡng, quản trị. Bỏ dấu thì app hỏi lại.
 
 ## Lưu lượng người bệnh theo chuyên khoa
 
