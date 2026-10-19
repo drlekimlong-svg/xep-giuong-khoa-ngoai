@@ -23,6 +23,39 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.6-thu2 — 20/10/2026 — Chúc mừng ngày Phụ nữ Việt Nam
+
+- **File:** `phien-ban/v2.6-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu2`.
+- **Bối cảnh:** bác sĩ muốn trong ngày 20/10 app hiện lẵng hoa, pháo hoa giấy và lời chúc mừng, ngẫu nhiên khi thao tác.
+
+**Mới so với 2.6-thu1**
+
+1. **Chỉ trong ngày 20/10** (năm nào cũng vậy):
+   - Lẵng hoa vẽ bằng SVG, hoa nở lần lượt.
+   - Pháo hoa giấy bằng canvas, không dùng thư viện ngoài.
+   - Một trong 10 lời chúc chọn ngẫu nhiên, ký tên khoa.
+2. **Khi nào hiện:**
+   - Lần đầu mở app trong ngày (trên mỗi máy).
+   - Mỗi lần bấm nút có 30% khả năng hiện, hai lần cách nhau ít nhất 30 giây.
+   - Nút "Hoa 20/10" trên đầu trang để xem lại.
+3. **Không cản việc:**
+   - Tự tắt sau 6 giây; bấm vào ô lời chúc hoặc phím Esc để tắt sớm.
+   - Phần pháo giấy bấm xuyên qua được.
+   - Không có trong bản in. Máy đặt chế độ giảm chuyển động thì không bắn pháo giấy.
+4. Thêm `?hoa` vào địa chỉ để xem thử vào ngày khác.
+
+**Đã thử:**
+- **Bản xem thử:**
+  - Hiện khi mở; nút "Hoa 20/10".
+  - Ngẫu nhiên khi bấm nút, có khoảng nghỉ 30 giây.
+  - Đóng bằng bấm và Esc.
+  - Các nút vẫn mở chức năng bình thường.
+- **Khổ điện thoại:** không tràn ngang.
+
+**Chưa thử:** máy Windows 7 ở khoa (pháo giấy dùng canvas, khoảng 200 mảnh trong 4 giây).
+
+---
+
 ## 2.6-thu1 — 18/10/2026 — Người bệnh nằm lâu, sơ kết 15 ngày điều trị
 
 - **File:** `phien-ban/v2.6-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu1`.
