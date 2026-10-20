@@ -287,7 +287,8 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 .bed .bd.same{background:#7a5b00}
 /* ---- báo phiên bản mới ---- */
 .upd{position:fixed;left:50%;transform:translateX(-50%);bottom:16px;z-index:90;background:#0e6655;color:#fff;padding:10px 14px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,.3);display:flex;align-items:center;flex-wrap:wrap;max-width:94vw;font-size:14px}
-.upd .btn{margin-left:10px}
+.upd .btn{margin-left:10px;color:var(--accent);background:#fff;border-color:#fff}
+.upd .btn.later{color:#fff;background:transparent;border-color:rgba(255,255,255,.75)}
 /* ---- người bệnh nằm lâu ---- */
 .bed .bd.lng{background:#fff;color:#8a5a00;border:1px solid #d4a72c;padding:0 2px}
 .bed .bd.sk{background:var(--warn)}
@@ -415,7 +416,7 @@ button.stat:hover{border-color:var(--accent)}
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.6-thu2', VERSION_DATE = '20/10/2026';
+var VERSION = '2.6-thu3', VERSION_DATE = '20/10/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -2721,7 +2722,7 @@ function checkUpdate(force) {
     if (!newerVer(v, VERSION) || v === updShown) return;
     updShown = v;
     $('updBar').innerHTML = '<span>Đã có phiên bản mới <b>' + esc(v) + '</b>' + (lines[1] ? ': ' + esc(lines[1].trim()) : '') +
-      '. Làm xong việc đang dở rồi bấm <b>Tải lại</b>.</span><button class="btn small" data-act="updReload">Tải lại</button><button class="btn small" data-act="updLater">Để sau</button>';
+      '. Làm xong việc đang dở rồi bấm <b>Tải lại</b>.</span><button class="btn small" data-act="updReload">Tải lại</button><button class="btn small later" data-act="updLater">Để sau</button>';
     $('updBar').hidden = false;
   }).catch(function () {});
 }

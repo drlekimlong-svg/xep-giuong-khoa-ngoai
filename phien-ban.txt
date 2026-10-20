@@ -1,2 +1,2 @@
-2.6-thu2
-Lẵng hoa, pháo hoa giấy và lời chúc mừng ngày Phụ nữ Việt Nam 20/10
+2.6-thu3
+Sửa nút "Tải lại" và "Để sau" trên thanh báo phiên bản mới bị trùng màu nền, không thấy chữ

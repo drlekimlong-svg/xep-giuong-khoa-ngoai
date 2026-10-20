@@ -23,6 +23,16 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.6-thu3 — 20/10/2026 — Sửa màu nút trên thanh báo phiên bản mới
+
+- **File:** `phien-ban/v2.6-thu3/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu3`.
+- **Lỗi** (bác sĩ báo kèm ảnh): hai nút "Tải lại" và "Để sau" trên thanh báo phiên bản mới có chữ trắng trên nền trắng, không đọc được. Lỗi có từ bản 2.4-thu1: nút lấy màu chữ trắng của thanh thông báo.
+- **Sửa:** "Tải lại" chữ xanh đậm trên nền trắng; "Để sau" chữ trắng, viền trắng.
+- **Đã thử:** cho máy thử báo một bản giả 2.6-thu9; thanh hiện đủ chữ trên hai nút.
+- **Lưu ý:** màn hình đang mở bản cũ vẫn thấy nút trống; ô trắng bên trái là "Tải lại".
+
+---
+
 ## 2.6-thu2 — 20/10/2026 — Chúc mừng ngày Phụ nữ Việt Nam
 
 - **File:** `phien-ban/v2.6-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu2`.
