@@ -164,6 +164,10 @@ revoke all on public.staff, public.ward_state, public.ward_state_daily from auth
 grant select                 on public.staff            to authenticated;
 grant select, insert, update on public.ward_state       to authenticated;
 grant select                 on public.ward_state_daily to authenticated;
+-- Từ 30/10/2026 Supabase không tự cấp quyền cho bảng mới tạo trong "public", kể cả service_role.
+-- Edge Function quan-ly-tai-khoan đọc/ghi bảng staff bằng service_role, nên cấp rõ ở đây
+-- (dự án hiện tại đã có sẵn quyền này; dòng này để dựng lại dự án mới vẫn chạy).
+grant select, insert, update, delete on public.staff, public.ward_state, public.ward_state_daily to service_role;
 
 -- ============================================================================
 -- QUẢN TRỊ VIÊN (làm một lần khi dựng lại dự án)
