@@ -1,2 +1,2 @@
-2.6-thu3
-Sửa nút "Tải lại" và "Để sau" trên thanh báo phiên bản mới bị trùng màu nền, không thấy chữ
+2.6-thu4
+Báo cáo lưu lượng: tách Thần kinh thành nhóm riêng như Niệu, Tiêu hóa; in khổ ngang

@@ -143,7 +143,8 @@ Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
 
 Bấm **Báo cáo** → **Lưu lượng người bệnh theo chuyên khoa**. Mọi tài khoản đều xem, in, xuất Excel được.
 
-- **Mục đích:** biết Niệu và Tiêu hóa + Thần kinh thực sự cần bao nhiêu giường, Nam bao nhiêu, Nữ bao nhiêu, để phân bổ phòng trong Cài đặt.
+- **Mục đích:** biết Niệu, Tiêu hóa và Thần kinh thực sự cần bao nhiêu giường, Nam bao nhiêu, Nữ bao nhiêu, để phân bổ phòng trong Cài đặt.
+- **Thần kinh** có phần riêng (từ bản 2.6-thu4). Thần kinh chưa có phòng riêng, nằm chung các phòng khu Tiêu hóa, nên công suất và ô vàng/đỏ của hai nhóm này xem ở dòng **Khu Tiêu hóa (Tiêu hóa + Thần kinh)**.
 - **Chọn cách xem:**
   - **Theo ngày:** 31 ngày gần nhất.
   - **Theo tuần:** 12 tuần, thứ Hai → Chủ nhật.

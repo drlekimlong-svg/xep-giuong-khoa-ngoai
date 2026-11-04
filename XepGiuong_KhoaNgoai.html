@@ -303,7 +303,7 @@ button.stat:hover{border-color:var(--accent)}
 .skc input{width:18px;height:18px;margin:0 6px 0 0}
 .skw{display:block;font-size:11px;color:#555}
 /* ---- lưu lượng người bệnh ---- */
-.flw table.fl{min-width:760px}
+.flw table.fl{min-width:1080px}
 .flw table.fl th{text-align:center;font-size:11.5px}
 .flw th span{font-weight:400}
 .flw td small{display:block;color:#555;font-size:10.5px;font-weight:400;white-space:nowrap}
@@ -332,10 +332,14 @@ button.stat:hover{border-color:var(--accent)}
 @media (prefers-reduced-motion:reduce){.hoa-card,.hoa .flin{animation:none}}
 #printArea{display:none}
 @page{size:A4;margin:12mm}
+@page ngang{size:A4 landscape;margin:10mm}   /* báo cáo lưu lượng: bảng nhiều cột, in khổ ngang */
 @media print{
   body{background:#fff}
   body>*{display:none!important}
   #printArea{display:block!important}
+  .flw{page:ngang}
+  .flw table.fl,.flw table.sum{min-width:0}
+  .flw table.fl th,.flw table.fl td{padding:2px 3px;font-size:11px}
 }
 </style>
 </head>
@@ -416,7 +420,7 @@ button.stat:hover{border-color:var(--accent)}
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.6-thu3', VERSION_DATE = '20/10/2026';
+var VERSION = '2.6-thu4', VERSION_DATE = '04/11/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -2158,7 +2162,7 @@ function openReportMenu() {
     '<button class="btn menu" data-act="shift"><b>Báo cáo bệnh trong ngày</b><br><small>Giao ca lúc 7 giờ: tổng hợp số lượng, người bệnh mới, ra viện, chuyển khoa, sự việc trong ca trực</small></button>' +
     '<button class="btn menu" data-act="list"><b>Danh sách người bệnh</b><br><small>In theo chuyên khoa, bác sĩ phụ trách hoặc phòng; in riêng cho một bác sĩ; xuất Excel</small></button>' +
     '<button class="btn menu" data-act="longStay"><b>Người bệnh nằm lâu</b><br><small>Đang nằm trên 7 ngày và từ ngày 15; đánh dấu đã làm tờ sơ kết 15 ngày điều trị; lọc theo bác sĩ phụ trách</small></button>' +
-    '<button class="btn menu" data-act="flow"><b>Lưu lượng người bệnh theo chuyên khoa</b><br><small>Niệu, Tiêu hóa + Thần kinh theo ngày, tuần, tháng: vào, ra, số nằm trung bình, cao nhất, so với số giường đang phân – để phân bổ phòng</small></button>' +
+    '<button class="btn menu" data-act="flow"><b>Lưu lượng người bệnh theo chuyên khoa</b><br><small>Niệu, Tiêu hóa, Thần kinh theo ngày, tuần, tháng: vào, ra, số nằm trung bình, cao nhất, so với số giường đang phân – để phân bổ phòng</small></button>' +
     '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
 }
 
@@ -2284,13 +2288,16 @@ function longCsv() {
 }
 
 /* ---- lưu lượng người bệnh theo chuyên khoa (bản 2.5) ---- */
-// Bác sĩ cần số liệu để phân bổ phòng (18/10/2026): Niệu và Tiêu hóa + Thần kinh theo ngày, tuần, tháng.
+// Bác sĩ cần số liệu để phân bổ phòng (18/10/2026): Niệu, Tiêu hóa, Thần kinh theo ngày, tuần, tháng
+// (Thần kinh tách riêng từ 04/11/2026; vẫn nằm chung phòng khu Tiêu hóa nên giường so ở dòng "Khu Tiêu hóa").
 // Tính lại mỗi lần mở từ giờ vào khoa, giờ ra khoa của người đang nằm, người đã ra khoa và kho rút gọn state.flowArc.
 // Lịch sử ra khoa chỉ giữ 300 hồ sơ đầy đủ; hồ sơ cũ hơn được rút thành một dòng KHÔNG có họ tên:
 //   "chuyên khoa|giới|giờ vào|giờ ra|nơi nhận|loại phòng yêu cầu|hình thức ra" (giờ dạng yymmddhhmm), giữ 400 ngày.
 var DIS_MAX = 300, ARC_DAYS = 400;
 var FLOW_N = {day: 31, week: 12, month: 12}, FLOW_UNIT = {day: 'ngày', week: 'tuần', month: 'tháng'};
-var FLOW_ZONES = [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa + Thần kinh']];
+// [nhóm, tên, khu giường]; LN-MM (ẩn) tính chung nhóm Tiêu hóa
+var FLOW_GROUPS = [['NIEU', 'Niệu', 'NIEU'], ['TH', 'Tiêu hóa', 'TH'], ['TK', 'Thần kinh', 'TH']];
+function flowGroup(sp) { return homeZone(sp) === 'NIEU' ? 'NIEU' : sp === 'TK' ? 'TK' : 'TH'; }
 var WEEKDAY = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 var flow = {by: 'day', off: 0};
 function arcTs(ts) { return ts ? ts.slice(2, 4) + ts.slice(5, 7) + ts.slice(8, 10) + ts.slice(11, 13) + ts.slice(14, 16) : ''; }
@@ -2333,8 +2340,8 @@ function flowRecs() {
   function add(sp, g, a, o, src, want) {
     var am = tsMin(a), om = o ? tsMin(o) : null;
     if (isNaN(am) || om !== null && !(om > am)) return;   // thiếu giờ vào, hoặc giờ ra không sau giờ vào
-    var z = homeZone(sp);
-    out.push({a: am, o: om, src: src || '', want: +want || 0, keys: [z, z + g, 'ALL', 'ALL' + g, 'sp' + sp]});
+    var fg = flowGroup(sp), z = 'Z' + homeZone(sp);   // nhóm chuyên khoa và khu giường (ZNIEU, ZTH)
+    out.push({a: am, o: om, src: src || '', want: +want || 0, keys: [fg, fg + g, z, z + g, 'ALL', 'ALL' + g, 'sp' + sp]});
   }
   state.patients.concat(state.discharged).forEach(function (p) { var st = stayOf(p); add(p.spec, p.gender, st.a, st.o, p.src, p.want); });
   (state.flowArc || []).forEach(function (x) { var f = String(x).split('|'); add(f[0], f[1], arcTsBack(f[2]), arcTsBack(f[3]), f[4], f[5]); });
@@ -2354,7 +2361,7 @@ function flowPeriods() {
   }
   return ps;
 }
-// Số liệu một khoảng [t0, t1) (phút) cho từng nhóm: NIEU, NIEUM, NIEUF, TH…, ALL…, spTH, spTK…
+// Số liệu một khoảng [t0, t1) (phút) cho từng nhóm: NIEU, NIEUM, NIEUF, TH…, TK…, khu ZNIEU…, ZTH…, ALL…, spTH, spLNMM…
 function flowStats(recs, t0, t1) {
   var S = {};
   function st(k) { return S[k] || (S[k] = {inN: 0, outN: 0, bd: 0, cur: 0, ev: [], los: 0, want: 0, src: {}}); }
@@ -2424,40 +2431,58 @@ function flowHTML(screen) {
       '<td class="c">' + dec1(x.avg) + '</td>' + pk(x.peak, own, all) + '<td class="c">' + (total ? pct(x.avg, total) : '') + '</td>' +
       '<td class="c">' + dec1(x.los) + '</td><td class="c">' + x.want + '</td></tr>';
   }
-  FLOW_ZONES.forEach(function (z) {
-    var bz = b[z[0]];
+  // một khu giường: hai dòng Nam, Nữ so với giường riêng của giới, rồi dòng cả khu
+  function zoneRows(label, key, bz) {
     ['M', 'F'].forEach(function (gd) {
-      h += sumRow(z[1] + ' – ' + GENDER[gd], g(A, z[0] + gd), bz[gd] + (bz.sh ? ' + ' + bz.sh + '*' : ''), bz[gd], bz[gd] + bz.sh);
+      h += sumRow(label + ' – ' + GENDER[gd], g(A, key + gd), bz[gd] + (bz.sh ? ' + ' + bz.sh + '*' : ''), bz[gd], bz[gd] + bz.sh);
     });
-    h += sumRow(z[1], g(A, z[0]), bz.t, null, bz.t, bz.t, true);
-  });
+    h += sumRow(label, g(A, key), bz.t, null, bz.t, bz.t, true);
+  }
+  // nhóm nằm chung khu với nhóm khác: chưa có giường riêng để so
+  function groupRows(label, key) {
+    var shared = '<small>chung khu Tiêu hóa</small>';
+    ['M', 'F'].forEach(function (gd) { h += sumRow(label + ' – ' + GENDER[gd], g(A, key + gd), shared); });
+    h += sumRow(label, g(A, key), shared, null, null, null, true);
+  }
+  zoneRows('Niệu', 'NIEU', b.NIEU);
+  groupRows('Tiêu hóa', 'TH');
+  groupRows('Thần kinh', 'TK');
+  zoneRows('Khu Tiêu hóa (Tiêu hóa + Thần kinh)', 'ZTH', b.TH);
   h += sumRow('Toàn khoa', g(A, 'ALL'), b.ALL.t, null, b.ALL.t, b.ALL.t, true) + '</tbody></table>';
-  var bySpec = state.specs.filter(function (sp) { return A['sp' + sp.id]; }).map(function (sp) {
-    var x = A['sp' + sp.id]; return sp.name + ': vào ' + x.inN + ', nằm TB ' + dec1(x.avg);
-  }).join(' · ');
+  var others = state.specs.filter(function (sp) { return A['sp' + sp.id] && flowGroup(sp.id) === 'TH' && sp.id !== 'TH'; }).map(function (sp) {
+    return sp.name + ' (vào ' + A['sp' + sp.id].inN + ')';
+  }).join(', ');
   var src = g(A, 'ALL').src, bySrc = SOURCES.filter(function (x) { return src[x[0]]; }).map(function (x) { return x[1].toLowerCase() + ' ' + src[x[0]]; }).join(', ');
   h += '<p class="rp-note">* Giường dùng chung cho cả hai giới: phòng linh hoạt' + (b.TH.sh || b.NIEU.sh ? ' và phòng nam nữ chung (619)' : '') + '.' +
-    (bySpec ? '<br>Theo chuyên khoa – ' + esc(bySpec) + '.' : '') + (bySrc ? '<br>Người bệnh vào từ: ' + esc(bySrc) + '.' : '') + '</p>';
+    '<br>Tiêu hóa và Thần kinh nằm chung các phòng khu Tiêu hóa, nên so với số giường ở dòng "Khu Tiêu hóa".' +
+    (others ? '<br>Tính chung nhóm Tiêu hóa: ' + esc(others) + '.' : '') + (bySrc ? '<br>Người bệnh vào từ: ' + esc(bySrc) + '.' : '') + '</p>';
 
   // 2. từng ngày / tuần / tháng
   h += '<h3>2. Theo từng ' + unit + ' <span>(số nhỏ: Nam · Nữ)</span></h3><table class="fl"><thead><tr><th rowspan="2">' + unit.charAt(0).toUpperCase() + unit.slice(1) + '</th>' +
-    FLOW_ZONES.map(function (z) { return '<th colspan="4">' + z[1] + ' <span>(' + b[z[0]].t + ' giường)</span></th>'; }).join('') +
-    '<th colspan="2">Toàn khoa <span>(' + b.ALL.t + ')</span></th></tr><tr>' +
-    FLOW_ZONES.map(function () { return '<th>Vào</th><th>Ra</th><th>Nằm TB</th><th>Cao nhất</th>'; }).join('') + '<th>Nằm TB</th><th>Công suất</th></tr></thead><tbody>';
+    FLOW_GROUPS.map(function (z) { return '<th colspan="4">' + z[1] + (z[0] === 'NIEU' ? ' <span>(' + b.NIEU.t + ' giường)</span>' : '') + '</th>'; }).join('') +
+    '<th colspan="3">Khu Tiêu hóa <span>(TH + TK, ' + b.TH.t + ' giường)</span></th><th colspan="2">Toàn khoa <span>(' + b.ALL.t + ')</span></th></tr><tr>' +
+    FLOW_GROUPS.map(function () { return '<th>Vào</th><th>Ra</th><th>Nằm TB</th><th>Cao nhất</th>'; }).join('') +
+    '<th>Nằm TB</th><th>Cao nhất</th><th>Công suất</th><th>Nằm TB</th><th>Công suất</th></tr></thead><tbody>';
+  // ô cao nhất của một khu: đỏ khi vượt số giường của khu, vàng khi một giới vượt giường riêng + giường chung
+  function overOf(S, key, bz) {
+    var x = g(S, key), m = g(S, key + 'M'), w = g(S, key + 'F');
+    return x.peak > bz.t ? ' bad' : m.peak > bz.M + bz.sh || w.peak > bz.F + bz.sh ? ' warn' : '';
+  }
   function two(S, k, f) { var m = g(S, k + 'M'), w = g(S, k + 'F'); return '<small>' + f(m) + ' · ' + f(w) + '</small>'; }
   F.rows.slice().reverse().forEach(function (r) {
     var S = r.s, lab = r.p.label + (r.p.cur ? ' <small>đang chạy</small>' : r.part ? ' <small>từ ' + fmtDate(minTs(r.t0).slice(0, 10)).slice(0, 5) + '</small>' : '');
     h += '<tr><td>' + lab + '</td>';
-    FLOW_ZONES.forEach(function (z) {
-      var k = z[0], x = g(S, k), bz = b[k], m = g(S, k + 'M'), w = g(S, k + 'F');
-      var over = x.peak > bz.t ? ' bad' : m.peak > bz.M + bz.sh || w.peak > bz.F + bz.sh ? ' warn' : '';
+    FLOW_GROUPS.forEach(function (z) {
+      var k = z[0], x = g(S, k), over = k === 'NIEU' ? overOf(S, 'NIEU', b.NIEU) : '';
       h += '<td class="c">' + x.inN + two(S, k, function (y) { return y.inN; }) + '</td>' +
         '<td class="c">' + x.outN + two(S, k, function (y) { return y.outN; }) + '</td>' +
         '<td class="c">' + dec1(x.avg) + two(S, k, function (y) { return dec1(y.avg); }) + '</td>' +
         '<td class="c' + over + '">' + x.peak + two(S, k, function (y) { return y.peak; }) + '</td>';
     });
-    var all = g(S, 'ALL');
-    h += '<td class="c">' + dec1(all.avg) + two(S, 'ALL', function (y) { return dec1(y.avg); }) + '</td><td class="c">' + pct(all.avg, b.ALL.t) + '</td></tr>';
+    var zt = g(S, 'ZTH'), all = g(S, 'ALL');
+    h += '<td class="c">' + dec1(zt.avg) + two(S, 'ZTH', function (y) { return dec1(y.avg); }) + '</td>' +
+      '<td class="c' + overOf(S, 'ZTH', b.TH) + '">' + zt.peak + two(S, 'ZTH', function (y) { return y.peak; }) + '</td><td class="c">' + pct(zt.avg, b.TH.t) + '</td>' +
+      '<td class="c">' + dec1(all.avg) + two(S, 'ALL', function (y) { return dec1(y.avg); }) + '</td><td class="c">' + pct(all.avg, b.ALL.t) + '</td></tr>';
   });
   h += '</tbody></table>';
   h += '<p class="rp-note"><b>Cách tính.</b> Vào = người bệnh mới vào khoa (cấp cứu, phòng khám, khoa khác chuyển đến); đi mổ rồi về không tính lại. ' +
@@ -2497,15 +2522,15 @@ function changeFlowFrom() {
 }
 function flowCsv() {
   var F = flowData(), head = ['Kỳ', 'Từ', 'Đến'], cols = [], rows;
-  [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa + Thần kinh'], ['ALL', 'Toàn khoa']].forEach(function (z) {
+  [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa'], ['TK', 'Thần kinh'], ['ZTH', 'Khu Tiêu hóa (TH + TK)'], ['ALL', 'Toàn khoa']].forEach(function (z) {
     [['inN', 'Vào'], ['outN', 'Ra'], ['avg', 'Nằm TB'], ['peak', 'Cao nhất']].forEach(function (m) {
       ['', 'M', 'F'].forEach(function (gd) { head.push(z[1] + ' – ' + m[1] + (gd ? ' ' + GENDER[gd] : '')); cols.push([z[0] + gd, m[0]]); });
     });
     head.push(z[1] + ' – Ngày nằm TB (người ra)', z[1] + ' – Yêu cầu phòng dịch vụ');
     cols.push([z[0], 'los'], [z[0], 'want']);
   });
-  state.specs.forEach(function (sp) {
-    if (!F.all || !F.all['sp' + sp.id]) return;
+  state.specs.forEach(function (sp) {   // chuyên khoa tính chung nhóm khác (vd LN-MM)
+    if (!F.all || !F.all['sp' + sp.id] || sp.id === 'NIEU' || sp.id === 'TH' || sp.id === 'TK') return;
     head.push(sp.name + ' – Vào', sp.name + ' – Nằm TB'); cols.push(['sp' + sp.id, 'inN'], ['sp' + sp.id, 'avg']);
   });
   function stamp(m) { var t = minTs(m); return fmtDate(t.slice(0, 10)) + ' ' + t.slice(11); }

@@ -23,6 +23,29 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.6-thu4 — 04/11/2026 — Báo cáo lưu lượng: tách riêng Thần kinh
+
+- **File:** `phien-ban/v2.6-thu4/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu4`.
+- **Bối cảnh:** bác sĩ muốn bệnh ngoại thần kinh có phần riêng trong báo cáo lưu lượng và công suất giường, giống ngoại niệu.
+- **Máy chủ:** không đổi. Kèm theo commit `8ab776e` (`thiet-lap.sql` cấp rõ quyền cho `service_role`, theo thông báo của Supabase về bảng mới từ 30/10/2026).
+
+**Mới so với 2.6-thu3**
+
+1. **Ba nhóm riêng: Niệu, Tiêu hóa, Thần kinh.** Mỗi nhóm có vào, ra, nằm trung bình, cao nhất, ngày nằm trung bình, yêu cầu phòng dịch vụ, tách Nam/Nữ. LN-MM (đang ẩn) tính chung nhóm Tiêu hóa.
+2. **So với giường:**
+   - Thần kinh chưa có phòng riêng, nằm chung các phòng khu Tiêu hóa.
+   - Thêm dòng/cột **"Khu Tiêu hóa (Tiêu hóa + Thần kinh)"** để so với 42 giường của khu: công suất và ô vàng/đỏ như trước.
+   - Niệu vẫn so với 23 giường của khu Niệu.
+3. **Bảng theo từng kỳ:** Niệu · Tiêu hóa · Thần kinh (mỗi nhóm 4 cột) · Khu Tiêu hóa (nằm TB, cao nhất, công suất) · Toàn khoa.
+4. **Xuất Excel:** thêm các cột Thần kinh và Khu Tiêu hóa.
+5. **In:** báo cáo này in khổ A4 ngang, chữ nhỏ lại để đủ 18 cột.
+
+**Đã thử:** bản xem thử (dữ liệu mẫu 70 ngày): Tiêu hóa + Thần kinh cộng lại khớp dòng Khu Tiêu hóa (số vào, nằm trung bình); Niệu + Khu Tiêu hóa khớp Toàn khoa.
+
+**Chưa thử:** in ra giấy thật (khổ ngang), tệp Excel mở trên máy ở khoa.
+
+---
+
 ## 2.6-thu3 — 20/10/2026 — Sửa màu nút trên thanh báo phiên bản mới
 
 - **File:** `phien-ban/v2.6-thu3/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu3`.
