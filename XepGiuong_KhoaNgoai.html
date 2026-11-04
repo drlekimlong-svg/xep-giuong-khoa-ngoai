@@ -283,6 +283,13 @@ table.set input[type=text]{padding:4px 6px;border:1px solid var(--line);border-r
 #qres button:hover{background:var(--accent-bg)}
 #qres small{color:var(--muted)}
 #qres .none{padding:8px 12px;color:var(--muted);font-size:13px}
+/* ---- gợi ý mã ICD-10 ở ô Chẩn đoán ---- */
+.icdbox{border:1px solid var(--line);border-radius:8px;margin-top:4px;max-height:320px;overflow:auto;background:#fff;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.icdbox .icdi{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #edf0f4;background:#fff;padding:7px 10px;font-size:13.5px;line-height:1.35}
+.icdbox .icdi b{display:inline-block;min-width:54px;color:var(--accent)}
+.icdbox .icdi:hover,.icdbox .icdi.on{background:var(--accent-bg)}
+.icdbox .icdn{padding:6px 10px;color:var(--muted);font-size:12.5px}
+#icdNote:empty{display:none}
 .tag.g-mix{background:#eef0f3;color:#475467;border-color:#98a2b3}
 .bed .bd.same{background:#7a5b00}
 /* ---- báo phiên bản mới ---- */
@@ -414,13 +421,2195 @@ button.stat:hover{border-color:var(--accent)}
 <input type="file" id="fileRestore" accept=".json,application/json" hidden>
 <input type="file" id="fileImport" accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden>
 
+<!-- Danh mục ICD-10 gợi ý cho ô Chẩn đoán: mỗi dòng [*]mã|tên|từ khóa thường gõ (* = mã hay dùng ở khoa).
+     Tên theo danh mục ICD-10 ban hành kèm TT 06/2026/TT-BYT. Tạo lại bằng cong-cu/tao-icd.py, không sửa tay. -->
+<script id="icdData" type="text/plain">
+A01.0|Bệnh thương hàn
+A01.1|Bệnh phó thương hàn A
+A01.2|Bệnh phó thương hàn B
+A01.3|Bệnh phó thương hàn C
+A01.4|Bệnh phó thương hàn, không xác định
+A04.0|Nhiễm khuẩn Escherichia coli gây bệnh đường ruột
+A04.1|Nhiễm khuẩn Escherichia coli gây độc tố ruột (ETEC)
+A04.2|Nhiễm khuẩn Escherichia coli xâm nhập (EIEC)
+A04.3|Nhiễm khuẩn Escherichia coli gây xuất huyết đường ruột (EHEC)
+A04.4|Nhiễm khuẩn Escherichia coli đường ruột khác
+A04.5|Viêm ruột do vi khuẩn Campylobacter
+A04.6|Viêm ruột do vi khuẩn Yersinia enterocolitica
+A04.7|Viêm ruột do vi khuẩn Clostridium difficile
+A04.8|Nhiễm trùng đường ruột do vi khuẩn xác định khác
+A04.9|Nhiễm trùng đường ruột do vi khuẩn, không xác định
+A06.0|Bệnh lỵ a-míp cấp tính
+A06.1|Bệnh lỵ a-míp đường ruột mạn tính
+A06.2|Viêm đại tràng do a-míp không gây hội chứng lỵ
+A06.3|U a-míp đường ruột
+*A06.4|Áp xe gan do a-míp|áp xe gan amip
+A06.5|Áp xe phổi do a-míp
+A06.6|Áp xe não do a-míp
+A06.7|Nhiễm a-míp ở da
+A06.8|Nhiễm a-míp ở vị trí khác
+A06.9|Bệnh do a-míp, không xác định
+A09.0|Viêm dạ dày - ruột và/hoặc đại tràng do nhiễm trùng khác và/hoặc không xác định
+A09.9|Viêm dạ dày - ruột và/hoặc đại tràng không xác định căn nguyên
+A18.0|Bệnh lao xương và/hoặc khớp
+A18.1|Bệnh lao ở hệ tiết niệu sinh dục
+A18.2|Bệnh lao hạch bạch huyết ngoại biên
+A18.3|Bệnh lao ở ruột, phúc mạc và/hoặc mạc treo ruột
+A18.4|Bệnh lao ở da và/hoặc mô dưới da
+A18.5|Bệnh lao ở mắt
+A18.6|Bệnh lao ở tai
+A18.7|Bệnh lao tuyến thượng thận
+A18.8|Bệnh lao ở cơ quan xác định khác
+A41.0|Nhiễm trùng hệ thống do tụ cầu vàng [Staphylococcus aureus]|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.1|Nhiễm trùng hệ thống do tụ cầu khuẩn xác định khác|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.2|Nhiễm trùng hệ thống do tụ cầu khuẩn không xác định|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.3|Nhiễm trùng hệ thống do vi khuẩn Haemophilus cúm [H. influenzae]|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.4|Nhiễm trùng hệ thống do vi khuẩn kỵ khí|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.5|Nhiễm trùng hệ thống do vi sinh vật Gram âm khác|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A41.8|Nhiễm trùng hệ thống xác định khác|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+*A41.9|Nhiễm trùng hệ thống, không xác định|nhiễm khuẩn huyết, nhiễm trùng huyết, NKH, sepsis
+A46|Viêm quầng (do liên cầu khuẩn [Streptococcus])
+A48.0|Bệnh hoại thư sinh hơi [hoại thư khí]|hoại thư sinh hơi
+A48.1|Bệnh Legionnaire
+A48.2|Bệnh Legionnaire không gây viêm phổi [sốt Pontiac]
+A48.3|Hội chứng sốc nhiễm độc
+A48.4|Sốt ban xuất huyết Brasil
+A48.8|Bệnh nhiễm khuẩn xác định khác
+B15.0|Bệnh viêm gan A có kèm hôn mê gan
+B15.9|Bệnh viêm gan A không kèm hôn mê gan
+B16.0|Bệnh viêm gan B cấp tính có viêm gan D [tác nhân delta] kèm hôn mê gan
+B16.1|Bệnh viêm gan B cấp tính có viêm gan D [tác nhân delta] (đồng nhiễm) không kèm hôn mê gan
+B16.2|Bệnh viêm gan B cấp tính không có viêm gan D [tác nhân delta] có kèm hôn mê gan
+B16.9|Bệnh viêm gan B cấp tính không có viêm gan D [tác nhân delta] và/hoặc không kèm hôn mê gan
+B17.0|Nhiễm virus viêm gan D [tác nhân delta] cấp tính ở người bệnh viêm gan B
+B17.1|Bệnh viêm gan C cấp tính
+B17.2|Bệnh viêm gan E cấp tính
+B17.8|Bệnh viêm gan virus cấp tính xác định khác
+B17.9|Bệnh viêm gan virus cấp tính, không xác định
+B18.0|Bệnh viêm gan virus B mạn tính có viêm gan D [tác nhân delta]
+B18.1|Bệnh viêm gan virus B mạn tính không có viêm gan D [tác nhân delta]
+B18.2|Bệnh viêm gan virus C mạn tính
+B18.8|Bệnh viêm gan virus mạn tính khác
+B18.9|Bệnh viêm gan virus mạn tính, không xác định
+B19.0|Bệnh viêm gan virus không xác định kèm hôn mê gan
+B19.9|Bệnh viêm gan virus không xác định không kèm hôn mê gan
+B66.0|Bệnh sán lá nhỏ Opisthorchis
+B66.1|Bệnh sán lá gan nhỏ Clonorchis
+B66.2|Bệnh nhiễm sán lá Dicrocoelium
+*B66.3|Bệnh nhiễm sán lá gan lớn [Fasciola]|sán lá gan lớn
+B66.4|Bệnh nhiễm sán lá phổi [Paragonimus]
+B66.5|Bệnh nhiễm sán lá ruột [Fasciolopsis]
+B66.8|Bệnh nhiễm sán lá xác định khác
+B66.9|Bệnh nhiễm sán lá, không xác định
+B67.0|Bệnh nhiễm nang sán [hydatid] ở gan
+B67.1|Bệnh nhiễm nang sán [hydatid] ở phổi
+B67.2|Bệnh nhiễm nang sán [hydatid] ở xương
+B67.3|Bệnh nhiễm nang sán [hydatid], ở vị trí khác và/hoặc ở nhiều vị trí
+B67.4|Bệnh nhiễm nang sán [hydatid], không xác định [vị trí nhiễm]
+B67.5|Bệnh nhiễm phế nang [thể nang tổ ong] ở gan
+B67.6|Bệnh nhiễm phế nang [thể nang tổ ong], ở vị trí khác và/hoặc ở nhiều vị trí
+B67.7|Bệnh nhiễm phế nang [thể nang tổ ong], không xác định [vị trí nhiễm]
+B67.8|Bệnh nhiễm sán dây nhỏ echinococcus, không xác định loài, ở gan
+B67.9|Bệnh nhiễm sán dây nhỏ echinococcus, khác và/hoặc không xác định
+B76.0|Bệnh nhiễm giun móc ancylostoma
+B76.1|Bệnh nhiễm giun mỏ necator
+B76.8|Bệnh nhiễm giun móc khác
+B76.9|Bệnh nhiễm giun móc, không xác định
+B77.0|Bệnh nhiễm giun đũa kèm biến chứng đường ruột|tắc ruột do giun
+*B77.8|Bệnh nhiễm giun đũa kèm biến chứng khác|giun chui ống mật, giun đũa
+B77.9|Bệnh nhiễm giun đũa, không xác định
+B78.0|Bệnh nhiễm giun lươn strongyloides đường ruột
+B78.1|Bệnh nhiễm giun lươn strongyloides ở da
+B78.7|Bệnh nhiễm giun lươn strongyloides lan toả
+B78.9|Bệnh nhiễm giun lươn strongyloides, không xác định
+B79|Bệnh nhiễm giun tóc trichuris
+B80|Bệnh nhiễm giun kim enterobias
+B81.0|Bệnh nhiễm giun anisakis
+B81.1|Bệnh nhiễm giun capillaria đường ruột
+B81.2|Bệnh nhiễm giun lươn trichostrongylus
+B81.3|Bệnh nhiễm giun angiostrongylus đường ruột
+B81.4|Bệnh nhiễm giun sán ruột phối hợp
+B81.8|Bệnh nhiễm giun sán xác định khác ở đường ruột
+B82.0|Bệnh nhiễm giun sán ở đường ruột, không xác định
+B82.9|Bệnh nhiễm ký sinh trùng đường ruột, không xác định
+B83.0|Ấu trùng di chuyển trong nội tạng
+B83.1|Bệnh nhiễm giun đầu gai [gnathostoma]
+B83.2|Bệnh nhiễm giun angiostrongylus do giun mạch [parastrongylus cantonensis]
+B83.3|Bệnh nhiễm giun tròn syngamia
+B83.4|Bệnh đỉa ký sinh nội tạng
+B83.8|Bệnh nhiễm giun sán xác định khác
+B83.9|Bệnh nhiễm giun sán, không xác định
+C15.0|U ác tính ở thực quản ở phần cổ|u ác, ung thư, K, ung thư thực quản
+C15.1|U ác tính ở thực quản ở phần ngực|u ác, ung thư, K, ung thư thực quản
+C15.2|U ác tính ở thực quản ở phần bụng|u ác, ung thư, K, ung thư thực quản
+C15.3|U ác tính ở một phần ba [1/3] trên thực quản|u ác, ung thư, K, ung thư thực quản
+C15.4|U ác tính ở một phần ba [1/3] giữa thực quản|u ác, ung thư, K, ung thư thực quản
+C15.5|U ác tính ở một phần ba [1/3] dưới thực quản|u ác, ung thư, K, ung thư thực quản
+C15.8|U ác tính với tổn thương chồng lấn ở thực quản|u ác, ung thư, K, ung thư thực quản
+*C15.9|U ác tính ở thực quản, vị trí không xác định|u ác, ung thư, K, ung thư thực quản
+*C16.0|U ác tính ở tâm vị|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.1|U ác tính ở đáy vị|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.2|U ác tính ở thân vị|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+*C16.3|U ác tính ở hang môn vị|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.4|U ác tính ở môn vị|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.5|U ác tính ở bờ cong nhỏ dạ dày, không xác định|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.6|U ác tính ở bờ cong lớn dạ dày, không xác định|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C16.8|U ác tính với tổn thương chồng lấn ở dạ dày|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+*C16.9|U ác tính ở dạ dày, không xác định|u ác, ung thư, K, ung thư dạ dày, ung thư bao tử
+C17.0|U ác tính ở tá tràng|u ác, ung thư, K
+C17.1|U ác tính ở hỗng tràng|u ác, ung thư, K
+C17.2|U ác tính ở hồi tràng|u ác, ung thư, K
+C17.3|U ác tính ở túi thừa Meckel|u ác, ung thư, K
+C17.8|U ác tính với tổn thương chồng lấn ở ruột non|u ác, ung thư, K
+C17.9|U ác tính ở ruột non, không xác định|u ác, ung thư, K
+*C18.0|U ác tính ở manh tràng|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+C18.1|U ác tính ở ruột thừa|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C18.2|U ác tính ở đại tràng lên [ruột kết lên]|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+C18.3|U ác tính ở đại tràng góc gan|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C18.4|U ác tính ở đại tràng ngang [ruột kết ngang]|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+C18.5|U ác tính ở đại tràng góc lách|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C18.6|U ác tính ở đại tràng xuống [ruột kết xuống]|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C18.7|U ác tính ở đại tràng sigma|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+C18.8|U ác tính với tổn thương chồng lấn ở đại tràng|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C18.9|U ác tính ở đại tràng, không xác định|u ác, ung thư, K, ung thư đại tràng, K đại tràng
+*C19|U ác tính ở nơi nối trực tràng sigma|u ác, ung thư, K
+*C20|U ác tính ở trực tràng|u ác, ung thư, K, ung thư trực tràng
+*C21.0|U ác tính ở hậu môn, không xác định|u ác, ung thư, K
+C21.1|U ác tính ở ống hậu môn|u ác, ung thư, K
+C21.2|U ác tính ở vùng có nguồn gốc từ ổ nhớp|u ác, ung thư, K
+C21.8|U ác tính với tổn thương chồng lấn ở đại tràng, hậu môn và/hoặc ống hậu môn|u ác, ung thư, K
+*C22.0|Ung thư biểu mô tế bào gan|u ác, ung thư, K, HCC, ung thư gan
+*C22.1|Ung thư biểu mô ống mật trong gan|u ác, ung thư, K, ung thư đường mật trong gan
+C22.2|U nguyên bào gan|u ác, ung thư, K
+C22.3|U ác tính [sarcoma] mạch máu của gan|u ác, ung thư, K
+C22.4|U ác tính [sarcoma] khác ở gan|u ác, ung thư, K
+C22.7|Ung thư biểu mô xác định khác ở gan|u ác, ung thư, K
+*C22.9|U ác tính ở gan, không xác định|u ác, ung thư, K
+*C23|U ác tính ở túi mật|u ác, ung thư, K
+*C24.0|U ác tính ở ống mật ngoài gan|u ác, ung thư, K, ung thư đường mật, u Klatskin
+*C24.1|U ác tính ở bóng Vater|u ác, ung thư, K
+C24.8|U ác tính với tổn thương chồng lấn ở đường mật|u ác, ung thư, K
+C24.9|U ác tính ở đường mật, không xác định|u ác, ung thư, K
+*C25.0|U ác tính ở đầu tuỵ|u ác, ung thư, K, ung thư tụy
+C25.1|U ác tính ở thân tuỵ|u ác, ung thư, K, ung thư tụy
+C25.2|U ác tính ở đuôi tuỵ|u ác, ung thư, K, ung thư tụy
+C25.3|U ác tính ở ống tuỵ|u ác, ung thư, K, ung thư tụy
+C25.4|U ác tính ở tuỵ nội tiết|u ác, ung thư, K, ung thư tụy
+C25.7|U ác tính ở phần khác của tuỵ|u ác, ung thư, K, ung thư tụy
+C25.8|U ác tính với tổn thương chồng lấn ở tuỵ|u ác, ung thư, K, ung thư tụy
+*C25.9|U ác tính ở tuỵ, không xác định|u ác, ung thư, K, ung thư tụy
+C26.0|U ác tính ở đường ruột, phần không xác định|u ác, ung thư, K
+C26.1|U ác tính ở lách|u ác, ung thư, K
+C26.8|U ác tính với tổn thương chồng lấn ở hệ tiêu hoá|u ác, ung thư, K
+C26.9|U ác tính ở vị trí không rõ ràng của hệ tiêu hoá|u ác, ung thư, K
+C33|U ác tính ở khí quản|u ác, ung thư, K
+C34.0|U ác tính ở phế quản chính|u ác, ung thư, K
+C34.1|U ác tính ở thuỳ trên, phế quản hoặc phổi|u ác, ung thư, K
+C34.2|U ác tính ở thuỳ giữa, phế quản hoặc phổi|u ác, ung thư, K
+C34.3|U ác tính ở thuỳ dưới, phế quản hoặc phổi|u ác, ung thư, K
+C34.8|U ác tính với tổn thương chồng lấn ở phế quản và/hoặc phổi|u ác, ung thư, K
+C34.9|U ác tính ở phế quản hoặc phổi, không xác định|u ác, ung thư, K
+C37|U ác tính ở tuyến ức|u ác, ung thư, K
+C38.0|U ác tính ở tim|u ác, ung thư, K
+C38.1|U ác tính ở trung thất trước|u ác, ung thư, K
+C38.2|U ác tính ở trung thất sau|u ác, ung thư, K
+C38.3|U ác tính ở trung thất, phần không xác định|u ác, ung thư, K
+C38.4|U ác tính ở màng phổi|u ác, ung thư, K
+C38.8|U ác tính với tổn thương chồng lấn ở tim, trung thất và/hoặc màng phổi|u ác, ung thư, K
+C45.0|U trung biểu mô ở màng phổi|u ác, ung thư, K
+C45.1|U trung biểu mô ở phúc mạc|u ác, ung thư, K
+C45.2|U trung biểu mô ở màng ngoài tim|u ác, ung thư, K
+C45.7|U trung biểu mô ở vị trí khác|u ác, ung thư, K
+C45.9|U trung biểu mô, vị trí không xác định|u ác, ung thư, K
+C48.0|U ác tính ở vùng sau phúc mạc|u ác, ung thư, K
+C48.1|U ác tính ở vùng xác định của phúc mạc|u ác, ung thư, K
+C48.2|U ác tính ở phúc mạc, vùng không xác định|u ác, ung thư, K
+C48.8|U ác tính với tổn thương chồng lấn ở vùng sau phúc mạc và/hoặc phúc mạc|u ác, ung thư, K
+C49.0|U ác tính ở mô liên kết và/hoặc mô mềm của đầu, mặt và/hoặc cổ|u ác, ung thư, K
+C49.1|U ác tính ở mô liên kết và/hoặc mô mềm của chi trên, bao gồm vai|u ác, ung thư, K
+C49.2|U ác tính ở mô liên kết và/hoặc mô mềm của chi dưới, bao gồm hông|u ác, ung thư, K
+C49.3|U ác tính ở mô liên kết và/hoặc mô mềm của lồng ngực|u ác, ung thư, K
+C49.4|U ác tính ở mô liên kết và/hoặc mô mềm của bụng|u ác, ung thư, K
+C49.5|U ác tính ở mô liên kết và/hoặc mô mềm của vùng chậu|u ác, ung thư, K
+C49.6|U ác tính ở mô liên kết và/hoặc mô mềm của thân, không xác định|u ác, ung thư, K
+C49.8|U ác tính với tổn thương chồng lấn ở mô liên kết và/hoặc mô mềm|u ác, ung thư, K
+C49.9|U ác tính ở mô liên kết và/hoặc mô mềm, không xác định|u ác, ung thư, K
+C50.0|U ác tính ở núm và/hoặc quầng vú|u ác, ung thư, K, ung thư vú
+C50.1|U ác tính ở vùng trung tâm vú|u ác, ung thư, K, ung thư vú
+C50.2|U ác tính ở một phần tư [1/4] trên - trong vú|u ác, ung thư, K, ung thư vú
+C50.3|U ác tính ở một phần tư [1/4] dưới - trong vú|u ác, ung thư, K, ung thư vú
+C50.4|U ác tính ở một phần tư [1/4] trên - ngoài vú|u ác, ung thư, K, ung thư vú
+C50.5|U ác tính ở một phần tư [1/4] dưới - ngoài vú|u ác, ung thư, K, ung thư vú
+C50.6|U ác tính ở đuôi nách của vú|u ác, ung thư, K, ung thư vú
+C50.8|U ác tính với tổn thương chồng lấn ở vú|u ác, ung thư, K, ung thư vú
+C50.9|U ác tính ở vú, không xác định|u ác, ung thư, K, ung thư vú
+C60.0|U ác tính ở bao quy đầu|u ác, ung thư, K
+C60.1|U ác tính ở quy đầu dương vật|u ác, ung thư, K
+C60.2|U ác tính ở thân dương vật|u ác, ung thư, K
+C60.8|U ác tính có tổn thương chồng lấn ở dương vật|u ác, ung thư, K
+C60.9|U ác tính ở dương vật, không xác định|u ác, ung thư, K
+*C61|U ác tính ở tuyến tiền liệt|u ác, ung thư, K, ung thư tuyến tiền liệt
+C62.0|U ác tính ở tinh hoàn ẩn [chưa xuống bìu]|u ác, ung thư, K
+C62.1|U ác tính ở tinh hoàn đã xuống bìu|u ác, ung thư, K
+*C62.9|U ác tính ở tinh hoàn, không xác định|u ác, ung thư, K
+C63.0|U ác tính ở mào tinh|u ác, ung thư, K
+C63.1|U ác tính ở thừng tinh|u ác, ung thư, K
+C63.2|U ác tính ở bìu|u ác, ung thư, K
+C63.7|U ác tính xác định khác ở cơ quan sinh dục nam|u ác, ung thư, K
+C63.8|U ác tính có tổn thương chồng lấn ở cơ quan sinh dục nam|u ác, ung thư, K
+C63.9|U ác tính ở cơ quan sinh dục nam, không xác định|u ác, ung thư, K
+*C64|U ác tính ở thận, ngoại trừ bể thận|u ác, ung thư, K, ung thư thận
+*C65|U ác tính ở bể thận|u ác, ung thư, K
+*C66|U ác tính ở niệu quản|u ác, ung thư, K
+C67.0|U ác tính ở tam giác bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.1|U ác tính ở đáy bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.2|U ác tính ở thành bên bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.3|U ác tính ở thành trước bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.4|U ác tính ở thành sau bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.5|U ác tính ở cổ bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.6|U ác tính ở lỗ niệu quản|u ác, ung thư, K, ung thư bàng quang
+C67.7|U ác tính ở dây treo bàng quang|u ác, ung thư, K, ung thư bàng quang
+C67.8|U ác tính có tổn thương chồng lấn ở bàng quang|u ác, ung thư, K, ung thư bàng quang
+*C67.9|U ác tính ở bàng quang, không xác định|u ác, ung thư, K, ung thư bàng quang
+C68.0|U ác tính ở niệu đạo|u ác, ung thư, K
+C68.1|U ác tính ở tuyến cận niệu đạo|u ác, ung thư, K
+C68.8|U ác tính có tổn thương chồng lấn ở cơ quan tiết niệu|u ác, ung thư, K
+C68.9|U ác tính ở cơ quan tiết niệu, không xác định|u ác, ung thư, K
+C70.0|U ác tính ở màng não|u ác, ung thư, K
+C70.1|U ác tính ở màng tuỷ|u ác, ung thư, K
+C70.9|U ác tính ở màng não tuỷ, không xác định|u ác, ung thư, K
+C71.0|U ác tính ở đại não, ngoại trừ thuỳ não và não thất|u ác, ung thư, K, u não
+C71.1|U ác tính ở thuỳ trán|u ác, ung thư, K, u não
+C71.2|U ác tính ở thuỳ thái dương|u ác, ung thư, K, u não
+C71.3|U ác tính ở thuỳ đỉnh|u ác, ung thư, K, u não
+C71.4|U ác tính ở thuỳ chẩm|u ác, ung thư, K, u não
+C71.5|U ác tính ở não thất|u ác, ung thư, K, u não
+C71.6|U ác tính ở tiểu não|u ác, ung thư, K, u não
+C71.7|U ác tính ở cuống não|u ác, ung thư, K, u não
+C71.8|U ác tính có tổn thương chồng lấn ở não|u ác, ung thư, K, u não
+*C71.9|U ác tính ở não, không xác định|u ác, ung thư, K, u não
+C72.0|U ác tính ở tuỷ sống|u ác, ung thư, K
+C72.1|U ác tính ở chùm đuôi ngựa|u ác, ung thư, K
+C72.2|U ác tính ở thần kinh khứu giác|u ác, ung thư, K
+C72.3|U ác tính ở thần kinh thị giác|u ác, ung thư, K
+C72.4|U ác tính ở thần kinh thính giác|u ác, ung thư, K
+C72.5|U ác tính ở dây thần kinh sọ khác và/hoặc không xác định|u ác, ung thư, K
+C72.8|U ác tính có tổn thương chồng lấn ở não và/hoặc phần khác của hệ thần kinh trung ương|u ác, ung thư, K
+C72.9|U ác tính ở hệ thần kinh trung ương, không xác định|u ác, ung thư, K
+C73|U ác tính ở tuyến giáp|u ác, ung thư, K, ung thư tuyến giáp
+C75.0|U ác tính ở tuyến cận giáp|u ác, ung thư, K
+C75.1|U ác tính ở tuyến yên|u ác, ung thư, K
+C75.2|U ác tính ở ống sọ hầu|u ác, ung thư, K
+C75.3|U ác tính ở tuyến tùng|u ác, ung thư, K
+C75.4|U ác tính tiểu thể của động mạch cảnh|u ác, ung thư, K
+C75.5|U ác tính tiểu thể của động mạch chủ và/hoặc cận hạch thần kinh khác|u ác, ung thư, K
+C75.8|U ác tính có tác động đến nhiều tuyến, không xác định|u ác, ung thư, K
+C75.9|U ác tính ở tuyến nội tiết, không xác định|u ác, ung thư, K
+C76.0|U ác tính ở vị trí khác và/hoặc không rõ ràng ở đầu, mặt và/hoặc cổ|u ác, ung thư, K
+C76.1|U ác tính ở vị trí khác và/hoặc không rõ ràng ở ngực|u ác, ung thư, K
+C76.2|U ác tính ở vị trí khác và/hoặc vị trí không rõ ràng ở bụng|u ác, ung thư, K
+C76.3|U ác tính ở vị trí khác và/hoặc không rõ ràng ở vùng chậu|u ác, ung thư, K
+C76.4|U ác tính ở vị trí khác và/hoặc không rõ ràng ở chi trên|u ác, ung thư, K
+C76.5|U ác tính ở vị trí khác và/hoặc không rõ ràng ở chi dưới|u ác, ung thư, K
+C76.7|U ác tính ở vị trí không rõ ràng khác|u ác, ung thư, K
+C76.8|U ác tính có tổn thương chồng lấn ở vị trí khác và/hoặc không rõ ràng|u ác, ung thư, K
+C77.0|U ác tính ở hạch vùng đầu, mặt và/hoặc cổ|u ác, ung thư, K, di căn hạch
+C77.1|U ác tính thứ phát và/hoặc không xác định ở hạch trong khoang ngực|u ác, ung thư, K, di căn hạch
+C77.2|U ác tính thứ phát và/hoặc không xác định ở hạch trong ổ bụng|u ác, ung thư, K, di căn hạch
+C77.3|U ác tính thứ phát và/hoặc không xác định ở hạch nách và/hoặc hạch chi trên|u ác, ung thư, K, di căn hạch
+C77.4|U ác tính thứ phát và/hoặc không xác định ở hạch bẹn và/hoặc hạch chi dưới|u ác, ung thư, K, di căn hạch
+C77.5|U ác tính thứ phát và/hoặc không xác định ở hạch trong vùng chậu|u ác, ung thư, K, di căn hạch
+C77.8|U ác tính thứ phát và/hoặc không xác định ở hạch ở nhiều vùng|u ác, ung thư, K, di căn hạch
+C77.9|U ác tính thứ phát và/hoặc không xác định ở hạch lympho, vị trí không xác định|u ác, ung thư, K, di căn hạch
+C78.0|U ác tính thứ phát ở phổi|u ác, ung thư, K, di căn
+C78.1|U ác tính thứ phát ở trung thất|u ác, ung thư, K, di căn
+C78.2|U ác tính thứ phát ở màng phổi|u ác, ung thư, K, di căn
+C78.3|U ác tính thứ phát ở cơ quan hô hấp khác và/hoặc không xác định|u ác, ung thư, K, di căn
+C78.4|U ác tính thứ phát ở ruột non|u ác, ung thư, K, di căn
+C78.5|U ác tính thứ phát ở đại tràng và/hoặc trực tràng|u ác, ung thư, K, di căn
+*C78.6|U ác tính thứ phát ở vùng sau phúc mạc và/hoặc phúc mạc|u ác, ung thư, K, di căn
+*C78.7|U ác tính thứ phát ở gan và/hoặc đường mật trong gan|u ác, ung thư, K, di căn
+C78.8|U ác tính thứ phát ở cơ quan tiêu hoá khác và/hoặc không xác định|u ác, ung thư, K, di căn
+C79.0|U ác tính thứ phát ở thận và/hoặc bể thận|u ác, ung thư, K, di căn
+C79.1|U ác tính thứ phát ở bàng quang và/hoặc cơ quan tiết niệu khác và/hoặc không xác định|u ác, ung thư, K, di căn
+C79.2|U ác tính thứ phát ở da|u ác, ung thư, K, di căn
+*C79.3|U ác tính thứ phát ở não và/hoặc màng não|u ác, ung thư, K, di căn, u não di căn
+C79.4|U ác tính thứ phát ở phần khác và/hoặc không xác định của hệ thần kinh|u ác, ung thư, K, di căn
+C79.5|U ác tính thứ phát ở xương và/hoặc tuỷ xương|u ác, ung thư, K, di căn
+C79.6|U ác tính thứ phát ở buồng trứng|u ác, ung thư, K, di căn
+C79.7|U ác tính thứ phát ở tuyến thượng thận|u ác, ung thư, K, di căn
+C79.8|U ác tính thứ phát ở vị trí xác định khác|u ác, ung thư, K, di căn
+C79.9|U ác tính thứ phát, vị trí không xác định|u ác, ung thư, K, di căn
+C80.0|U ác tính, đã khẳng định, không biết vị trí nguyên phát|u ác, ung thư, K
+*C80.9|U ác tính, vị trí nguyên phát không xác định|u ác, ung thư, K, ung thư không rõ nguyên phát
+D00.0|Ung thư biểu mô tại chỗ ở môi khoang miệng và/hoặc hầu
+D00.1|Ung thư biểu mô tại chỗ ở thực quản
+D00.2|Ung thư biểu mô tại chỗ ở dạ dày
+D01.0|Ung thư biểu mô tại chỗ của đại tràng
+D01.1|Ung thư biểu mô tại chỗ nơi nối trực tràng sigma
+D01.2|Ung thư biểu mô tại chỗ của trực tràng
+D01.3|Ung thư biểu mô tại chỗ của hậu môn và/hoặc ống hậu môn
+D01.4|Ung thư biểu mô tại chỗ ở phần khác và/hoặc không xác định của ruột non
+D01.5|Ung thư biểu mô tại chỗ của gan, túi mật và/hoặc ống mật
+D01.7|Ung thư biểu mô tại chỗ của cơ quan tiêu hoá xác định khác
+D01.9|Ung thư biểu mô tại chỗ của cơ quan tiêu hoá, không xác định
+D09.0|Ung thư biểu mô tại chỗ ở bàng quang
+D09.1|Ung thư biểu mô tại chỗ ở cơ quan tiết niệu khác và/hoặc không xác định
+D09.2|Ung thư biểu mô tại chỗ ở mắt
+D09.3|Ung thư biểu mô tại chỗ ở tuyến giáp và/hoặc tuyến nội tiết khác
+D09.7|Ung thư biểu mô tại chỗ ở vị trí xác định khác
+D09.9|Ung thư biểu mô tại chỗ, không xác định
+D12.0|U lành ở manh tràng|polyp đại tràng, polyp trực tràng
+D12.1|U lành ở ruột thừa|polyp đại tràng, polyp trực tràng
+D12.2|U lành ở đại tràng lên|polyp đại tràng, polyp trực tràng
+D12.3|U lành ở đại tràng ngang [ruột kết ngang]|polyp đại tràng, polyp trực tràng
+D12.4|U lành ở đại tràng xuống [ruột kết xuống]|polyp đại tràng, polyp trực tràng
+D12.5|U lành ở đại tràng sigma|polyp đại tràng, polyp trực tràng
+*D12.6|U lành ở đại tràng, không xác định|polyp đại tràng, polyp trực tràng
+D12.7|U lành ở nơi nối trực tràng sigma|polyp đại tràng, polyp trực tràng
+D12.8|U lành ở trực tràng|polyp đại tràng, polyp trực tràng
+D12.9|U lành ở hậu môn và/hoặc ống hậu môn|polyp đại tràng, polyp trực tràng
+D13.0|U lành ở thực quản
+*D13.1|U lành ở dạ dày|polyp dạ dày, GIST
+D13.2|U lành ở tá tràng
+D13.3|U lành ở phần khác và/hoặc không xác định của ruột non
+D13.4|U lành ở gan
+D13.5|U lành ở đường mật ngoài gan
+D13.6|U lành ở tuỵ
+D13.7|U lành ở tuỵ nội tiết
+D13.9|U lành ở vị trí không rõ ràng trong hệ tiêu hoá
+D17.0|U mỡ lành tính ở da và/hoặc mô dưới da ở đầu, mặt và/hoặc cổ|u mỡ, lipoma
+*D17.1|U mỡ lành tính ở da và/hoặc mô dưới da ở thân|u mỡ, lipoma
+D17.2|U mỡ lành tính ở da và/hoặc mô dưới da ở các chi|u mỡ, lipoma
+D17.3|U mỡ lành tính ở da và/hoặc mô dưới da ở vị trí khác và/hoặc không xác định|u mỡ, lipoma
+D17.4|U mỡ lành tính ở cơ quan trong khoang ngực|u mỡ, lipoma
+D17.5|U mỡ lành tính ở cơ quan trong ổ bụng|u mỡ, lipoma
+D17.6|U mỡ lành tính ở thừng tinh|u mỡ, lipoma
+D17.7|U mỡ lành tính ở vị trí khác|u mỡ, lipoma
+*D17.9|U mỡ lành tính, không xác định|u mỡ, lipoma
+D18.0|U máu, vị trí bất kỳ
+D18.1|U bạch huyết, vị trí bất kỳ
+D19.0|U lành trung biểu mô ở màng phổi
+D19.1|U lành trung biểu mô ở phúc mạc
+D19.7|U lành trung biểu mô ở vị trí khác
+D19.9|U lành trung biểu mô, không xác định
+D20.0|U lành mô mềm ở vùng sau phúc mạc
+D20.1|U lành mô mềm phúc mạc
+D21.0|U lành mô liên kết và/hoặc mô mềm khác ở đầu, mặt và/hoặc cổ
+D21.1|U lành mô liên kết và/hoặc mô mềm khác ở chi trên bao gồm vai
+D21.2|U lành mô liên kết và/hoặc mô mềm khác ở chi dưới, bao gồm hông
+D21.3|U lành mô liên kết và/hoặc mô mềm khác ở lồng ngực
+D21.4|U lành mô liên kết và/hoặc mô mềm khác ở bụng
+D21.5|U lành mô liên kết và/hoặc mô mềm khác ở chậu
+D21.6|U lành mô liên kết và/hoặc mô mềm khác ở thân mình, không xác định
+D21.9|U lành mô liên kết và/hoặc mô mềm khác, không xác định
+D24|U lành ở vú|u vú lành, u xơ vú
+D29.0|U lành ở dương vật
+D29.1|U lành ở tuyến tiền liệt
+D29.2|U lành ở tinh hoàn
+D29.3|U lành ở mào tinh hoàn
+D29.4|U lành ở bìu
+D29.7|U lành ở cơ quan sinh dục khác ở nam giới
+D29.9|U lành ở cơ quan sinh dục nam, không xác định
+*D30.0|U lành ở thận|u thận lành
+D30.1|U lành ở bể thận
+D30.2|U lành ở niệu quản
+*D30.3|U lành ở bàng quang|u bàng quang lành
+D30.4|U lành ở niệu đạo
+D30.7|U lành ở cơ quan tiết niệu khác
+D30.9|U lành ở cơ quan tiết niệu, không xác định
+*D32.0|U lành ở màng não|u màng não
+D32.1|U lành ở màng tuỷ
+D32.9|U lành ở màng não, không xác định
+D33.0|U lành ở não trên lều|u não
+D33.1|U lành ở não, lều dưới|u não
+*D33.2|U lành ở não, không xác định|u não
+D33.3|U lành ở thần kinh sọ não|u não
+D33.4|U lành ở tuỷ sống|u não
+D33.7|U lành ở phần xác định khác của hệ thần kinh trung ương|u não
+D33.9|U lành ở hệ thần kinh trung ương, không xác định|u não
+D34|U lành ở tuyến giáp
+D35.0|U lành ở tuyến thượng thận
+D35.1|U lành ở tuyến cận giáp
+D35.2|U lành ở tuyến yên
+D35.3|U lành ở ống sọ hầu
+D35.4|U lành ở tuyến tùng
+D35.5|U lành ở tiểu thể của động mạch cảnh
+D35.6|U lành ở tiểu thể của động mạch chủ và/hoặc cận hạch thần kinh khác
+D35.7|U lành ở tuyến nội tiết xác định khác
+D35.8|U lành có tác động đến nhiều tuyến nội tiết
+D35.9|U lành ở tuyến nội tiết, không xác định
+D37.0|U tân sinh không tiên lượng được tiến triển và tính chất ở môi, khoang miệng và/hoặc họng|GIST, u mô đệm
+D37.1|U tân sinh không tiên lượng được tiến triển và tính chất ở dạ dày|GIST, u mô đệm
+D37.2|U tân sinh không tiên lượng được tiến triển và tính chất ở ruột non|GIST, u mô đệm
+D37.3|U tân sinh không tiên lượng được tiến triển và tính chất ở ruột thừa|GIST, u mô đệm
+*D37.4|U tân sinh không tiên lượng được tiến triển và tính chất ở đại tràng|GIST, u mô đệm
+D37.5|U tân sinh không tiên lượng được tiến triển và tính chất ở trực tràng|GIST, u mô đệm
+D37.6|U tân sinh không tiên lượng được tiến triển và tính chất ở gan, túi mật và/hoặc ống mật|GIST, u mô đệm
+*D37.7|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan tiêu hoá khác|GIST, u mô đệm
+D37.9|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan tiêu hoá, không xác định|GIST, u mô đệm
+D40.0|U tân sinh không tiên lượng được tiến triển và tính chất ở tiền liệt tuyến
+D40.1|U tân sinh không tiên lượng được tiến triển và tính chất của tinh hoàn
+D40.7|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan sinh dục nam khác
+D40.9|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan sinh dục nam, không xác định
+D41.0|U tân sinh không tiên lượng được tiến triển và tính chất ở thận
+D41.1|U tân sinh không tiên lượng được tiến triển và tính chất ở bể thận
+D41.2|U tân sinh không tiên lượng được tiến triển và tính chất ở niệu quản
+D41.3|U tân sinh không tiên lượng được tiến triển và tính chất ở niệu đạo
+*D41.4|U tân sinh không tiên lượng được tiến triển và tính chất ở bàng quang|u bàng quang
+D41.7|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan tiết niệu khác
+D41.9|U tân sinh không tiên lượng được tiến triển và tính chất ở cơ quan tiết niệu, không xác định
+D42.0|U tân sinh không tiên lượng được tiến triển và tính chất của màng não
+D42.1|U tân sinh không tiên lượng được tiến triển và tính chất ở màng tuỷ
+D42.9|U tân sinh không tiên lượng được tiến triển và tính chất của màng não tuỷ, không xác định
+D43.0|U tân sinh không tiên lượng được tiến triển và tính chất ở não, trên lều não|u não
+D43.1|U tân sinh không tiên lượng được tiến triển và tính chất ở não, dưới lều não|u não
+*D43.2|U tân sinh không tiên lượng được tiến triển và tính chất ở não, không xác định|u não
+D43.3|U tân sinh không tiên lượng được tiến triển và tính chất ở thần kinh sọ|u não
+D43.4|U tân sinh không tiên lượng được tiến triển và tính chất ở tuỷ sống|u não
+D43.7|U tân sinh không tiên lượng được tiến triển và tính chất ở phần khác của hệ thần kinh trung ương|u não
+D43.9|U tân sinh không tiên lượng được tiến triển và tính chất ở hệ thần kinh trung ương, không xác định|u não
+D48.0|U tân sinh không tiên lượng được tiến triển và tính chất ở xương và/hoặc sụn khớp
+D48.1|U tân sinh không tiên lượng được tiến triển và tính chất ở mô liên kết và/hoặc mô mềm khác
+D48.2|U tân sinh không tiên lượng được tiến triển và tính chất ở thần kinh ngoại biên và/hoặc hệ thần kinh tự động
+D48.3|U tân sinh không tiên lượng được tiến triển và tính chất ở vùng sau phúc mạc
+D48.4|U tân sinh không tiên lượng được tiến triển và tính chất ở phúc mạc
+D48.5|U tân sinh không tiên lượng được tiến triển và tính chất ở da
+D48.6|U tân sinh không tiên lượng được tiến triển và tính chất ở vú
+D48.7|U tân sinh không tiên lượng được tiến triển và tính chất ở vị trí xác định khác
+D48.9|U tân sinh không tiên lượng được tiến triển và tính chất , vị trí không xác định
+D50.0|Thiếu máu thiếu sắt thứ phát do mất máu (mạn tính)
+D50.1|Chứng khó nuốt do thiếu sắt
+D50.8|Thiếu máu thiếu sắt khác
+D50.9|Thiếu máu thiếu sắt, không xác định
+D62|Thiếu máu sau chảy máu cấp tính
+D64.0|Thiếu máu nguyên hồng cầu sắt di truyền
+D64.1|Thiếu máu nguyên hồng cầu sắt thứ phát do bệnh lý
+D64.2|Thiếu máu nguyên hồng cầu sắt thứ phát do thuốc và/hoặc độc chất
+D64.3|Thiếu máu nguyên hồng cầu sắt khác
+D64.4|Thiếu máu loạn sinh hồng cầu bẩm sinh
+D64.8|Thiếu máu xác định khác
+D64.9|Thiếu máu, không xác định
+D73.0|Thiểu năng lách
+D73.1|Chứng cường lách
+D73.2|Lách to xung huyết mạn tính
+D73.3|Áp xe lách
+D73.4|Nang lách
+D73.5|Bệnh nhồi máu lá lách
+D73.8|Bệnh khác ở lách
+D73.9|Bệnh lý lách, không xác định
+E04.0|Bướu giáp đơn thuần không độc|bướu giáp, bướu cổ
+E04.1|Bướu giáp đơn nhân không độc|bướu giáp, bướu cổ
+E04.2|Bướu giáp đa nhân không độc|bướu giáp, bướu cổ
+E04.8|Bướu giáp không độc xác định khác|bướu giáp, bướu cổ
+E04.9|Bướu giáp không độc, không xác định|bướu giáp, bướu cổ
+E05.0|Nhiễm độc tuyến giáp [cường giáp] kèm bướu lan toả
+E05.1|Nhiễm độc tuyến giáp [cường giáp] kèm bướu tuyến giáp đơn nhân có nhiễm độc
+E05.2|Nhiễm độc tuyến giáp [cường giáp] kèm bướu tuyến giáp đa nhân có nhiễm độc
+E05.3|Nhiễm độc tuyến giáp [cường giáp] từ mô giáp lạc chỗ
+E05.4|Nhiễm độc tuyến giáp [cường giáp] giả
+E05.5|Cơn nhiễm độc giáp [cường giáp] cấp tính hoặc cơn bão giáp
+E05.8|Nhiễm độc tuyến giáp [cường giáp] khác
+E05.9|Nhiễm độc tuyến giáp [cường giáp], không xác định
+E10.0|Bệnh đái tháo đường típ 1, kèm hôn mê|ĐTĐ, tiểu đường
+E10.1|Bệnh đái tháo đường típ 1, kèm nhiễm toan ceton|ĐTĐ, tiểu đường
+E10.2|Bệnh đái tháo đường típ 1, kèm biến chứng thận|ĐTĐ, tiểu đường
+E10.3|Bệnh đái tháo đường típ 1, kèm biến chứng mắt|ĐTĐ, tiểu đường
+E10.4|Bệnh đái tháo đường típ 1, kèm biến chứng thần kinh|ĐTĐ, tiểu đường
+E10.5|Bệnh đái tháo đường típ 1, kèm biến chứng mạch máu ngoại vi|ĐTĐ, tiểu đường
+E10.6|Bệnh đái tháo đường típ 1, kèm biến chứng xác định khác|ĐTĐ, tiểu đường
+E10.7|Bệnh đái tháo đường típ 1, kèm đa biến chứng|ĐTĐ, tiểu đường
+E10.8|Bệnh đái tháo đường típ 1, kèm biến chứng không xác định|ĐTĐ, tiểu đường
+E10.9|Bệnh đái tháo đường típ 1, không kèm biến chứng|ĐTĐ, tiểu đường
+E11.0|Bệnh đái tháo đường típ 2, kèm hôn mê|ĐTĐ, tiểu đường
+E11.1|Bệnh đái tháo đường típ 2, kèm nhiễm toan ceton|ĐTĐ, tiểu đường
+E11.2|Bệnh đái tháo đường típ 2, kèm biến chứng thận|ĐTĐ, tiểu đường
+E11.3|Bệnh đái tháo đường típ 2, kèm biến chứng mắt|ĐTĐ, tiểu đường
+E11.4|Bệnh đái tháo đường típ 2, kèm biến chứng thần kinh|ĐTĐ, tiểu đường
+E11.5|Bệnh đái tháo đường típ 2, kèm biến chứng mạch máu ngoại vi|ĐTĐ, tiểu đường
+E11.6|Bệnh đái tháo đường típ 2, kèm biến chứng xác định khác|ĐTĐ, tiểu đường
+E11.7|Bệnh đái tháo đường típ 2, kèm đa biến chứng|ĐTĐ, tiểu đường
+E11.8|Bệnh đái tháo đường típ 2, kèm biến chứng không xác định|ĐTĐ, tiểu đường
+*E11.9|Bệnh đái tháo đường típ 2, không kèm biến chứng|ĐTĐ, tiểu đường, ĐTĐ, tiểu đường
+E14.0|Đái tháo đường không xác định, kèm hôn mê|ĐTĐ, tiểu đường
+E14.1|Đái tháo đường không xác định, kèm nhiễm toan ceton|ĐTĐ, tiểu đường
+E14.2|Đái tháo đường không xác định, kèm biến chứng thận|ĐTĐ, tiểu đường
+E14.3|Đái tháo đường không xác định, kèm biến chứng mắt|ĐTĐ, tiểu đường
+E14.4|Đái tháo đường không xác định, kèm biến chứng thần kinh|ĐTĐ, tiểu đường
+E14.5|Đái tháo đường không xác định, kèm biến chứng mạch máu ngoại vi|ĐTĐ, tiểu đường
+E14.6|Đái tháo đường không xác định, kèm biến chứng xác định khác|ĐTĐ, tiểu đường
+E14.7|Đái tháo đường không xác định, kèm đa biến chứng|ĐTĐ, tiểu đường
+E14.8|Đái tháo đường không xác định, kèm biến chứng không xác định|ĐTĐ, tiểu đường
+E14.9|Đái tháo đường không xác định, không kèm biến chứng|ĐTĐ, tiểu đường
+E86|Giảm thể tích|mất nước
+E87.0|Tăng áp suất thẩm thấu và/hoặc tăng natri máu
+E87.1|Giảm áp suất thẩm thấu và/hoặc giảm natri máu
+E87.2|Nhiễm toan
+E87.3|Nhiễm kiềm
+E87.4|Rối loạn cân bằng kiềm toan phối hợp
+E87.5|Tăng kali máu
+E87.6|Hạ kali máu
+E87.7|Quá tải dịch
+E87.8|Rối loạn khác về cân bằng điện giải và/hoặc nước, không phân loại mục khác
+G06.0|Áp xe và/hoặc u hạt nội sọ|áp xe não
+G06.1|Áp xe và/hoặc u hạt nội tuỷ
+G06.2|Áp xe ngoài màng cứng và/hoặc dưới màng cứng, không xác định
+G40.0|Bệnh động kinh cục bộ vô căn (khu trú) (một phần) và/hoặc hội chứng động kinh với cơn co giật khởi phát khu trú
+G40.1|Bệnh động kinh cục bộ có triệu chứng (khu trú) (một phần) và/hoặc hội chứng động kinh có cơn co giật cục bộ đơn giản
+G40.2|Bệnh động kinh cục bộ có triệu chứng (khu trú) (một phần) và/hoặc hội chứng động kinh có cơn co giật cục bộ phức tạp
+G40.3|Hội chứng động kinh và/hoặc động kinh toàn thể vô căn
+G40.4|Hội chứng động kinh và/hoặc động kinh toàn thể khác
+G40.5|Hội chứng động kinh đặc biệt
+G40.6|Cơn co giật toàn thể, không xác định (kèm hoặc không kèm cơn vắng ý thức)
+G40.7|Cơn động kinh nhỏ [cơn vắng ý thức], không xác định, không kèm cơn co giật toàn thể
+G40.8|Bệnh động kinh khác
+G40.9|Bệnh động kinh, không xác định
+G41.0|Trạng thái động kinh cơn co giật toàn thể
+G41.1|Trạng thái động kinh cơn vắng ý thức [động kinh cơn nhỏ]
+G41.2|Trạng thái động kinh cục bộ phức tạp
+G41.8|Trạng thái động kinh khác
+G41.9|Trạng thái động kinh, không xác định
+G56.0|Hội chứng ống cổ tay|hội chứng ống cổ tay
+G56.1|Tổn thương khác của dây thần kinh giữa
+G56.2|Tổn thương dây thần kinh trụ
+G56.3|Tổn thương dây thần kinh quay
+G56.8|Bệnh lý đơn dây thần kinh khác của chi trên
+G56.9|Bệnh lý đơn dây thần kinh của chi trên, không xác định
+G91.0|Bệnh não úng thuỷ thể thông|não úng thủy, giãn não thất
+G91.1|Bệnh não úng thuỷ thể tắc nghẽn|não úng thủy, giãn não thất
+G91.2|Bệnh não úng thuỷ áp lực bình thường|não úng thủy, giãn não thất
+G91.3|Bệnh não úng thuỷ sau chấn thương, không xác định|não úng thủy, giãn não thất
+G91.8|Bệnh não úng thuỷ khác|não úng thủy, giãn não thất
+*G91.9|Bệnh não úng thuỷ, không xác định|não úng thủy, giãn não thất
+G93.0|Bệnh u nang não
+G93.1|Tổn thương não do thiếu oxy, không phân loại mục khác
+G93.2|Tăng áp lực nội sọ lành tính
+G93.3|Hội chứng mệt mỏi sau nhiễm virus
+G93.4|Bệnh lý não, không xác định
+G93.5|Chèn ép não|chèn ép não
+*G93.6|Phù não|phù não
+G93.7|Hội chứng Reye
+G93.8|Rối loạn xác định khác của não
+G93.9|Bệnh não, không xác định
+G95.0|Bệnh rỗng tuỷ sống và/hoặc rỗng hành não
+G95.1|Bệnh lý mạch máu tuỷ
+G95.2|Bệnh chèn ép tuỷ, không xác định
+G95.8|Bệnh xác định khác của tuỷ sống
+G95.9|Bệnh của tuỷ sống, không xác định
+G96.0|Rò dịch não tuỷ
+G96.1|Rối loạn màng não, không phân loại mục khác
+G96.8|Rối loạn xác định khác của hệ thần kinh trung ương
+G96.9|Rối loạn hệ thần kinh trung ương, không xác định
+G97.0|Rò dịch não tuỷ do chọc dò tuỷ sống
+G97.1|Phản ứng khác đối với chọc dò tuỷ sống và/hoặc chọc ống sống thắt lưng
+G97.2|Hạ áp lực nội sọ sau dẫn lưu não thất
+G97.8|Rối loạn khác của hệ thần kinh sau can thiệp
+G97.9|Rối loạn hệ thần kinh sau can thiệp, không xác định
+*I10|Bệnh tăng huyết áp vô căn (nguyên phát)|THA, cao huyết áp
+I20.0|Cơn đau thắt ngực không ổn định
+I20.1|Cơn đau thắt ngực có bằng chứng co thắt động mạch vành
+I20.8|Cơn đau thắt ngực thể khác
+I20.9|Cơn đau thắt ngực, không xác định
+I21.0|Nhồi máu cơ tim xuyên thành cấp tính của thành trước
+I21.1|Nhồi máu cơ tim xuyên thành cấp tính của thành dưới
+I21.2|Nhồi máu xuyên thành cấp tính ở vị trí khác
+I21.3|Nhồi máu cơ tim xuyên thành cấp tính ở vị trí không xác định
+I21.4|Nhồi máu cơ tim dưới nội tâm mạc cấp tính
+I21.9|Nhồi máu cơ tim cấp tính, không xác định
+I25.0|Bệnh tim mạch do xơ vữa động mạch vành, như đã mô tả
+I25.1|Bệnh tim mạch do xơ vữa động mạch
+I25.2|Nhồi máu cơ tim cũ
+I25.3|Phình thành tim
+I25.4|Phình và/hoặc tách động mạch vành
+I25.5|Bệnh lý cơ tim do thiếu máu cục bộ
+I25.6|Thiếu máu cơ tim thầm lặng
+I25.8|Thể khác của bệnh tim thiếu máu cục bộ mạn tính
+I25.9|Bệnh tim thiếu máu cục bộ mạn tính, không xác định
+I26.0|Thuyên tắc mạch phổi có tâm phế cấp tính
+I26.9|Thuyên tắc mạch phổi không có tâm phế cấp tính
+I48.0|Rung nhĩ kịch phát
+I48.1|Rung nhĩ dai dẳng
+I48.2|Rung nhĩ mạn tính
+I48.3|Cuồng nhĩ điển hình
+I48.4|Cuồng nhĩ không điển hình
+I48.9|Rung nhĩ và/hoặc cuồng nhĩ, không xác định
+I50.0|Suy tim xung huyết
+I50.1|Suy thất trái
+I50.9|Suy tim, không xác định
+I60.0|Xuất huyết dưới nhện từ hành cảnh và/hoặc chỗ chia nhánh động mạch cảnh|XHDN, vỡ phình mạch não
+I60.1|Xuất huyết dưới nhện từ động mạch não giữa|XHDN, vỡ phình mạch não
+I60.2|Xuất huyết dưới nhện từ động mạch thông trước|XHDN, vỡ phình mạch não
+I60.3|Xuất huyết dưới nhện từ động mạch thông sau|XHDN, vỡ phình mạch não
+I60.4|Xuất huyết dưới nhện từ động mạch nền|XHDN, vỡ phình mạch não
+I60.5|Xuất huyết dưới nhện từ động mạch đốt sống|XHDN, vỡ phình mạch não
+I60.6|Xuất huyết dưới nhện từ động mạch nội sọ khác|XHDN, vỡ phình mạch não
+I60.7|Xuất huyết dưới nhện từ động mạch nội sọ, không xác định|XHDN, vỡ phình mạch não
+I60.8|Xuất huyết dưới nhện khác|XHDN, vỡ phình mạch não
+*I60.9|Xuất huyết dưới nhện, không xác định|XHDN, vỡ phình mạch não
+I61.0|Xuất huyết não tại bán cầu, vùng dưới vỏ|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.1|Xuất huyết não tại bán cầu, vùng vỏ|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.2|Xuất huyết não tại bán cầu, không xác định|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.3|Xuất huyết thân não|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.4|Xuất huyết tiểu não|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.5|Xuất huyết não, tràn máu não thất|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.6|Xuất huyết não đa ổ|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+I61.8|Xuất huyết não khác|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+*I61.9|Xuất huyết não, không xác định|xuất huyết não, XHN, máu tụ trong não, đột quỵ
+*I62.0|Xuất huyết dưới màng cứng không do chấn thương|máu tụ dưới màng cứng mạn tính
+I62.1|Xuất huyết ngoài màng cứng không do chấn thương
+*I62.9|Xuất huyết não không do chấn thương, không xác định|xuất huyết nội sọ
+I63.0|Nhồi máu não do huyết khối động mạch trước não|nhồi máu não, đột quỵ
+I63.1|Nhồi máu não do thuyên tắc động mạch trước não|nhồi máu não, đột quỵ
+I63.2|Nhồi máu não không xác định do tắc hoặc hẹp ở động mạch trước não|nhồi máu não, đột quỵ
+I63.3|Nhồi máu não do huyết khối động mạch não|nhồi máu não, đột quỵ
+I63.4|Nhồi máu não do thuyên tắc động mạch não|nhồi máu não, đột quỵ
+I63.5|Nhồi máu não không xác định do tắc hoặc hẹp ở động mạch não|nhồi máu não, đột quỵ
+I63.6|Nhồi máu não do huyết khối tĩnh mạch não, không sinh mủ|nhồi máu não, đột quỵ
+I63.8|Nhồi máu não khác|nhồi máu não, đột quỵ
+*I63.9|Nhồi máu não, không xác định|nhồi máu não, đột quỵ
+*I64|Đột quỵ, không xác định do xuất huyết hoặc nhồi máu
+I67.0|Tách thành động mạch não, không vỡ
+I67.1|Phình động mạch não, không vỡ|phình mạch não
+I67.2|Xơ vữa động mạch não
+I67.3|Bệnh lý chất trắng não tiến triển do căn nguyên mạch máu
+I67.4|Bệnh lý não do tăng huyết áp
+I67.5|Bệnh Moyamoya
+I67.6|Huyết khối không sinh mủ của hệ tĩnh mạch nội sọ
+I67.7|Viêm động mạch não, không phân loại mục khác
+I67.8|Bệnh mạch máu não xác định khác
+I67.9|Bệnh mạch máu não, không xác định
+I70.0|Xơ vữa [xơ cứng] động mạch chủ
+I70.1|Xơ vữa [xơ cứng] động mạch thận
+*I70.2|Xơ vữa [xơ cứng] động mạch ngoại vi [tứ chi]|thiếu máu chi, tắc động mạch chi
+I70.8|Xơ vữa [xơ cứng] động mạch khác
+I70.9|Xơ vữa động mạch toàn thể và/hoặc xơ vữa động mạch không xác định
+I71.0|Tách thành động mạch chủ [bất kỳ đoạn nào]|phình động mạch chủ
+I71.1|Phình vỡ động mạch chủ ngực|phình động mạch chủ
+I71.2|Phình động mạch chủ ngực, không vỡ|phình động mạch chủ
+I71.3|Phình vỡ động mạch chủ bụng|phình động mạch chủ
+*I71.4|Phình động mạch chủ bụng, không vỡ|phình động mạch chủ
+I71.5|Phình vỡ động mạch chủ ngực - bụng|phình động mạch chủ
+I71.6|Phình động mạch chủ ngực - bụng, không vỡ|phình động mạch chủ
+I71.8|Phình vỡ động mạch chủ, vị trí không xác định|phình động mạch chủ
+I71.9|Phình động mạch chủ vị trí không xác định, không vỡ|phình động mạch chủ
+I72.0|Phình và/hoặc tách động mạch cảnh
+I72.1|Phình và/hoặc tách động mạch chi trên
+I72.2|Phình và/hoặc tách động mạch thận
+I72.3|Phình và/hoặc tách động mạch chậu
+I72.4|Phình và/hoặc tách động mạch chi dưới
+I72.5|Phình và/hoặc tách động mạch nền (thân)
+I72.6|Phình và/hoặc tách động mạch đốt sống
+I72.8|Phình và/hoặc tách động mạch xác định khác
+I72.9|Phình và/hoặc tách động mạch, vị trí không xác định
+I73.0|Hội chứng Raynaud
+I73.1|Viêm tắc mạch huyết khối [Buerger]
+I73.8|Bệnh mạch máu ngoại vi xác định khác
+I73.9|Bệnh mạch máu ngoại vi, không xác định
+I74.0|Thuyên tắc và/hoặc huyết khối động mạch chủ bụng|tắc động mạch, thuyên tắc
+I74.1|Thuyên tắc và/hoặc huyết khối, đoạn động mạch chủ khác và/hoặc đoạn không xác định của động mạch chủ|tắc động mạch, thuyên tắc
+I74.2|Thuyên tắc và/hoặc huyết khối động mạch chi trên|tắc động mạch, thuyên tắc
+*I74.3|Thuyên tắc và/hoặc huyết khối động mạch chi dưới|tắc động mạch, thuyên tắc
+I74.4|Thuyên tắc và/hoặc huyết khối động mạch chi, không xác định|tắc động mạch, thuyên tắc
+I74.5|Thuyên tắc và/hoặc huyết khối động mạch chậu|tắc động mạch, thuyên tắc
+I74.8|Thuyên tắc và/hoặc huyết khối động mạch khác|tắc động mạch, thuyên tắc
+I74.9|Thuyên tắc và/hoặc huyết khối động mạch, không xác định|tắc động mạch, thuyên tắc
+I77.0|Rò động tĩnh mạch, mắc phải
+I77.1|Co hẹp động mạch
+I77.2|Vỡ động mạch
+I77.3|Loạn sản sợi cơ của động mạch
+I77.4|Hội chứng chèn ép động mạch tạng
+I77.5|Hoại tử động mạch
+I77.6|Viêm động mạch, không xác định
+I77.8|Rối loạn xác định khác của động mạch và/hoặc tiểu động mạch
+I77.9|Rối loạn của động mạch và/hoặc tiểu động mạch, không xác định
+I78.0|Giãn mao mạch xuất huyết di truyền
+I78.1|Nơ vi do căn nguyên mạch máu, không tân sinh
+I78.8|Bệnh khác của mao mạch
+I78.9|Bệnh khác của mao mạch, không xác định
+I79.0|Phình động mạch chủ do bệnh phân loại mục khác
+I79.1|Viêm động mạch chủ do bệnh phân loại mục khác
+I79.2|Bệnh lý mạch máu ngoại vi do bệnh phân loại mục khác
+I79.8|Rối loạn khác của hệ động mạch, tiểu động mạch và/hoặc mao mạch do bệnh phân loại mục khác
+I80.0|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối ở tĩnh mạch nông chi dưới|huyết khối tĩnh mạch sâu, HKTMS, DVT
+I80.1|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối ở tĩnh mạch đùi|huyết khối tĩnh mạch sâu, HKTMS, DVT
+*I80.2|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối của tĩnh mạch sâu khác ở chi dưới|huyết khối tĩnh mạch sâu, HKTMS, DVT
+I80.3|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối ở chi dưới, không xác định|huyết khối tĩnh mạch sâu, HKTMS, DVT
+I80.8|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối ở vị trí khác|huyết khối tĩnh mạch sâu, HKTMS, DVT
+I80.9|Viêm tĩnh mạch và/hoặc viêm [tắc] tĩnh mạch huyết khối ở vị trí không xác định|huyết khối tĩnh mạch sâu, HKTMS, DVT
+I81|Huyết khối tĩnh mạch cửa
+I82.0|Hội chứng Budd-Chiari
+I82.1|Viêm tĩnh mạch huyết khối di chuyển
+I82.2|Thuyên tắc và/hoặc huyết khối tĩnh mạch chủ
+I82.3|Thuyên tắc và/hoặc huyết khối tĩnh mạch thận
+I82.8|Thuyên tắc và/hoặc huyết khối tĩnh mạch xác định khác
+I82.9|Thuyên tắc và/hoặc huyết khối, không xác định tĩnh mạch
+I83.0|Giãn tĩnh mạch chi dưới kèm loét|suy giãn tĩnh mạch, giãn tĩnh mạch chân
+I83.1|Giãn tĩnh mạch chi dưới kèm viêm|suy giãn tĩnh mạch, giãn tĩnh mạch chân
+I83.2|Giãn tĩnh mạch chi dưới có cả loét và viêm|suy giãn tĩnh mạch, giãn tĩnh mạch chân
+*I83.9|Giãn tĩnh mạch chi dưới không loét hoặc viêm|suy giãn tĩnh mạch, giãn tĩnh mạch chân
+I85.0|Giãn tĩnh mạch thực quản kèm chảy máu
+I85.9|Giãn tĩnh mạch thực quản không kèm chảy máu
+I86.0|Giãn tĩnh mạch dưới lưỡi
+*I86.1|Giãn tĩnh mạch bìu|giãn tĩnh mạch thừng tinh, varicocele
+I86.2|Giãn tĩnh mạch chậu
+I86.3|Giãn tĩnh mạch âm hộ
+I86.4|Giãn tĩnh mạch dạ dày
+I86.8|Giãn tĩnh mạch ở vị trí xác định khác
+I87.0|Hội chứng sau huyết khối
+I87.1|Ép tĩnh mạch
+*I87.2|Suy tĩnh mạch (mạn tính) (ngoại vi)|suy giãn tĩnh mạch, suy tĩnh mạch chi dưới
+I87.8|Rối loạn xác định khác của tĩnh mạch
+I87.9|Rối loạn tĩnh mạch, không xác định
+I88.0|Viêm hạch bạch huyết mạc treo không xác định cụ thể
+I88.1|Viêm hạch bạch huyết mạn tính, ngoại trừ mạc treo
+I88.8|Viêm hạch bạch huyết khác không xác định cụ thể
+I88.9|Viêm hạch bạch huyết không xác định cụ thể, không xác định loại
+I89.0|Phù bạch huyết, không phân loại mục khác
+I89.1|Viêm mạch bạch huyết
+I89.8|Rối loạn mạch bạch huyết và/hoặc hạch bạch huyết xác định khác không do nhiễm trùng
+I89.9|Rối loạn mạch bạch huyết và/hoặc hạch bạch huyết không do nhiễm trùng, không xác định
+J18.0|Viêm phế quản phổi, không xác định vi sinh vật
+J18.1|Viêm phổi thuỳ, không xác định vi sinh vật
+J18.2|Viêm phổi do nằm lâu ngày ở một tư thế, không xác định vi sinh vật
+J18.8|Viêm phổi khác, vi sinh vật không xác định
+J18.9|Viêm phổi, không xác định
+J44.0|Bệnh phổi tắc nghẽn mạn tính kèm nhiễm trùng đường hô hấp dưới cấp tính|COPD, BPTNMT
+J44.1|Bệnh phổi tắc nghẽn mạn tính đợt cấp, không xác định|COPD, BPTNMT
+J44.8|Bệnh phổi tắc nghẽn mạn tính xác định khác|COPD, BPTNMT
+J44.9|Bệnh phổi tắc nghẽn mạn tính, không xác định|COPD, BPTNMT
+J85.0|Hoại thư và/hoặc hoại tử ở phổi|áp xe phổi
+J85.1|Áp xe phổi kèm viêm phổi|áp xe phổi
+J85.2|Áp xe phổi không kèm viêm phổi|áp xe phổi
+J85.3|Áp xe trung thất|áp xe phổi
+J86.0|Viêm mủ lồng ngực có lỗ rò|mủ màng phổi
+*J86.9|Viêm mủ lồng ngực không có lỗ rò|mủ màng phổi
+*J90|Tràn dịch màng phổi, không phân loại mục khác|TDMP
+J91|Tràn dịch màng phổi do bệnh phân loại mục khác|TDMP
+J92.0|Mảng xơ cứng màng phổi có amiăng
+J92.9|Mảng xơ cứng màng phổi không có amiăng
+*J93.0|Tràn khí màng phổi áp lực tự phát|TKMP
+*J93.1|Tràn khí màng phổi tự phát khác|TKMP
+J93.8|Tràn khí màng phổi khác|TKMP
+J93.9|Tràn khí màng phổi, không xác định|TKMP
+J94.0|Tràn dịch dưỡng chấp
+J94.1|Xơ hoá màng phổi
+*J94.2|Tràn máu màng phổi|TMMP
+J94.8|Bệnh màng phổi xác định khác
+J94.9|Bệnh màng phổi, không xác định
+J96.0|Suy hô hấp [tiến triển] cấp tính
+J96.1|Suy hô hấp [tiến triển] mạn tính
+J96.9|Suy hô hấp [tiến triển], tính không xác định
+K20|Viêm thực quản
+K21.0|Bệnh trào ngược dạ dày - thực quản kèm viêm thực quản
+K21.9|Bệnh trào ngược dạ dày - thực quản không kèm viêm thực quản
+K22.0|Co thắt tâm vị
+K22.1|Loét thực quản
+K22.2|Tắc nghẽn thực quản
+*K22.3|Thủng thực quản
+K22.4|Rối loạn vận động thực quản
+K22.5|Túi thừa thực quản, mắc phải
+K22.6|Hội chứng rách - chảy máu dạ dày - thực quản
+K22.7|Thực quản Barrett
+K22.8|Bệnh xác định khác của thực quản
+K22.9|Bệnh của thực quản, không xác định
+K23.0|Viêm thực quản do lao
+K23.1|Phình đại thực quản do bệnh Chagas
+K23.8|Rối loạn thực quản do bệnh khác phân loại mục khác
+*K25.0|Loét dạ dày, cấp tính kèm xuất huyết|loét bao tử, LDD
+*K25.1|Loét dạ dày, cấp tính kèm thủng|loét bao tử, LDD, thủng dạ dày, thủng ổ loét
+K25.2|Loét dạ dày, cấp tính kèm cả xuất huyết và thủng|loét bao tử, LDD
+K25.3|Loét dạ dày, cấp tính không xuất huyết hoặc thủng|loét bao tử, LDD
+*K25.4|Loét dạ dày, mạn tính hoặc không xác định kèm xuất huyết|loét bao tử, LDD
+*K25.5|Loét dạ dày, mạn tính hoặc không xác định kèm thủng|loét bao tử, LDD, thủng dạ dày, thủng ổ loét
+K25.6|Loét dạ dày, mạn tính hoặc không xác định kèm cả xuất huyết và thủng|loét bao tử, LDD
+K25.7|Loét dạ dày, mạn tính không xuất huyết hoặc thủng|loét bao tử, LDD
+K25.9|Loét dạ dày, không xác định mạn tính hoặc cấp tính, không xuất huyết hoặc thủng|loét bao tử, LDD
+*K26.0|Loét tá tràng, cấp tính kèm xuất huyết|LTT
+*K26.1|Loét tá tràng, cấp tính kèm thủng|LTT, thủng tá tràng, thủng ổ loét
+K26.2|Loét tá tràng, cấp tính kèm cả xuất huyết và thủng|LTT
+K26.3|Loét tá tràng, cấp tính không xuất huyết hoặc thủng|LTT
+*K26.4|Loét tá tràng, mạn tính hoặc không xác định kèm xuất huyết|LTT
+*K26.5|Loét tá tràng, mạn tính hoặc không xác định kèm thủng|LTT, thủng tá tràng, thủng ổ loét
+K26.6|Loét tá tràng, mạn tính hoặc không xác định kèm cả xuất huyết và thủng|LTT
+K26.7|Loét tá tràng, mạn tính không xuất huyết hoặc thủng|LTT
+K26.9|Loét tá tràng, không xác định mạn tính hoặc cấp tính, không xuất huyết hoặc thủng|LTT
+K27.0|Loét dạ dày - tá tràng, vị trí không xác định, cấp tính kèm xuất huyết|LDDTT
+*K27.1|Loét dạ dày - tá tràng, vị trí không xác định, cấp tính kèm thủng|LDDTT, thủng ổ loét
+K27.2|Loét dạ dày - tá tràng, vị trí không xác định, cấp tính kèm cả xuất huyết và thủng|LDDTT
+K27.3|Loét dạ dày - tá tràng, vị trí không xác định, cấp tính không xuất huyết hoặc thủng|LDDTT
+K27.4|Loét dạ dày - tá tràng, vị trí không xác định, mạn tính hoặc không xác định kèm xuất huyết|LDDTT
+*K27.5|Loét dạ dày - tá tràng, vị trí không xác định, mạn tính hoặc không xác định kèm thủng|LDDTT, thủng ổ loét
+K27.6|Loét dạ dày - tá tràng, vị trí không xác định, mạn tính hoặc không xác định kèm cả xuất huyết và thủng|LDDTT
+K27.7|Loét dạ dày - tá tràng, vị trí không xác định, mạn tính không xuất huyết hoặc thủng|LDDTT
+K27.9|Loét dạ dày - tá tràng, không xác định mạn tính hoặc cấp tính, không xuất huyết hoặc thủng|LDDTT
+K28.0|Loét dạ dày - hỗng tràng, cấp tính kèm xuất huyết
+K28.1|Loét dạ dày - hỗng tràng, cấp tính kèm thủng
+K28.2|Loét dạ dày - hỗng tràng, cấp tính kèm cả xuất huyết và thủng
+K28.3|Loét dạ dày - hỗng tràng, cấp tính không xuất huyết hoặc thủng
+K28.4|Loét dạ dày - hỗng tràng, mạn tính hoặc không xác định kèm xuất huyết
+K28.5|Loét dạ dày - hỗng tràng, mạn tính hoặc không xác định kèm thủng
+K28.6|Loét dạ dày - hỗng tràng, mạn tính hoặc không xác định kèm cả xuất huyết và thủng
+K28.7|Loét dạ dày - hỗng tràng, mạn tính không xuất huyết hoặc thủng
+K28.9|Loét dạ dày - hỗng tràng, không xác định mạn tính hoặc cấp tính, không xuất huyết hoặc thủng
+K29.0|Viêm dạ dày xuất huyết cấp tính
+K29.1|Viêm dạ dày cấp tính khác
+K29.2|Viêm dạ dày do rượu
+K29.3|Viêm nông niêm mạc dạ dày mạn tính
+K29.4|Viêm teo niêm mạc dạ dày mạn tính
+K29.5|Viêm dạ dày mạn tính, không xác định
+K29.6|Viêm dạ dày khác
+*K29.7|Viêm dạ dày, không xác định
+K29.8|Viêm tá tràng
+*K29.9|Viêm dạ dày tá tràng, không xác định
+K30|Rối loạn tiêu hoá chức năng [không do loét]
+K31.0|Giãn dạ dày cấp tính
+*K31.1|Hẹp môn vị do phì đại ở người lớn
+K31.2|Hẹp và/hoặc co hẹp dạ dày dạng đồng hồ cát
+K31.3|Co thắt môn vị, không phân loại mục khác
+K31.4|Túi thừa dạ dày
+K31.5|Tắc tá tràng
+K31.6|Rò dạ dày và/hoặc tá tràng
+K31.7|Polyp dạ dày và/hoặc tá tràng
+K31.8|Bệnh xác định khác của dạ dày và/hoặc tá tràng
+K31.9|Bệnh không xác định của dạ dày và/hoặc tá tràng
+*K35.2|Viêm ruột thừa cấp tính kèm viêm phúc mạc toàn bộ|VRT viêm ruột thừa cấp, viêm phúc mạc ruột thừa, vỡ ruột thừa, thủng ruột thừa, VPM
+*K35.3|Viêm ruột thừa cấp tính kèm viêm phúc mạc khu trú|VRT viêm ruột thừa cấp, áp xe ruột thừa, đám quánh ruột thừa, VPM khu trú
+*K35.8|Viêm ruột thừa cấp tính, khác và/hoặc không xác định|VRT viêm ruột thừa cấp
+*K36|Viêm ruột thừa khác|VRT
+*K37|Viêm ruột thừa không xác định|VRT
+K38.0|Tăng sản ruột thừa
+*K38.1|Kết sỏi ở ruột thừa
+K38.2|Túi thừa của ruột thừa
+K38.3|Rò ruột thừa
+K38.8|Bệnh xác định khác của ruột thừa
+K38.9|Bệnh không xác định của ruột thừa
+*K40.0|Thoát vị bẹn hai bên, kèm tắc nghẽn, không hoại thư|TVB, thoát vị nghẹt, thoát vị kẹt
+K40.1|Thoát vị bẹn hai bên, kèm hoại thư|TVB, thoát vị nghẹt, thoát vị kẹt
+*K40.2|Thoát vị bẹn hai bên, không tắc nghẽn hoặc hoại thư|TVB
+*K40.3|Thoát vị bẹn một bên hoặc không xác định, kèm tắc nghẽn, không hoại thư|TVB, thoát vị nghẹt, thoát vị kẹt
+*K40.4|Thoát vị bẹn một bên hoặc không xác định, kèm hoại thư|TVB, thoát vị nghẹt, thoát vị kẹt
+*K40.9|Thoát vị bẹn một bên hoặc không xác định, không tắc nghẽn hoặc hoại thư|TVB
+K41.0|Thoát vị đùi hai bên, kèm tắc nghẽn, không hoại thư|thoát vị nghẹt, thoát vị kẹt
+K41.1|Thoát vị đùi hai bên, kèm hoại thư|thoát vị nghẹt, thoát vị kẹt
+K41.2|Thoát vị đùi hai bên, không tắc nghẽn hoặc hoại thư
+*K41.3|Thoát vị đùi một bên hoặc không xác định, kèm tắc nghẽn, không hoại thư|thoát vị nghẹt, thoát vị kẹt
+K41.4|Thoát vị đùi một bên hoặc không xác định, kèm hoại thư|thoát vị nghẹt, thoát vị kẹt
+*K41.9|Thoát vị đùi một bên hoặc không xác định, không tắc nghẽn hoặc hoại thư
+*K42.0|Thoát vị rốn kèm tắc nghẽn, không hoại thư|TV rốn, thoát vị nghẹt, thoát vị kẹt
+K42.1|Thoát vị rốn kèm hoại thư|TV rốn, thoát vị nghẹt, thoát vị kẹt
+*K42.9|Thoát vị rốn không tắc nghẽn hoặc hoại thư|TV rốn
+*K43.0|Thoát vị qua vết mổ kèm tắc nghẽn, không hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+K43.1|Thoát vị qua vết mổ kèm hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+*K43.2|Thoát vị qua vết mổ không tắc nghẽn hoặc hoại thư|thoát vị thành bụng, thoát vị vết mổ
+K43.3|Thoát vị quanh lỗ mở thông ruột, đường tiết niệu ra da kèm tắc nghẽn, không hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+K43.4|Thoát vị quanh lỗ mở thông ruột, đường tiết niệu ra da kèm hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+K43.5|Thoát vị quanh lỗ mở thông ruột, đường tiết niệu ra da không tắc nghẽn hoặc hoại thư|thoát vị thành bụng, thoát vị vết mổ
+*K43.6|Thoát vị thành bụng khác và/hoặc không xác định kèm tắc nghẽn, không hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+K43.7|Thoát vị thành bụng khác và/hoặc không xác định kèm hoại thư|thoát vị thành bụng, thoát vị vết mổ, thoát vị nghẹt, thoát vị kẹt
+*K43.9|Thoát vị thành bụng khác và/hoặc không xác định không tắc nghẽn hoặc hoại thư|thoát vị thành bụng, thoát vị vết mổ
+K44.0|Thoát vị cơ hoành kèm tắc nghẽn, không hoại thư|thoát vị nghẹt, thoát vị kẹt
+K44.1|Thoát vị cơ hoành kèm hoại thư|thoát vị nghẹt, thoát vị kẹt
+K44.9|Thoát vị cơ hoành, không tắc nghẽn hoặc hoại thư
+K45.0|Thoát vị bụng xác định khác có tắc nghẽn, không hoại thư|thoát vị nghẹt, thoát vị kẹt
+K45.1|Thoát vị bụng xác định khác, có hoại thư|thoát vị nghẹt, thoát vị kẹt
+K45.8|Thoát vị bụng xác định khác, không tắc nghẽn hoặc hoại thư
+K46.0|Thoát vị bụng không xác định có tắc nghẽn, không hoại thư|thoát vị nghẹt, thoát vị kẹt
+K46.1|Thoát vị bụng không xác định, có hoại thư|thoát vị nghẹt, thoát vị kẹt
+K46.9|Thoát vị bụng không xác định, không tắc nghẽn hoặc hoại thư
+K50.0|Bệnh Crohn của ruột non
+K50.1|Bệnh Crohn của đại tràng
+K50.8|Bệnh Crohn khác
+K50.9|Bệnh Crohn, không xác định
+K51.0|Viêm loét toàn ruột (mạn tính)
+K51.2|Viêm loét trực tràng (mạn tính)
+K51.3|Viêm loét đại tràng sigma (mạn tính)
+K51.4|Nhiều polyp viêm
+K51.5|Viêm loét đại tràng trái
+K51.8|Viêm loét khác của đại tràng
+K51.9|Viêm loét không xác định của đại tràng
+K52.0|Viêm dạ dày - ruột và/hoặc đại tràng do xạ trị
+K52.1|Viêm dạ dày - ruột và/hoặc đại tràng do nhiễm độc
+K52.2|Viêm dạ dày - ruột và/hoặc đại tràng do dị ứng và/hoặc do chế độ ăn
+K52.3|Viêm đại tràng không xác định
+K52.8|Viêm dạ dày - ruột và/hoặc đại tràng xác định khác không do nhiễm trùng
+K52.9|Viêm dạ dày - ruột và/hoặc viêm đại tràng không do nhiễm trùng, không xác định
+K55.0|Rối loạn mạch máu ruột cấp tính
+K55.1|Rối loạn mạch máu ruột mạn tính
+K55.2|Loạn sản mạch máu của đại tràng
+K55.3|Loạn sản mạch máu của ruột non
+K55.8|Rối loạn khác của mạch máu ruột
+K55.9|Rối loạn của mạch máu ruột, không xác định
+*K56.0|Liệt ruột|liệt ruột cơ năng
+*K56.1|Lồng ruột
+*K56.2|Xoắn ruột
+K56.3|Tắc ruột do sỏi
+K56.4|Nghẹt ruột khác
+*K56.5|Dính ruột [thành dải] có tắc nghẽn|tắc ruột do dính, dây chằng
+*K56.6|Tắc nghẽn ruột khác và/hoặc không xác định|bán tắc ruột, tắc ruột do u, tắc ruột do bã thức ăn
+*K56.7|Tắc ruột, không xác định|bán tắc ruột
+K57.0|Bệnh túi thừa của ruột non, có thủng và/hoặc áp xe|viêm túi thừa
+K57.1|Bệnh túi thừa của ruột non, không thủng hoặc áp xe|viêm túi thừa
+*K57.2|Bệnh túi thừa của đại tràng có thủng và/hoặc áp xe|viêm túi thừa
+*K57.3|Bệnh túi thừa của đại tràng không thủng hoặc áp xe|viêm túi thừa
+K57.4|Bệnh túi thừa của cả ruột non và đại tràng có thủng và/hoặc áp xe|viêm túi thừa
+K57.5|Bệnh túi thừa của cả ruột non và đại tràng không thủng hoặc áp xe|viêm túi thừa
+K57.8|Bệnh túi thừa của ruột, phần không xác định, kèm thủng và áp xe|viêm túi thừa
+K57.9|Bệnh túi thừa của ruột, phần không xác định, không thủng hoặc áp xe|viêm túi thừa
+K58.1|Hội chứng ruột kích thích thể tiêu chảy (IBS-D)
+K58.2|Hội chứng ruột kích thích thể táo bón (IBS-C)
+K58.3|Hội chứng ruột kích thích hỗn hợp (IBS-M)
+K58.8|Hội chứng khác và/hoặc không xác định của ruột kích thích
+*K59.0|Táo bón
+K59.1|Tiêu chảy chức năng
+K59.2|Rối loạn ruột do nguyên nhân thần kinh, không phân loại mục khác
+K59.3|Phình đại tràng, không phân loại mục khác
+K59.4|Co thắt hậu môn
+K59.8|Rối loạn chức năng xác định khác của ruột
+K59.9|Rối loạn chức năng của ruột, không xác định
+K60.0|Nứt kẽ hậu môn cấp tính
+*K60.1|Nứt kẽ hậu môn mạn tính
+K60.2|Nứt ống hậu môn, không xác định
+*K60.3|Rò hậu môn
+K60.4|Rò trực tràng
+K60.5|Rò hậu môn trực tràng
+*K61.0|Áp xe hậu môn|áp xe cạnh hậu môn, áp xe quanh hậu môn
+K61.1|Áp xe trực tràng
+*K61.2|Áp xe hậu môn trực tràng
+K61.3|Áp xe ụ ngồi - trực tràng
+K61.4|Áp xe trong cơ thắt hậu môn
+K62.0|Polyp hậu môn
+*K62.1|Polyp trực tràng
+K62.2|Sa hậu môn
+*K62.3|Sa trực tràng qua hậu môn [toàn bộ]|sa trực tràng
+K62.4|Hẹp trực tràng và/hoặc ống hậu môn
+K62.5|Xuất huyết hậu môn và/hoặc trực tràng
+K62.6|Loét hậu môn và/hoặc trực tràng
+K62.7|Viêm trực tràng do xạ trị
+K62.8|Bệnh xác định khác của hậu môn và/hoặc trực tràng
+K62.9|Bệnh của hậu môn và/hoặc trực tràng, không xác định
+K63.0|Áp xe ruột
+*K63.1|Thủng ruột (không do chấn thương)|thủng ruột non, thủng đại tràng
+K63.2|Rò ruột
+K63.3|Loét ruột
+K63.4|Sa ruột
+*K63.5|Polyp đại tràng
+K63.8|Bệnh xác định khác của ruột
+K63.9|Bệnh của ruột, không xác định
+*K64.0|Bệnh trĩ độ I
+*K64.1|Bệnh trĩ độ II
+*K64.2|Bệnh trĩ độ III
+*K64.3|Bệnh trĩ độ IV
+K64.4|Vạt da thừa còn sót lại của bệnh trĩ
+*K64.5|Huyết khối tĩnh mạch quanh hậu môn|trĩ tắc mạch, trĩ huyết khối
+*K64.8|Bệnh trĩ xác định khác|trĩ hỗn hợp, trĩ nội, trĩ ngoại
+*K64.9|Bệnh trĩ, không xác định
+*K65.0|Viêm phúc mạc cấp tính|VPM
+K65.8|Viêm phúc mạc khác|VPM
+K65.9|Viêm phúc mạc, không xác định|VPM
+*K66.0|Dính phúc mạc|dính ruột, dính phúc mạc
+*K66.1|Tràn máu phúc mạc|máu trong ổ bụng
+K66.2|Xơ hoá vùng sau phúc mạc
+K66.8|Rối loạn xác định khác của phúc mạc
+K66.9|Rối loạn của phúc mạc, không xác định
+K67.0|Viêm phúc mạc do nhiễm chlamydia
+K67.1|Viêm phúc mạc do bệnh lậu cầu khuẩn
+K67.2|Viêm phúc mạc do bệnh giang mai
+K67.3|Viêm phúc mạc do bệnh lao
+K67.8|Rối loạn khác của phúc mạc do bệnh nhiễm trùng phân loại mục khác
+K70.0|Gan nhiễm mỡ do rượu
+K70.1|Viêm gan do rượu
+K70.2|Bệnh xơ gan và/hoặc xơ hoá gan do rượu
+K70.3|Xơ gan do rượu
+K70.4|Suy gan do rượu
+K70.9|Bệnh gan do rượu, không xác định
+K71.0|Bệnh gan nhiễm độc kèm ứ mật
+K71.1|Bệnh gan nhiễm độc kèm hoại tử gan
+K71.2|Bệnh gan nhiễm độc kèm viêm gan cấp tính
+K71.3|Bệnh gan nhiễm độc kèm viêm gan mạn tính dai dẳng
+K71.4|Bệnh gan nhiễm độc kèm viêm tiểu thuỳ gan mạn tính
+K71.5|Bệnh gan nhiễm độc kèm viêm gan mạn tính hoạt động
+K71.6|Bệnh gan nhiễm độc kèm viêm gan, không phân loại mục khác
+K71.7|Bệnh gan nhiễm độc kèm xơ hoá gan và/hoặc xơ gan
+K71.8|Bệnh gan nhiễm độc kèm rối loạn khác của gan
+K71.9|Bệnh gan nhiễm độc, không xác định
+K72.0|Suy gan cấp tính và/hoặc bán cấp tính
+K72.1|Suy gan mạn tính
+K72.9|Suy gan, không xác định
+K73.0|Viêm gan mạn tính dai dẳng, không phân loại mục khác
+K73.1|Viêm tiểu thuỳ gan mạn, không phân loại mục khác
+K73.2|Viêm gan mạn tính hoạt động, không phân loại mục khác
+K73.8|Viêm gan mạn tính khác, không phân loại mục khác
+K73.9|Viêm gan mạn tính, không xác định
+K74.0|Xơ hoá gan
+K74.1|Xơ cứng gan
+K74.2|Gan xơ hoá với gan xơ cứng
+K74.3|Xơ gan mật nguyên phát
+K74.4|Xơ gan mật thứ phát
+K74.5|Xơ gan mật, không xác định
+*K74.6|Xơ gan khác và/hoặc không xác định|xơ gan
+*K75.0|Áp xe gan
+K75.1|Viêm tĩnh mạch cửa
+K75.2|Viêm gan phản ứng, không xác định cụ thể
+K75.3|Viêm gan dạng u hạt, không phân loại mục khác
+K75.4|Viêm gan tự miễn
+K75.8|Bệnh viêm gan xác định khác
+K75.9|Bệnh viêm gan, không xác định
+K76.0|Gan (biến đổi của gan) nhiễm mỡ, không phân loại mục khác
+K76.1|Xung huyết thụ động mạn tính ở gan
+K76.2|Hoại tử xuất huyết vùng trung tâm của gan
+K76.3|Nhồi máu gan
+K76.4|Rối loạn mạch máu trong gan
+K76.5|Bệnh tắc tĩnh mạch trên gan
+*K76.6|Tăng áp lực tĩnh mạch cửa|TALTMC
+K76.7|Hội chứng gan - thận
+K76.8|Bệnh xác định khác của gan
+K76.9|Bệnh của gan, không xác định
+K77.0|Rối loạn gan do bệnh nhiễm trùng và/hoặc ký sinh trùng phân loại mục khác
+K77.8|Rối loạn gan do bệnh khác phân loại mục khác
+*K80.0|Sỏi túi mật kèm viêm túi mật cấp tính|VTM
+*K80.1|Sỏi túi mật kèm viêm túi mật khác|VTM
+*K80.2|Sỏi túi mật không kèm viêm túi mật
+*K80.3|Sỏi ống mật kèm viêm đường dẫn mật|sỏi ống mật chủ, sỏi OMC, sỏi đường mật, sỏi gan
+*K80.4|Sỏi đường mật kèm viêm túi mật|sỏi ống mật chủ, sỏi OMC
+*K80.5|Sỏi mật không viêm đường dẫn mật hay viêm túi mật|sỏi ống mật chủ, sỏi OMC, sỏi đường mật, sỏi gan, sỏi trong gan
+K80.8|Sỏi mật khác
+*K81.0|Viêm túi mật cấp tính|VTM
+*K81.1|Viêm túi mật mạn tính|VTM
+K81.8|Viêm túi mật thể khác|VTM
+K81.9|Viêm túi mật, không xác định|VTM
+K82.0|Tắc nghẽn túi mật
+K82.1|Tràn dịch túi mật
+*K82.2|Thủng túi mật|thủng túi mật, viêm phúc mạc mật
+K82.3|Rò túi mật
+K82.4|Tích tụ cholesterol ở túi mật
+K82.8|Bệnh xác định khác của túi mật
+K82.9|Bệnh của túi mật, không xác định
+*K83.0|Viêm đường mật|nhiễm trùng đường mật, viêm đường mật cấp
+*K83.1|Tắc nghẽn ống mật|tắc mật, vàng da tắc mật, hẹp đường mật
+K83.2|Thủng đường mật
+K83.3|Rò đường mật
+K83.4|Co thắt cơ vòng Oddi
+K83.5|U nang đường mật
+K83.8|Bệnh xác định khác của đường mật
+K83.9|Bệnh đường mật, không xác định
+K85.0|Viêm tuỵ cấp tính vô căn|VTC
+*K85.1|Viêm tuỵ cấp tính do mật|VTC
+*K85.2|Viêm tuỵ cấp tính do rượu|VTC
+K85.3|Viêm tuỵ cấp tính do thuốc|VTC
+K85.8|Viêm tuỵ cấp tính khác|VTC
+*K85.9|Viêm tuỵ cấp tính, không xác định|VTC
+K86.0|Viêm tuỵ mạn tính do rượu
+*K86.1|Viêm tuỵ mạn tính thể khác
+K86.2|U nang của tuỵ
+*K86.3|U nang giả của tuỵ|nang giả tụy
+K86.8|Bệnh xác định khác của tuỵ
+K86.9|Bệnh của tuỵ, không xác định
+K87.0|Rối loạn của túi mật và/hoặc đường mật do bệnh phân loại mục khác
+K87.1|Rối loạn của tuỵ do bệnh phân loại mục khác
+K90.0|Bệnh Coeliac
+K90.1|Bệnh tiêu chảy nhiệt đới
+K90.2|Hội chứng quai ruột, không phân loại mục khác
+K90.3|Tiêu chảy phân mỡ [suy giảm hấp thu chất béo] do tuỵ
+K90.4|Suy giảm hấp thu do không dung nạp, không phân loại mục khác
+K90.8|Suy giảm hấp thu khác ở ruột
+K90.9|Suy giảm hấp thu ở ruột, không xác định
+K91.0|Nôn sau phẫu thuật đường tiêu hoá
+K91.1|Hội chứng sau phẫu thuật dạ dày
+K91.2|Suy giảm hấp thu sau phẫu thuật, không phân loại mục khác
+*K91.3|Tắc nghẽn ruột sau mổ|tắc ruột sau mổ, dính ruột sau mổ
+K91.4|Suy chức năng sau mở thông đại tràng và/hoặc mở thông ruột non ra da
+K91.5|Hội chứng sau cắt túi mật
+K91.8|Rối loạn khác của hệ tiêu hoá sau can thiệp, không phân loại mục khác
+K91.9|Rối loạn của hệ tiêu hoá sau can thiệp, không xác định
+*K92.0|Nôn ra máu [thổ huyết]|XHTH
+*K92.1|Đi ngoài phân đen|XHTH, tiêu phân đen
+*K92.2|Xuất huyết tiêu hoá [phân đen], không xác định|XHTH, xuất huyết tiêu hóa trên, xuất huyết tiêu hóa dưới
+K92.8|Bệnh xác định khác của hệ tiêu hoá
+K92.9|Bệnh của hệ tiêu hoá, không xác định
+K93.0|Rối loạn ở ruột, phúc mạc và/hoặc tuyến mạc treo do bệnh lao
+K93.1|Phình đại tràng do bệnh Chagas
+K93.8|Rối loạn cơ quan tiêu hoá xác định khác do bệnh phân loại mục khác
+L00|Hội chứng bong vảy da do tụ cầu khuẩn
+L01.0|Bệnh chốc [bất kỳ vi sinh vật nào] [bất kỳ vị trí nào]
+L01.1|Chốc hoá của bệnh da khác
+L02.0|Áp xe da, nhọt và/hoặc cụm nhọt ở mặt|áp xe, nhọt
+L02.1|Áp xe da, nhọt và/hoặc cụm nhọt ở cổ|áp xe, nhọt
+*L02.2|Áp xe da, nhọt và/hoặc cụm nhọt ở thân|áp xe, nhọt
+*L02.3|Áp xe da, nhọt và/hoặc cụm nhọt ở mông|áp xe, nhọt
+*L02.4|Áp xe da, nhọt và/hoặc cụm nhọt ở chi|áp xe, nhọt
+L02.8|Áp xe da, nhọt và/hoặc cụm nhọt ở vị trí khác|áp xe, nhọt
+L02.9|Áp xe da, nhọt và/hoặc cụm nhọt, không xác định|áp xe, nhọt
+L03.0|Viêm mô bào ở ngón tay và/hoặc ngón chân|viêm tấy, viêm mô tế bào
+*L03.1|Viêm mô bào ở phần khác của chi|viêm tấy, viêm mô tế bào
+L03.2|Viêm mô bào ở mặt|viêm tấy, viêm mô tế bào
+*L03.3|Viêm mô bào ở thân|viêm tấy, viêm mô tế bào
+L03.8|Viêm mô bào ở vị trí khác|viêm tấy, viêm mô tế bào
+L03.9|Viêm mô bào, không xác định|viêm tấy, viêm mô tế bào
+L04.0|Viêm hạch bạch huyết cấp tính ở mặt, đầu và/hoặc cổ
+L04.1|Viêm hạch bạch huyết cấp tính ở thân
+L04.2|Viêm hạch bạch huyết cấp tính ở chi trên
+L04.3|Viêm hạch bạch huyết cấp tính ở chi dưới
+L04.8|Viêm hạch bạch huyết cấp tính ở vị trí khác
+L04.9|Viêm hạch bạch huyết cấp tính, không xác định
+*L05.0|U nang lông có áp xe|nang lông cùng cụt, xoang lông
+*L05.9|U nang lông không áp xe|nang lông cùng cụt, xoang lông
+L08.0|Viêm da mủ
+L08.1|Bệnh viêm đỏ nếp kẽ do vi khuẩn [Erythrasma]
+L08.8|Nhiễm trùng khu trú xác định khác ở da và/hoặc mô dưới da
+L08.9|Nhiễm trùng khu trú ở da và/hoặc mô dưới da, không xác định
+L72.0|Kén/nang thượng bì|u bã đậu, nang bã
+*L72.1|Kén ở nang lông/tuyến bã|u bã đậu, nang bã
+L72.2|Đa u nang tuyến bã|u bã đậu, nang bã
+L72.8|Kén/nang khác ở da và/hoặc mô dưới da|u bã đậu, nang bã
+L72.9|Kén nang lông ở da và/hoặc mô dưới da, không xác định|u bã đậu, nang bã
+L89.0|Loét do tì đè và/hoặc loét vùng đè ép giai đoạn I|loét tì đè, loét tỳ đè, loét cùng cụt
+L89.1|Loét do tì đè, độ II|loét tì đè, loét tỳ đè, loét cùng cụt
+L89.2|Loét do tì đè, độ III|loét tì đè, loét tỳ đè, loét cùng cụt
+L89.3|Loét do tì đè, độ IV|loét tì đè, loét tỳ đè, loét cùng cụt
+L89.9|Loét do tì đè và/hoặc loét vùng đè ép, không xác định|loét tì đè, loét tỳ đè, loét cùng cụt
+L97|Loét chi dưới, không phân loại mục khác
+L98.0|U hạt sinh mủ
+L98.1|Viêm da tự tạo
+L98.2|Bệnh da tăng bạch cầu trung tính có sốt [Hội chứng Sweet]
+L98.3|Viêm mô bào tăng bạch cầu ái toan [Hội chứng Wells]
+L98.4|Loét da mạn tính, không phân loại mục khác
+L98.5|Bệnh thoái hoá nhày ở da
+L98.6|Rối loạn có thâm nhiễm khác ở da và/hoặc mô dưới da
+L98.7|Tình trạng thừa da và/hoặc thừa mô dưới da
+L98.8|Rối loạn xác định khác ở da và/hoặc mô dưới da
+L98.9|Rối loạn ở da và/hoặc mô dưới da, không xác định
+M43.0|Bệnh lý gãy eo đốt sống
+*M43.1|Bệnh lý trượt đốt sống do gãy eo|trượt đốt sống, trượt cột sống thắt lưng
+M43.2|Dính cột sống khác
+M43.3|Trượt khớp trục - đội tái phát có bệnh lý tuỷ sống
+M43.4|Trượt khớp trục - đội tái phát khác
+M43.5|Trượt đốt sống tái phát khác
+M43.6|Vẹo cổ
+M43.8|Bệnh lý biến dạng cột sống (mắc phải) xác định khác
+M43.9|Bệnh lý biến dạng cột sống (mắc phải), không xác định
+M47.0|Hội chứng chèn ép động mạch đốt sống và/hoặc động mạch cột sống trước
+M47.1|Thoái hoá đốt sống khác kèm bệnh lý tuỷ sống
+M47.2|Thoái hoá đốt sống khác kèm bệnh lý rễ thần kinh
+M47.8|Thoái hoá đốt sống khác
+M47.9|Thoái hoá đốt sống, không xác định
+*M48.0|Hẹp ống sống|hẹp ống sống thắt lưng, hẹp ống sống cổ
+M48.1|Dính khớp do tăng tạo xương [Forestier]
+M48.2|Bệnh quá phát gai sau
+M48.3|Bệnh lý đốt sống do chấn thương
+M48.4|Gãy đốt sống do mỏi
+M48.5|Xẹp đốt sống, không phân loại mục khác
+M48.8|Bệnh lý đốt sống xác định khác
+M48.9|Bệnh lý đốt sống, không xác định
+M50.0|Rối loạn đĩa đệm đốt sống cổ có bệnh lý tuỷ sống
+*M50.1|Rối loạn đĩa đệm cột sống cổ có bệnh lý rễ thần kinh|thoát vị đĩa đệm cổ, TVĐĐ, TVDD
+*M50.2|Thoát vị đĩa đệm cột sống cổ khác|TVĐĐ, TVDD
+M50.3|Thoái hoá đĩa đệm đốt sống cổ khác
+M50.8|Rối loạn đĩa đệm đốt sống cổ khác
+M50.9|Rối loạn đĩa đệm đốt sống cổ, không xác định
+M51.0|Rối loạn đĩa đệm cột sống thắt lưng và/hoặc đĩa đệm đốt sống khác kèm bệnh lý tuỷ sống
+*M51.1|Rối loạn đĩa đệm cột sống thắt lưng và/hoặc đĩa đệm đốt sống khác kèm bệnh lý rễ thần kinh|thoát vị đĩa đệm thắt lưng, TVĐĐ, TVDD
+*M51.2|Thoát vị đĩa đệm cột sống xác định khác|thoát vị đĩa đệm, TVĐĐ, TVDD
+M51.3|Thoái hoá đĩa đệm cột sống xác định khác
+M51.4|Thoát vị đĩa đệm nội xốp [nốt Schmorl]
+M51.8|Rối loạn xác định khác của đĩa đệm cột sống khác
+M51.9|Rối loạn đĩa đệm cột sống, không xác định
+M54.0|Viêm mô mỡ dưới da tại vùng cổ và/hoặc lưng
+M54.1|Bệnh lý rễ thần kinh
+M54.2|Đau vai gáy
+M54.3|Đau dây thần kinh hông to [dây thần kinh toạ]
+*M54.4|Đau thắt lưng cấp tính kèm đau dây thần kinh hông to [dây thần kinh toạ]|đau thần kinh tọa, đau thắt lưng hông
+*M54.5|Đau thắt lưng|đau lưng
+M54.6|Đau cột sống lồng ngực
+M54.8|Đau lưng khác
+M54.9|Đau lưng, không xác định
+M72.0|U xơ màng cơ bàn tay [Dupuytren]
+M72.1|U xơ phía sau khớp ngón tay và/hoặc ngón chân [nốt Garrod]
+M72.2|U xơ màng cơ bàn chân
+M72.4|Bệnh u xơ giả sarcoma
+M72.6|Viêm hoại tử cân mạc|viêm cân hoại tử
+M72.8|Rối loạn nguyên bào sợi khác
+M72.9|Rối loạn nguyên bào sợi, không xác định
+*N10|Viêm ống thận mô kẽ cấp tính|viêm thận bể thận cấp
+N11.0|Viêm thận bể thận mạn tính liên quan đến trào ngược không tắc nghẽn|viêm thận bể thận mạn
+N11.1|Viêm thận bể thận mạn tính do tắc nghẽn|viêm thận bể thận mạn
+N11.8|Viêm ống thận mô kẽ mạn tính khác|viêm thận bể thận mạn
+*N11.9|Viêm mô kẽ ống thận mạn tính, không xác định|viêm thận bể thận mạn
+N12|Viêm ống thận mô kẽ, không xác định cấp tính hay mạn tính
+*N13.0|Thận ứ nước kèm hẹp khúc nối bể thận niệu quản|ứ nước thận, thận ứ nước
+N13.1|Thận ứ nước kèm co hẹp khúc nối bể thận niệu quản, không phân loại mục khác|ứ nước thận, thận ứ nước
+*N13.2|Thận ứ nước kèm tắc nghẽn thận và/hoặc niệu quản|ứ nước thận, thận ứ nước
+*N13.3|Thận ứ nước khác và/hoặc không xác định|ứ nước thận, thận ứ nước
+N13.4|Niệu quản ứ nước|ứ nước thận, thận ứ nước
+N13.5|Niệu quản gấp khúc và/hoặc co hẹp không gây ứ nước thận|ứ nước thận, thận ứ nước
+*N13.6|Thận ứ mủ|ứ nước thận, thận ứ nước, ứ mủ thận
+N13.7|Bệnh lý tiết niệu liên quan đến trào ngược bàng quang niệu quản|ứ nước thận, thận ứ nước
+N13.8|Bệnh lý tiết niệu do tắc nghẽn và/hoặc trào ngược khác|ứ nước thận, thận ứ nước
+N13.9|Bệnh lý tiết niệu do tắc nghẽn và/hoặc trào ngược, không xác định|ứ nước thận, thận ứ nước
+N15.0|Bệnh lý thận vùng Balkan
+*N15.1|Áp xe thận và/hoặc quanh thận
+N15.8|Bệnh ống thận mô kẽ xác định khác
+N15.9|Bệnh ống thận mô kẽ, không xác định
+N17.0|Suy thận cấp tính kèm hoại tử ống thận
+N17.1|Suy thận cấp tính kèm hoại tử cấp tính vỏ thận
+N17.2|Suy thận cấp tính kèm hoại tử tuỷ thận
+N17.8|Suy thận cấp tính khác
+*N17.9|Suy thận cấp tính, không xác định
+N18.1|Bệnh thận mạn tính, giai đoạn 1|suy thận mạn, STM, bệnh thận mạn
+N18.2|Bệnh thận mạn tính, giai đoạn 2|suy thận mạn, STM, bệnh thận mạn
+N18.3|Bệnh thận mạn tính, giai đoạn 3|suy thận mạn, STM, bệnh thận mạn
+N18.4|Bệnh thận mạn tính, giai đoạn 4|suy thận mạn, STM, bệnh thận mạn
+N18.5|Bệnh thận mạn tính, giai đoạn 5|suy thận mạn, STM, bệnh thận mạn
+*N18.9|Bệnh thận mạn tính, không xác định|suy thận mạn, STM, bệnh thận mạn
+N19|Suy thận không xác định
+*N20.0|Sỏi thận|sỏi niệu
+*N20.1|Sỏi niệu quản|sỏi niệu, sỏi NQ
+*N20.2|Sỏi thận kèm sỏi niệu quản|sỏi niệu, sỏi NQ
+*N20.9|Sỏi tiết niệu, không xác định|sỏi niệu
+*N21.0|Sỏi bàng quang|sỏi BQ
+*N21.1|Sỏi niệu đạo
+N21.8|Sỏi đường tiết niệu dưới khác
+N21.9|Sỏi đường tiết niệu dưới, không xác định
+N22.0|Sỏi tiết niệu do bệnh sán máng [bilharziasis]
+N22.8|Sỏi đường tiết niệu do bệnh khác phân loại mục khác
+*N23|Cơn đau quặn thận không xác định|cơn đau quặn thận
+N25.0|Loạn dưỡng xương do thận
+N25.1|Đái tháo nhạt do thận
+N25.8|Rối loạn khác do suy giảm chức năng ống thận
+N25.9|Rối loạn do suy giảm chức năng ống thận, không xác định
+N26|Thận nhỏ không xác định
+N27.0|Thận teo nhỏ, một bên
+N27.1|Thận teo nhỏ, hai bên
+N27.9|Thận teo nhỏ, không xác định
+N28.0|Thiếu máu cực bộ và/hoặc nhồi máu thận
+*N28.1|U nang thận
+N28.8|Rối loạn xác định khác của thận và/hoặc niệu quản
+N28.9|Rối loạn của thận và/hoặc niệu quản, không xác định
+N29.0|Bệnh thận do bệnh giang mai giai đoạn muộn
+N29.1|Rối loạn khác của thận và/hoặc niệu quản do các bệnh nhiễm trùng và/hoặc ký sinh trùng phân loại mục khác
+N29.8|Rối loạn khác của thận và/hoặc niệu quản do bệnh khác phân loại mục khác
+*N30.0|Viêm bàng quang cấp tính
+N30.1|Viêm bàng quang kẽ (mạn tính)
+N30.2|Viêm bàng quang mạn tính khác
+N30.3|Viêm tam giác bàng quang
+N30.4|Viêm bàng quang do xạ trị
+N30.8|Viêm khác của bàng quang
+N30.9|Viêm bàng quang, không xác định
+N31.0|Bàng quang thần kinh do tổn thương ở não và/hoặc tuỷ sống, không phân loại mục khác
+N31.1|Bàng quang thần kinh phản xạ do tổn thương phần trên của tuỷ sống, không phân loại mục khác
+N31.2|Bàng quang thần kinh mất trương lực, không phân loại mục khác
+N31.8|Rối loạn chức năng khác của thần kinh - cơ bàng quang
+*N31.9|Rối loạn chức năng của thần kinh - cơ bàng quang, không xác định
+*N32.0|Chít hẹp cổ bàng quang|hẹp cổ bàng quang
+N32.1|Rò bàng quang - ruột
+N32.2|Rò bàng quang, không phân loại mục khác
+N32.3|Túi thừa bàng quang
+N32.4|Vỡ bàng quang, không do chấn thương
+N32.8|Rối loạn xác định khác của bàng quang
+N32.9|Rối loạn bàng quang, không xác định
+N33.0|Viêm bàng quang do bệnh lao
+N33.8|Rối loạn của bàng quang do bệnh phân loại mục khác
+N34.0|Áp xe niệu đạo
+N34.1|Viêm niệu đạo không xác định cụ thể
+N34.2|Viêm niệu đạo khác
+N34.3|Hội chứng niệu đạo, không xác định
+N35.0|Co hẹp niệu đạo sau chấn thương|hẹp niệu đạo
+N35.1|Co hẹp niệu đạo sau nhiễm trùng, không phân loại mục khác|hẹp niệu đạo
+N35.8|Co hẹp niệu đạo khác|hẹp niệu đạo
+*N35.9|Co hẹp niệu đạo, không xác định|hẹp niệu đạo
+N36.0|Rò niệu đạo
+N36.1|Túi thừa niệu đạo
+N36.2|Núm niệu đạo
+N36.3|Sa niêm mạc niệu đạo
+N36.8|Rối loạn xác định khác của niệu đạo
+N36.9|Rối loạn niệu đạo, không xác định
+N37.0|Viêm niệu đạo do bệnh phân loại mục khác
+N37.8|Rối loạn niệu đạo khác do bệnh phân loại mục khác
+*N39.0|Nhiễm trùng đường tiết niệu, vị trí không xác định|nhiễm khuẩn tiết niệu, NTT, nhiễm trùng tiểu
+N39.1|Protein niệu [tiểu đạm] dai dẳng, không xác định
+N39.2|Protein niệu [tiểu đạm] tư thế đứng, không xác định
+N39.3|Tiểu tiện không tự chủ do căng thẳng
+N39.4|Tiểu tiện không tự chủ xác định khác
+N39.8|Rối loạn xác định khác của hệ tiết niệu
+N39.9|Rối loạn hệ tiết niệu, không xác định
+*N40|Phì đại [tăng sản] tuyến tiền liệt|u xơ tuyến tiền liệt, bướu tuyến tiền liệt, tăng sản lành tính, BPH
+*N41.0|Viêm tuyến tiền liệt cấp tính
+N41.1|Viêm tuyến tiền liệt mạn tính
+*N41.2|Áp xe tuyến tiền liệt
+N41.3|Viêm tuyến tiền liệt - bàng quang
+N41.8|Bệnh viêm khác của tuyến tiền liệt
+N41.9|Bệnh viêm tuyến tiền liệt, không xác định
+N42.0|Sỏi tuyến tiền liệt
+N42.1|Xung huyết và/hoặc xuất huyết tuyến tiền liệt
+N42.2|Teo tuyến tiền liệt
+N42.3|Loạn sản tuyến tiền liệt
+N42.8|Rối loạn xác định khác của tuyến tiền liệt
+N42.9|Rối loạn tuyến tiền liệt, không xác định
+N43.0|Tràn dịch màng tinh hoàn nang hoá|tràn dịch tinh mạc
+N43.1|Tràn dịch màng tinh hoàn nhiễm trùng|tràn dịch tinh mạc
+N43.2|Tràn dịch màng tinh hoàn khác|tràn dịch tinh mạc
+*N43.3|Tràn dịch màng tinh hoàn, không xác định|tràn dịch tinh mạc, tràn dịch tinh mạc, TDTM
+N43.4|Nang mào tinh hoàn|tràn dịch tinh mạc
+*N44|Xoắn tinh hoàn|xoắn thừng tinh
+*N45.0|Viêm tinh hoàn, viêm mào tinh hoàn và/hoặc viêm tinh hoàn - mào tinh hoàn kèm áp xe|viêm mào tinh
+*N45.9|Viêm tinh hoàn, mào tinh hoàn và/hoặc viêm tinh hoàn - mào tinh hoàn không kèm áp xe|viêm mào tinh
+N46|Vô sinh ở nam giới
+*N47|Bao quy đầu dài, hẹp bao quy đầu và/hoặc thắt nghẹt bao quy đầu|hẹp bao quy đầu, dài bao quy đầu
+N48.0|Bạch sản dương vật
+*N48.1|Viêm bao quy đầu
+N48.2|Rối loạn viêm khác của dương vật
+N48.3|Chứng cương đau dương vật
+N48.4|Bất lực do nguyên nhân thực tổn
+N48.5|Loét dương vật
+N48.6|Xơ cứng dương vật
+N48.8|Rối loạn xác định khác của dương vật
+N48.9|Rối loạn dương vật, không xác định
+N49.0|Rối loạn viêm của túi tinh
+N49.1|Rối loạn viêm của thừng tinh, màng tinh và/hoặc ống dẫn tinh
+N49.2|Rối loạn viêm của bìu
+N49.8|Rối loạn viêm của các cơ quan xác định khác của cơ quan sinh dục nam
+N49.9|Rối loạn viêm không xác định của cơ quan sinh dục nam
+N50.0|Teo tinh hoàn
+N50.1|Rối loạn mạch máu của cơ quan sinh dục nam
+N50.8|Rối loạn xác định khác của cơ quan sinh dục nam
+N50.9|Rối loạn cơ quan sinh dục nam, không xác định
+N51.0|Rối loạn tuyến tiền liệt do bệnh phân loại mục khác
+N51.1|Rối loạn tinh hoàn và/hoặc mào tinh hoàn do bệnh phân loại mục khác
+N51.2|Viêm quy đầu do bệnh phân loại mục khác
+N51.8|Rối loạn khác của cơ quan sinh dục nam do bệnh phân loại mục khác
+N60.0|U nang đơn độc của vú|u vú lành
+N60.1|U nang tuyến vú lan toả|u vú lành
+N60.2|U xơ tuyến vú|u vú lành
+N60.3|Xơ teo tuyến vú|u vú lành
+N60.4|Giãn ống tuyến vú|u vú lành
+N60.8|Loạn sản lành tính khác của tuyến vú|u vú lành
+N60.9|Loạn sản lành tính của tuyến vú, không xác định|u vú lành
+N61|Rối loạn viêm của vú|áp xe vú, viêm vú
+N62|Phì đại vú
+N63|Khối u không xác định ở vú
+N64.0|Nứt và/hoặc rò ở núm vú
+N64.1|Hoại tử mỡ của vú
+N64.2|Teo vú
+N64.3|Tiết sữa không liên quan đến sinh đẻ
+N64.4|Đau vú
+N64.5|Dấu hiệu và/hoặc triệu chứng khác ở vú
+N64.8|Rối loạn xác định khác của vú
+N64.9|Rối loạn của vú, không xác định
+N83.0|U nang nang trứng
+N83.1|U nang hoàng thể
+N83.2|U nang buồng trứng khác và/hoặc không xác định
+N83.3|Teo buồng trứng và/hoặc teo vòi trứng mắc phải
+N83.4|Thoát vị và/hoặc sa buồng trứng và/hoặc vòi trứng
+N83.5|Xoắn buồng trứng, cuống trứng và/hoặc vòi trứng|xoắn nang buồng trứng
+N83.6|Vòi trứng ứ máu
+N83.7|Khối máu tụ trong dây chằng rộng
+N83.8|Rối loạn khác không do viêm của buồng trứng, vòi trứng và/hoặc dây chằng rộng
+N83.9|Rối loạn không do viêm của buồng trứng, vòi trứng và/hoặc dây chằng rộng, không xác định
+N99.0|Suy thận sau can thiệp
+N99.1|Co hẹp niệu đạo sau can thiệp
+N99.2|Dính âm đạo sau phẫu thuật
+N99.3|Sa vòm âm đạo sau cắt bỏ tử cung
+N99.4|Dính phúc mạc chậu sau can thiệp
+N99.5|Hoạt động kém của các lỗ mở thông ngoài da của đường tiết niệu
+N99.8|Rối loạn khác của hệ sinh dục tiết niệu sau can thiệp
+N99.9|Rối loạn của hệ sinh dục tiết niệu sau can thiệp, không xác định
+Q01.0|Dị tật thoát vị não thuỳ trán
+Q01.1|Dị tật thoát vị não qua vùng mũi trán
+Q01.2|Dị tật thoát vị não vùng chẩm
+Q01.8|Dị tật thoát vị não ở những vị trí khác
+Q01.9|Dị tật thoát vị não, không xác định
+Q02|Dị tật đầu nhỏ
+Q03.0|Dị tật kênh Sylvius
+Q03.1|Dị tật teo lỗ Magendie và/hoặc Luschka
+Q03.8|Bệnh não úng thuỷ bẩm sinh khác
+Q03.9|Bệnh não úng thuỷ bẩm sinh, không xác định
+Q04.0|Dị tật bẩm sinh thể chai
+Q04.1|Dị tật không khứu não
+Q04.2|Dị tật toàn bộ não trước
+Q04.3|Dị tật khuyết thiếu khác của não
+Q04.4|Loạn sản vách ngăn thần kinh thị giác
+Q04.5|Dị tật não to
+Q04.6|Nang não bẩm sinh
+Q04.8|Dị tật bẩm sinh xác định khác của não
+Q04.9|Dị tật bẩm sinh não, không xác định
+Q05.0|Dị tật nứt đốt sống cổ kết hợp bệnh não úng thuỷ
+Q05.1|Dị tật nứt đốt sống ngực kết hợp bệnh não úng thuỷ
+Q05.2|Dị tật nứt đốt sống thắt lưng kết hợp não úng thuỷ
+Q05.3|Dị tật nứt đốt sống cùng cụt kết hợp não úng thuỷ
+Q05.4|Dị tật nứt đốt sống không xác định kết hợp não úng thuỷ
+Q05.5|Dị tật nứt đốt sống cổ không có não úng thuỷ
+Q05.6|Dị tật nứt đốt sống ngực không có não úng thuỷ
+Q05.7|Dị tật nứt đốt sống thắt lưng không có não úng thuỷ
+Q05.8|Dị tật nứt đốt cùng cụt không có não úng thuỷ
+Q05.9|Dị tật nứt đốt sống, không xác định
+Q06.0|Dị tật thiếu tuỷ sống
+Q06.1|Thiểu sản và/hoặc loạn sản tuỷ sống
+Q06.2|Dị tật bẩm sinh tuỷ sống chẻ đôi
+Q06.3|Dị tật bẩm sinh khác ở vùng đuôi ngựa
+Q06.4|Dị tật ứ nước ống nội tuỷ
+Q06.8|Dị tật bẩm sinh xác định khác của tuỷ sống
+Q06.9|Dị tật bẩm sinh của tuỷ sống, không xác định
+Q07.0|Hội chứng Arnold Chiari
+Q07.8|Dị tật bẩm sinh của hệ thần kinh xác định khác
+Q07.9|Dị tật bẩm sinh hệ thần kinh, không xác định
+Q39.0|Dị tật teo thực quản không có đường rò
+Q39.1|Dị tật teo thực quản có đường rò thực quản - khí quản
+Q39.2|Đường rò thực quản - khí quản bẩm sinh, không có teo thực quản
+Q39.3|Dị tật bẩm sinh hẹp và/hoặc co hẹp thực quản
+Q39.4|Dị tật màng thực quản bẩm sinh
+Q39.5|Dị tật giãn thực quản bẩm sinh
+Q39.6|Dị tật bẩm sinh túi thừa thực quản
+Q39.8|Dị tật bẩm sinh khác của thực quản
+Q39.9|Dị tật bẩm sinh thực quản, không xác định
+Q40.0|Dị tật hẹp môn vị phì đại bẩm sinh
+Q40.1|Dị tật bẩm sinh thoát vị cơ hoành qua khe thực quản
+Q40.2|Dị tật bẩm sinh xác định khác của dạ dày
+Q40.3|Dị tật bẩm sinh của dạ dày, không xác định
+Q40.8|Dị tật bẩm sinh xác định khác của đường tiêu hoá trên
+Q40.9|Dị tật bẩm sinh đường tiêu hoá trên, không xác định
+Q41.0|Dị tật thiếu, teo và/hoặc hẹp tá tràng bẩm sinh
+Q41.1|Dị tật thiếu, teo và/hoặc hẹp hỗng tràng bẩm sinh
+Q41.2|Dị tật thiếu, teo và/hoặc hẹp hồi tràng bẩm sinh
+Q41.8|Dị tật thiếu, teo và/hoặc hẹp phần xác định khác của ruột non bẩm sinh
+Q41.9|Dị tật thiếu, teo và/hoặc hẹp ruột non bẩm sinh, phần không xác định
+Q42.0|Dị tật thiếu, teo và/hoặc hẹp trực tràng bẩm sinh có đường rò
+Q42.1|Dị tật thiếu, teo và/hoặc hẹp trực tràng bẩm sinh không có đường rò
+Q42.2|Dị tật thiếu, teo và/hoặc hẹp hậu môn bẩm sinh có đường rò
+Q42.3|Dị tật thiếu, teo và/hoặc hẹp hậu môn bẩm sinh không có đường rò
+Q42.8|Dị tật thiếu, teo và/hoặc hẹp phần khác của đại tràng bẩm sinh
+Q42.9|Dị tật thiếu, teo và/hoặc hẹp đại tràng bẩm sinh, phần không xác định
+Q43.0|Dị tật bẩm sinh túi thừa Meckel
+Q43.1|Bệnh Hirschsprung
+Q43.2|Rối loạn chức năng bẩm sinh khác của đại tràng
+Q43.3|Dị tật cố định ruột bẩm sinh
+Q43.4|Dị tật ruột đôi
+Q43.5|Dị tật hậu môn lạc chỗ
+Q43.6|Đường rò bẩm sinh của hậu môn và/hoặc trực tràng
+Q43.7|Dị tật còn ổ nhớp
+Q43.8|Dị tật bẩm sinh xác định khác của ruột
+Q43.9|Dị tật bẩm sinh ruột, không xác định
+Q44.0|Bất sản, thiểu sản và/hoặc giảm sản túi mật
+Q44.1|Dị tật bẩm sinh khác của túi mật
+Q44.2|Dị tật teo đường mật
+Q44.3|Hẹp và co hẹp bẩm sinh khác của đường mật
+Q44.4|Dị tật nang ống mật chủ
+Q44.5|Dị tật bẩm sinh khác của đường mật
+Q44.6|Bệnh nang gan
+Q44.7|Dị tật bẩm sinh khác của gan
+Q45.0|Bất sản, thiểu sản và/hoặc giảm sản tuỵ
+Q45.1|Dị tật tuỵ hình vòng
+Q45.2|Dị tật nang tuỵ bẩm sinh
+Q45.3|Dị tật bẩm sinh khác của tuỵ và/hoặc ống tuỵ
+Q45.8|Dị tật bẩm sinh xác định khác của hệ tiêu hoá
+Q45.9|Dị tật bẩm sinh của hệ tiêu hoá, không xác định
+Q53.0|Dị tật tinh hoàn ẩn|tinh hoàn ẩn
+Q53.1|Tinh hoàn chưa xuống bìu một bên|tinh hoàn ẩn
+Q53.2|Tinh hoàn chưa xuống bìu hai bên|tinh hoàn ẩn
+*Q53.9|Tinh hoàn không xuống bìu, không xác định|tinh hoàn ẩn
+Q54.0|Dị tật bẩm sinh lỗ tiểu lệch thấp, thể quy đầu
+Q54.1|Dị tật bẩm sinh lỗ tiểu thấp, thể thân dương vật
+Q54.2|Dị tật bẩm sinh lỗ tiểu thấp, thể dương vật - bìu
+Q54.3|Dị tật bẩm sinh lỗ tiểu thấp, tầng sinh môn
+Q54.4|Dị tật bẩm sinh cong dương vật
+Q54.8|Dị tật bẩm sinh lỗ tiểu lệch thấp khác
+Q54.9|Dị tật bẩm sinh lỗ tiểu lệch thấp, không xác định
+Q55.0|Dị tật thiếu và/hoặc thiểu sản tinh hoàn
+Q55.1|Giảm sản tinh hoàn và bìu
+Q55.2|Dị tật bẩm sinh khác của tinh hoàn và/hoặc bìu
+Q55.3|Dị tật teo ống dẫn tinh
+Q55.4|Dị tật bẩm sinh khác của ống dẫn tinh, mào tinh, túi tinh và tuyến tiền liệt
+Q55.5|Dị tật thiếu và/hoặc thiểu sản dương vật bẩm sinh
+Q55.6|Dị tật bẩm sinh khác của dương vật
+Q55.8|Dị tật bẩm sinh xác định khác của cơ quan sinh dục nam
+Q55.9|Dị tật bẩm sinh của cơ quan sinh dục nam, không xác định
+Q60.0|Bất sản một bên thận bẩm sinh
+Q60.1|Bất sản cả hai bên thận bẩm sinh
+Q60.2|Bất sản thận bẩm sinh, không xác định
+Q60.3|Dị tật bẩm sinh giảm sản thận, một bên
+Q60.4|Dị tật bẩm sinh giảm sản thận, hai bên
+Q60.5|Dị tật bẩm sinh giảm sản thận, không xác định
+Q60.6|Hội chứng Potter
+Q61.0|Nang thận (đơn) bẩm sinh
+Q61.1|Bệnh thận đa nang, di truyền lặn trên nhiễm sắc thể thường
+Q61.2|Bệnh thận đa nang, di truyền trội trên nhiễm sắc thể thường
+Q61.3|Bệnh thận đa nang bẩm sinh, không xác định
+Q61.4|Loạn sản thận
+Q61.5|Bệnh nang tuỷ thận di truyền
+Q61.8|Bệnh nang thận khác
+Q61.9|Bệnh nang thận, không xác định
+Q62.0|Bệnh lý thận ứ nước bẩm sinh
+Q62.1|Dị tật teo và hẹp niệu quản
+Q62.2|Phình to niệu quản bẩm sinh
+Q62.3|Dị tật tắc nghẽn khác của bể thận và/hoặc niệu quản
+Q62.4|Bất sản niệu quản
+Q62.5|Dị tật niệu quản nhân đôi
+Q62.6|Niệu quản lạc chỗ
+Q62.7|Trào ngược bàng quang - niệu quản - thận bẩm sinh
+Q62.8|Dị tật bẩm sinh khác của niệu quản
+Q63.0|Dị tật thừa thận
+Q63.1|Dị tật thận dính, thận phân thuỳ, thận móng ngựa
+Q63.2|Dị tât thận lạc chỗ
+Q63.3|Thận tăng sản và/hoặc khổng lồ
+Q63.8|Dị tật bẩm sinh xác định khác của thận
+Q63.9|Dị tật bẩm sinh của thận, không xác định
+Q64.0|Dị tật bẩm sinh lỗ tiểu lệch cao
+Q64.1|Dị tật lộn bàng quang ra ngoài cơ thể
+Q64.2|Dị tật van niệu đạo sau bẩm sinh
+Q64.3|Dị tật teo và hẹp niệu đạo và/hoặc cổ bàng quang khác
+Q64.4|Dị tật ống niệu rốn
+Q64.5|Dị tật thiếu bàng quang và/hoặc niệu đạo bẩm sinh
+Q64.6|Di tật bẩm sinh túi thừa bàng quang
+Q64.7|Dị tật bẩm sinh khác của bàng quang và/hoặc niệu đạo
+Q64.8|Dị tật bẩm sinh xác định khác của hệ tiết niệu
+Q64.9|Dị tật bẩm sinh của hệ tiết niệu, không xác định
+*R10.0|Đau bụng cấp tính|bụng ngoại khoa, bụng cấp
+R10.1|Đau khu trú bụng trên
+R10.2|Đau vùng chậu và/hoặc tầng sinh môn
+R10.3|Đau khu trú tại vùng khác của bụng dưới
+*R10.4|Đau bụng khác và/hoặc không xác định|đau bụng
+R11|Buồn nôn và/hoặc nôn
+R12|Ợ nóng [đau rát ngực]
+R13|Khó nuốt
+R14|Đầy hơi và/hoặc tình trạng liên quan
+R15|Đại tiện không tự chủ
+R16.0|Gan to, không phân loại mục khác
+R16.1|Lách to, không phân loại mục khác
+R16.2|Gan to kèm lách to, không phân loại mục khác
+*R17.0|Tăng bilirubin máu, có đề cập vàng da, không phân loại mục khác|vàng da
+R17.9|Tăng bilirubin máu, không đề cập vàng da, không phân loại mục khác
+*R18|Chứng cổ trướng|cổ trướng, báng bụng
+*R19.0|Khối và/hoặc mảng sưng phồng ở vùng bụng và/hoặc vùng chậu|khối u bụng, u bụng
+R19.1|Tiếng ruột bất thường
+R19.2|Nhu động ruột nổi [có thể nhìn thấy được]
+R19.3|Cứng bụng
+R19.4|Thay đổi thói quen đại tiện
+R19.5|Bất thường khác của phân
+R19.6|Chứng hôi miệng
+R19.8|Triệu chứng và/hoặc dấu hiệu xác định khác liên quan tới hệ tiêu hoá và/hoặc bụng
+R22.0|Sưng khu trú, khối và/hoặc u ở đầu
+R22.1|Sưng khu trú, khối và/hoặc u ở cổ
+R22.2|Sưng khu trú, khối và/hoặc u ở thân mình
+R22.3|Sưng khu trú, khối và/hoặc u ở chi trên
+R22.4|Sưng khu trú, khối và/hoặc u ở chi dưới
+R22.7|Sưng khu trú, khối và/hoặc u ở nhiều vị trí
+R22.9|Sưng khu trú, khối và/hoặc u, không xác định
+R30.0|Khó tiểu tiện
+R30.1|Buồn tiểu sau khi tiểu tiện do cơ bàng quang quá kích thích
+R30.9|Tiểu tiện gây đau, không xác định
+*R31|Tiểu máu không xác định|đái máu, tiểu ra máu
+R32|Tiểu tiện không tự chủ không xác định
+*R33|Bí tiểu|bí đái
+R34|Vô niệu và/hoặc thiểu niệu
+R35|Đa niệu
+R36|Dịch tiết từ niệu đạo
+R39.0|Thoát mạch nước tiểu [Viêm tấy do nước tiểu]
+R39.1|Khó tiểu tiện khác
+R39.2|Tăng urê huyết ngoài thận
+R39.8|Triệu chứng và dấu hiệu khác và/hoặc không xác định liên quan tới hệ tiết niệu
+R40.0|Buồn ngủ
+R40.1|Trạng thái ngẩn ngơ
+R40.2|Hôn mê, không xác định
+R41.0|Mất ý thức, không xác định
+R41.1|Chứng quên thuận chiều [không có khả năng hình thành ký ức mới sau khi biến cố gây bệnh xảy ra]
+R41.2|Chứng quên ngược chiều [không nhớ được các ký ức cũ trước khi biến cố gây bệnh xảy ra]
+R41.3|Chứng quên khác
+R41.8|Triệu chứng và dấu hiệu khác và/hoặc không xác định liên quan đến chức năng nhận thức và/hoặc nhận biết
+R50.2|Sốt do dùng thuốc
+R50.8|Sốt xác định khác
+*R50.9|Sốt, không xác định|sốt
+R51|Đau đầu
+R52.0|Đau cấp tính
+R52.1|Đau mạn tính khó chữa hoặc quản lý
+R52.2|Đau mạn tính khác
+R52.9|Đau, không xác định
+R53|Khó chịu và/hoặc mệt mỏi
+R54|Suy yếu do tuổi già
+R55|Ngất và/hoặc ngã quỵ
+R56.0|Co giật do sốt
+R56.8|Co giật khác và/hoặc không xác định
+R57.0|Sốc tim
+*R57.1|Sốc giảm thể tích|sốc mất máu
+*R57.2|Sốc nhiễm trùng|sốc nhiễm khuẩn
+R57.8|Sốc khác
+R57.9|Sốc, không xác định
+R58|Xuất huyết, không phân loại mục khác
+R59.0|Chứng phì đại hạch bạch huyết khu trú
+R59.1|Chứng phì đại hạch bạch huyết toàn thân
+R59.9|Chứng phì đại hạch bạch huyết, không xác định
+R60.0|Phù khu trú
+R60.1|Phù toàn thân
+R60.9|Phù, không xác định
+R64|Suy mòn
+R65.0|Hội chứng đáp ứng viêm hệ thống do nhiễm trùng không kèm suy tạng|SIRS, đáp ứng viêm hệ thống
+R65.1|Hội chứng đáp ứng viêm hệ thống do nhiễm trùng có kèm suy tạng|SIRS, đáp ứng viêm hệ thống
+R65.2|Hội chứng đáp ứng viêm hệ thống không do nhiễm trùng không kèm suy tạng|SIRS, đáp ứng viêm hệ thống
+R65.3|Hội chứng đáp ứng viêm hệ thống không do nhiễm trùng có kèm suy tạng|SIRS, đáp ứng viêm hệ thống
+R65.9|Hội chứng đáp ứng viêm hệ thống, không xác định|SIRS, đáp ứng viêm hệ thống
+R68.0|Hạ thân nhiệt, không liên quan đến nhiệt độ môi trường thấp
+R68.1|Triệu chứng không cụ thể đặc trưng của trẻ sơ sinh
+R68.2|Chứng khô miệng, không xác định
+R68.3|Ngón tay dùi trống
+R68.8|Triệu chứng và/hoặc dấu hiệu toàn thể xác định khác
+S00.0|Tổn thương nông của da đầu
+S00.1|Đụng giập mi mắt và/hoặc vùng quanh mắt
+S00.2|Tổn thương nông khác ở mi mắt và/hoặc vùng quanh mắt
+S00.3|Tổn thương nông ở mũi
+S00.4|Tổn thương nông ở tai
+S00.5|Tổn thương nông ở môi và/hoặc khoang miệng
+S00.7|Đa tổn thương nông ở đầu
+S00.8|Tổn thương nông ở phần khác của đầu
+S00.9|Tổn thương nông ở đầu, phần không xác định
+*S01.0|Vết thương hở ở da đầu|vết thương da đầu, VTDĐ
+S01.7|Đa vết thương hở ở đầu
+S01.8|Vết thương hở ở phần khác của đầu
+S01.9|Vết thương hở ở đầu, phần không xác định
+*S02.0|Vỡ xương vòm sọ|CTSN, chấn thương sọ não, lún sọ, vỡ sọ
+*S02.1|Vỡ xương nền sọ|CTSN, chấn thương sọ não, vỡ nền sọ
+S02.7|Gãy [vỡ] nhiều xương và/hoặc nhiều vị trí ở xương sọ và/hoặc xương mặt
+S02.8|Gãy xương khác của sọ và/hoặc mặt
+S02.9|Vỡ xương sọ và/hoặc gãy xương mặt, phần không xác định
+S03.0|Trật khớp hàm
+S03.1|Lệch sụn vách mũi
+S03.2|Trật khớp răng
+S03.3|Di lệch của phần không xác định ở đầu
+S03.4|Giãn dây chằng [bong gân] và/hoặc căng cơ của hàm
+S03.5|Giãn dây chằng [bong gân] và/hoặc căng cơ ở khớp và/hoặc dây chằng của phần đầu khác và/hoặc không xác định
+S04.0|Tổn thương dây thần kinh thị giác và/hoặc đường dẫn truyền thị giác
+S04.1|Tổn thương dây thần kinh vận nhãn
+S04.2|Tổn thương dây thần kinh ròng rọc
+S04.3|Tổn thương dây thần kinh sinh ba
+S04.4|Tổn thương dây thần kinh vận nhãn ngoài
+S04.5|Tổn thương dây thần kinh mặt
+S04.6|Tổn thương dây thần kinh thính giác
+S04.7|Tổn thương dây thần kinh phụ
+S04.8|Tổn thương dây thần kinh sọ khác
+S04.9|Tổn thương dây thần kinh sọ không xác định
+S05.0|Tổn thương kết mạc và/hoặc xước giác mạc không đề cập việc có dị vật
+S05.1|Đụng giập nhãn cầu và/hoặc mô hốc mắt
+S05.2|Rách xé nhãn cầu và/hoặc thủng kèm sa hoặc mất mô nội nhãn
+S05.3|Rách xé nhãn cầu không kèm sa hoặc mất mô nội nhãn
+S05.4|Vết thương xuyên thấu hốc mắt có hay không có dị vật
+S05.5|Vết thương xuyên thấu nhãn cầu có dị vật
+S05.6|Vết thương xuyên thấu nhãn cầu không có dị vật
+S05.7|Giật đứt nhãn cầu
+S05.8|Tổn thương khác ở mắt và/hoặc hốc mắt
+S05.9|Tổn thương ở mắt và/hoặc hốc mắt, không xác định
+*S06.0|Chấn động não|CTSN, chấn thương sọ não, chấn động não
+*S06.1|Phù não do chấn thương|CTSN, chấn thương sọ não
+*S06.2|Tổn thương não lan toả|CTSN, chấn thương sọ não
+*S06.3|Tổn thương não khu trú|CTSN, chấn thương sọ não, dập não, máu tụ trong não
+*S06.4|Xuất huyết ngoài màng cứng|CTSN, chấn thương sọ não, máu tụ ngoài màng cứng, MTNMC
+*S06.5|Xuất huyết dưới màng cứng do chấn thương|CTSN, chấn thương sọ não, máu tụ dưới màng cứng, MTDMC
+*S06.6|Xuất huyết dưới màng nhện do chấn thương|CTSN, chấn thương sọ não, XHDN
+S06.7|Tổn thương nội sọ có hôn mê kéo dài|CTSN, chấn thương sọ não
+*S06.8|Tổn thương nội sọ khác|CTSN, chấn thương sọ não
+*S06.9|Tổn thương nội sọ, không xác định|CTSN, chấn thương sọ não
+S07.0|Tổn thương dập nát ở mặt
+S07.1|Tổn thương dập nát ở hộp sọ
+S07.8|Tổn thương dập nát ở phần khác của đầu
+S07.9|Tổn thương dập nát của đầu, phần không xác định
+S08.0|Nhổ giật mảng da đầu
+S08.1|Đứt rời tai do chấn thương
+S08.8|Đứt rời phần khác của đầu do chấn thương
+S08.9|Đứt rời phần không xác định của đầu do chấn thương
+S09.0|Tổn thương mạch máu ở đầu, không phân loại mục khác
+S09.1|Tổn thương cơ và/hoặc gân ở đầu
+S09.2|Rách màng nhĩ do chấn thương
+S09.7|Đa tổn thương ở đầu
+S09.8|Tổn thương xác định khác ở đầu
+S09.9|Tổn thương không xác định ở đầu
+S10.0|Đụng giập họng
+S10.1|Tổn thương nông khác và/hoặc không xác định ở họng
+S10.7|Đa tổn thương nông ở cổ
+S10.8|Tổn thương nông ở phần khác của cổ
+S10.9|Tổn thương nông ở cổ, phần không xác định
+S11.0|Vết thương hở tác động đến thanh quản và/hoặc khí quản
+S11.1|Vết thương hở liên quan đến tuyến giáp
+S11.2|Vết thương hở bao gồm hầu và/hoặc thực quản phần cổ
+S11.7|Đa vết thương hở ở cổ
+S11.8|Vết thương hở ở phần khác của cổ
+S11.9|Vết thương hở ở cổ, phần không xác định
+S12.0|Gãy đốt sống cổ thứ nhất|CTCS, chấn thương cột sống cổ
+S12.1|Gãy đốt sống cổ thứ hai|CTCS, chấn thương cột sống cổ
+S12.2|Gãy đốt sống cổ xác định khác|CTCS, chấn thương cột sống cổ
+S12.7|Gãy cột sống cổ, nhiều đốt xương và/hoặc nhiều vị trí|CTCS, chấn thương cột sống cổ
+S12.8|Gãy phần khác của cổ|CTCS, chấn thương cột sống cổ
+*S12.9|Gãy cổ, phần không xác định|CTCS, chấn thương cột sống cổ
+S13.0|Vỡ đĩa đệm cột sống cổ do chấn thương|CTCS cổ
+S13.1|Trật khớp đốt sống cổ|CTCS cổ
+S13.2|Trật khớp phần khác và/hoặc không xác định của cổ|CTCS cổ
+S13.3|Trật khớp phức tạp [nhiều vị trí] của cổ|CTCS cổ
+S13.4|Giãn dây chằng [bong gân] và/hoặc căng cơ ở cột sống cổ|CTCS cổ
+S13.5|Giãn dây chằng [bong gân] và/hoặc căng cơ ở vùng giáp|CTCS cổ
+S13.6|Giãn dây chằng [bong gân] và/hoặc căng cơ ở khớp và/hoặc dây chằng của phần cổ khác và/hoặc không xác định|CTCS cổ
+S14.0|Chấn động và/hoặc phù tuỷ sống cổ|CTCS, chấn thương tủy cổ
+*S14.1|Tổn thương khác và/hoặc không xác định của tuỷ sống cổ|CTCS, chấn thương tủy cổ
+S14.2|Tổn thương rễ thần kinh của cột sống cổ|CTCS, chấn thương tủy cổ
+S14.3|Tổn thương đám rối thần kinh cánh tay|CTCS, chấn thương tủy cổ
+S14.4|Tổn thương đám rối thần kinh ngoại biên ở cổ|CTCS, chấn thương tủy cổ
+S14.5|Tổn thương dây thần kinh giao cảm cổ|CTCS, chấn thương tủy cổ
+S14.6|Tổn thương dây thần kinh khác và/hoặc không xác định của cổ|CTCS, chấn thương tủy cổ
+S15.0|Tổn thương động mạch cảnh
+S15.1|Tổn thương động mạch đốt sống
+S15.2|Tổn thương tĩnh mạch cảnh ngoài
+S15.3|Tổn thương tĩnh mạch cảnh trong
+S15.7|Tổn thương nhiều mạch máu, vùng cổ
+S15.8|Tổn thương mạch máu khác, vùng cổ
+S15.9|Tổn thương mạch máu không xác định, vùng cổ
+S16|Tổn thương cơ và/hoặc gân, vùng cổ
+S17.0|Tổn thương dập nát ở thanh quản và/hoặc phế quản
+S17.8|Tổn thương dập nát ở phần khác của cổ
+S17.9|Tổn thương dập nát ở cổ, phần không xác định
+S18|Đứt rời vùng cổ do chấn thương
+S19.7|Đa tổn thương ở cổ
+S19.8|Tổn thương xác định khác ở cổ
+S19.9|Tổn thương không xác định ở cổ
+S20.0|Đụng giập vú
+S20.1|Tổn thương nông khác và/hoặc không xác định ở vú
+S20.2|Đụng giập ngực
+S20.3|Tổn thương nông khác ở thành trước ngực
+S20.4|Tổn thương nông khác ở thành sau ngực
+S20.7|Đa tổn thương nông ở ngực
+S20.8|Tổn thương nông ở phần khác và/hoặc không xác định của ngực
+S21.0|Vết thương hở ở vú|vết thương ngực, VTN
+*S21.1|Vết thương hở ở thành trước ngực|vết thương ngực, VTN
+S21.2|Vết thương hở ở thành sau ngực|vết thương ngực, VTN
+S21.7|Đa vết thương hở ở thành ngực|vết thương ngực, VTN
+S21.8|Vết thương hở ở phần khác của ngực|vết thương ngực, VTN
+S21.9|Vết thương hở ở ngực, phần không xác định|vết thương ngực, VTN
+*S22.0|Gãy đốt sống ngực|CTCS, chấn thương cột sống ngực
+S22.1|Gãy cột sống ngực, nhiều đốt xương và/hoặc nhiều vị trí|CTCS
+S22.2|Gãy xương ức
+*S22.3|Gãy xương sườn|chấn thương ngực
+*S22.4|Gãy xương sườn, nhiều xương và/hoặc nhiều vị trí|chấn thương ngực
+S22.5|Mảng sườn di động
+S22.8|Gãy phần khác của xương ngực
+S22.9|Gãy xương ngực, phần không xác định
+S23.0|Vỡ đĩa đệm cột sống ngực do chấn thương
+S23.1|Trật khớp đốt sống ngực
+S23.2|Trật khớp ở phần khác và/hoặc không xác định của ngực
+S23.3|Giãn dây chằng [bong gân] và/hoặc căng cơ ở cột sống ngực
+S23.4|Giãn dây chằng [bong gân] và/hoặc căng cơ của xương sườn và/hoặc xương ức
+S23.5|Giãn dây chằng [bong gân] và/hoặc căng cơ ở phần khác và/hoặc không xác định của ngực
+S24.0|Chấn động và/hoặc phù tuỷ sống ngực|CTCS, chấn thương tủy ngực
+*S24.1|Tổn thương khác và/hoặc không xác định của tuỷ sống ngực|CTCS, chấn thương tủy ngực
+S24.2|Tổn thương rễ thần kinh của cột sống ngực|CTCS, chấn thương tủy ngực
+S24.3|Tổn thương dây thần kinh ngoại biên của ngực|CTCS, chấn thương tủy ngực
+S24.4|Tổn thương dây thần kinh giao cảm ở ngực|CTCS, chấn thương tủy ngực
+S24.5|Tổn thương dây thần kinh khác của ngực|CTCS, chấn thương tủy ngực
+S24.6|Tổn thương dây thần kinh không xác định của ngực|CTCS, chấn thương tủy ngực
+S25.0|Tổn thương động mạch chủ ngực
+S25.1|Tổn thương động mạch vô danh hoặc động mạch dưới đòn
+S25.2|Tổn thương tĩnh mạch chủ trên
+S25.3|Tổn thương tĩnh mạch vô danh hoặc tĩnh mạch dưới đòn
+S25.4|Tổn thương mạch máu phổi
+S25.5|Tổn thương mạch máu liên sườn
+S25.7|Tổn thương nhiều mạch máu của ngực
+S25.8|Tổn thương mạch máu khác của ngực
+S25.9|Tổn thương mạch máu không xác định của vùng ngực
+S26.0|Tổn thương tim có tràn máu màng tim
+S26.8|Tổn thương khác của tim
+S26.9|Tổn thương tim, không xác định
+*S27.0|Tràn khí màng phổi do chấn thương|chấn thương ngực, CTN, TKMP
+*S27.1|Tràn máu màng phổi do chấn thương|chấn thương ngực, CTN, TMMP
+*S27.2|Tràn máu và khí trong màng phổi do chấn thương|chấn thương ngực, CTN, TMMP, TKMP
+S27.3|Tổn thương khác của phổi|chấn thương ngực, CTN
+S27.4|Tổn thương phế quản|chấn thương ngực, CTN
+S27.5|Tổn thương khí quản ngực|chấn thương ngực, CTN
+S27.6|Tổn thương màng phổi|chấn thương ngực, CTN
+S27.7|Đa tổn thương của nội tạng trong khoang ngực|chấn thương ngực, CTN
+S27.8|Tổn thương ở tạng xác định khác trong khoang ngực|chấn thương ngực, CTN
+S27.9|Tổn thương nội tạng không xác định trong khoang ngực|chấn thương ngực, CTN
+S28.0|Dập nát ngực
+S28.1|Đứt rời một phần của ngực do chấn thương
+S29.0|Tổn thương cơ và/hoặc tổn thương gân, vùng ngực
+S29.7|Đa tổn thương ở ngực
+S29.8|Tổn thương xác định khác ở ngực
+S29.9|Tổn thương khoang ngực không xác định
+S30.0|Đụng giập thắt lưng và/hoặc vùng chậu
+S30.1|Đụng giập thành bụng
+S30.2|Đụng giập cơ quan sinh dục ngoài
+S30.7|Đa tổn thương nông ở bụng, thắt lưng và/hoặc vùng chậu
+S30.8|Tổn thương nông khác ở bụng, thắt lưng và/hoặc vùng chậu
+S30.9|Tổn thương nông ở bụng, thắt lưng và/hoặc vùng chậu, phần không xác định
+S31.0|Vết thương hở ở thắt lưng và/hoặc vùng chậu
+*S31.1|Vết thương hở ở thành bụng|vết thương bụng, VTB
+S31.2|Vết thương hở ở dương vật
+S31.3|Vết thương hở ở bìu và/hoặc tinh hoàn
+S31.4|Vết thương hở ở âm đạo và/hoặc âm hộ
+S31.5|Vết thương hở ở cơ quan sinh dục ngoài khác và/hoặc không xác định
+S31.7|Đa vết thương hở ở bụng, thắt lưng và/hoặc vùng chậu
+S31.8|Vết thương hở ở vị trí khác và/hoặc không xác định ở bụng|vết thương bụng
+*S32.0|Gãy đốt sống thắt lưng|CTCS, chấn thương cột sống thắt lưng
+S32.1|Gãy xương cùng
+S32.2|Gãy xương cụt
+S32.3|Gãy xương chậu
+S32.4|Gãy ổ cối
+S32.5|Gãy xương mu
+S32.7|Gãy xương cột sống thắt lưng và/hoặc khung chậu, nhiều xương và/hoặc nhiều vị trí|CTCS
+S32.8|Gãy phần khác và/hoặc không xác định của xương cột sống thắt lưng và/hoặc khung chậu
+S33.0|Vỡ đĩa đệm cột sống thắt lưng do chấn thương
+S33.1|Trật đốt sống thắt lưng
+S33.2|Trật khớp cùng chậu và/hoặc khớp cùng cụt
+S33.3|Trật khớp phần khác và/hoặc không xác định của cột sống thắt lưng và/hoặc khung chậu
+S33.4|Vỡ khớp mu do chấn thương
+S33.5|Giãn dây chằng [bong gân] và/hoặc căng cơ ở cột sống thắt lưng
+S33.6|Giãn dây chằng [bong gân] và/hoặc căng cơ ở khớp cùng chậu
+S33.7|Giãn dây chằng [bong gân] và/hoặc căng cơ ở phần khác và/hoặc không xác định của cột sống thắt lưng và/hoặc khung chậu
+S34.0|Chấn động và/hoặc phù của tuỷ sống thắt lưng|CTCS, chấn thương tủy thắt lưng
+*S34.1|Tổn thương khác của tuỷ sống thắt lưng|CTCS, chấn thương tủy thắt lưng
+S34.2|Vết thương rễ thần kinh của cột sống thắt lưng và/hoặc cột sống cùng|CTCS, chấn thương tủy thắt lưng
+S34.3|Tổn thương dây thần kinh chùm đuôi ngựa|CTCS, chấn thương tủy thắt lưng
+S34.4|Tổn thương đám rối thần kinh thắt lưng - cùng|CTCS, chấn thương tủy thắt lưng
+S34.5|Tổn thương dây thần kinh giao cảm vùng thắt lưng, cùng và/hoặc chậu|CTCS, chấn thương tủy thắt lưng
+S34.6|Tổn thương dây thần kinh ngoại biên của bụng, thắt lưng và/hoặc vùng chậu|CTCS, chấn thương tủy thắt lưng
+S34.8|Tổn thương dây thần kinh khác và/hoặc không xác định, vùng bụng, thắt lưng và/hoặc chậu|CTCS, chấn thương tủy thắt lưng
+S35.0|Tổn thương động mạch chủ bụng
+S35.1|Tổn thương tĩnh mạch chủ dưới
+S35.2|Tổn thương động mạch bụng hoặc động mạch mạc treo tràng
+S35.3|Tổn thương tĩnh mạch cửa hoặc tĩnh mạch lách
+S35.4|Tổn thương mạch máu thận
+S35.5|Tổn thương mạch máu chậu
+S35.7|Đa tổn thương mạch máu, vùng bụng, thắt lưng và/hoặc chậu
+S35.8|Tổn thương mạch máu khác, vùng bụng, thắt lưng và/hoặc chậu
+S35.9|Tổn thương mạch máu không xác định, vùng bụng, thắt lưng và/hoặc chậu
+*S36.0|Tổn thương lách|chấn thương bụng, CTB, vết thương thấu bụng, vỡ lách, dập lách
+*S36.1|Tổn thương gan hoặc túi mật|chấn thương bụng, CTB, vết thương thấu bụng, vỡ gan, dập gan, rách gan
+S36.2|Tổn thương tuỵ|chấn thương bụng, CTB, vết thương thấu bụng, vỡ tụy, dập tụy
+S36.3|Tổn thương dạ dày|chấn thương bụng, CTB, vết thương thấu bụng, thủng dạ dày do chấn thương
+*S36.4|Tổn thương ruột non|chấn thương bụng, CTB, vết thương thấu bụng, thủng ruột non, vỡ ruột non
+*S36.5|Tổn thương đại tràng|chấn thương bụng, CTB, vết thương thấu bụng, thủng đại tràng, vỡ đại tràng
+S36.6|Tổn thương trực tràng|chấn thương bụng, CTB, vết thương thấu bụng
+*S36.7|Tổn thương đa tạng trong ổ bụng|chấn thương bụng, CTB, vết thương thấu bụng
+S36.8|Tổn thương tạng khác trong ổ bụng|chấn thương bụng, CTB, vết thương thấu bụng
+*S36.9|Tổn thương tạng trong ổ bụng không xác định|chấn thương bụng, CTB, vết thương thấu bụng
+*S37.0|Tổn thương thận|chấn thương bụng, chấn thương tiết niệu, chấn thương thận, vỡ thận, dập thận
+S37.1|Tổn thương niệu quản|chấn thương bụng, chấn thương tiết niệu
+*S37.2|Tổn thương bàng quang|chấn thương bụng, chấn thương tiết niệu, vỡ bàng quang
+*S37.3|Tổn thương niệu đạo|chấn thương bụng, chấn thương tiết niệu, đứt niệu đạo, chấn thương niệu đạo
+S37.4|Tổn thương buồng trứng|chấn thương bụng, chấn thương tiết niệu
+S37.5|Tổn thương vòi trứng|chấn thương bụng, chấn thương tiết niệu
+S37.6|Tổn thương tử cung|chấn thương bụng, chấn thương tiết niệu
+S37.7|Tổn thương đa tạng vùng chậu|chấn thương bụng, chấn thương tiết niệu
+S37.8|Tổn thương tạng khác ở vùng chậu|chấn thương bụng, chấn thương tiết niệu
+S37.9|Tổn thương cơ quan không xác định ở vùng chậu|chấn thương bụng, chấn thương tiết niệu
+S38.0|Tổn thương dập nát cơ quan sinh dục ngoài
+S38.1|Tổn thương dập nát ở phần khác và/hoặc không xác định của bụng, lưng dưới và/hoặc vùng chậu
+S38.2|Đứt rời cơ quan sinh dục ngoài do chấn thương
+S38.3|Đứt rời phần khác và/hoặc không xác định của bụng, thắt lưng và/hoặc vùng chậu do chấn thương
+S39.0|Tổn thương cơ và/hoặc tổn thương gân ở vùng bụng, thắt lưng và/hoặc vùng chậu
+S39.6|Tổn thương tạng trong ổ bụng kèm tổn thương tạng vùng chậu
+S39.7|Đa tổn thương ở vùng bụng, thắt lưng và/hoặc vùng chậu
+S39.8|Tổn thương xác định khác của vùng bụng, thắt lưng và/hoặc vùng chậu
+*S39.9|Tổn thương không xác định ở vùng bụng, thắt lưng và/hoặc vùng chậu|chấn thương bụng
+S45.0|Tổn thương động mạch nách
+S45.1|Tổn thương động mạch cánh tay
+S45.2|Tổn thương tĩnh mạch nách hoặc cánh tay
+S45.3|Tổn thương nông tĩnh mạch máu, vùng vai và cánh tay trên
+S45.7|Tổn thương nhiều mạch máu, vùng vai và cánh tay trên
+S45.8|Tổn thương mạch máu khác, vùng vai và cánh tay trên
+S45.9|Tổn thương mạch máu không xác định, vùng vai và cánh tay trên
+S55.0|Tổn thương động mạch trụ, tầm cẳng tay
+S55.1|Tổn thương động mạch quay, tầm cẳng tay
+S55.2|Tổn thương tĩnh mạch, tầm cẳng tay
+S55.7|Tổn thương đa mạch máu, tầm cẳng tay
+S55.8|Tổn thương mạch máu khác, tầm cẳng tay
+S55.9|Tổn thương mạch máu không xác định, tầm cẳng tay
+S65.0|Tổn thương động mạch trụ, tầm cổ tay và bàn tay
+S65.1|Tổn thương động mạch quay, tầm cổ tay và bàn tay
+S65.2|Tổn thương của cung gan tay nông
+S65.3|Tổn thương của cung gan tay sâu
+S65.4|Tổn thương mạch máu ngón tay cái
+S65.5|Tổn thương mạch máu ngón tay khác
+S65.7|Tổn thương đa mạch máu, tầm cổ tay và bàn tay
+S65.8|Tổn thương mạch máu khác, tầm cổ tay và bàn tay
+S65.9|Tổn thương mạch máu không xác định, tầm cổ tay và bàn tay
+S75.0|Tổn thương động mạch đùi
+S75.1|Tổn thương tĩnh mạch đùi, tầm hông và đùi
+S75.2|Tổn thương tĩnh mạch hiển lớn, tầm hông và đùi
+S75.7|Tổn thương đa mạch máu, tầm hông và đùi
+S75.8|Tổn thương mạch máu khác, tầm hông và đùi
+S75.9|Tổn thương mạch máu không xác định, tầm hông và đùi
+S85.0|Tổn thương động mạch khoeo
+S85.1|Tổn thương động mạch chày (phía trước) (phía sau)
+S85.2|Tổn thương động mạch mác
+S85.3|Tổn thương tĩnh mạch hiển lớn, tầm cẳng chân
+S85.4|Tổn thương tĩnh mạch hiển nhỏ, tầm cẳng chân
+S85.5|Tổn thương tĩnh mạch khoeo
+S85.7|Tổn thương đa mạch máu, tầm cẳng chân
+S85.8|Tổn thương mạch máu khác, tầm cẳng chân
+S85.9|Tổn thương mạch máu không xác định, tầm cẳng chân
+S95.0|Tổn thương động mạch mu bàn chân
+S95.1|Tổn thương động mạch gan bàn chân
+S95.2|Tổn thương tĩnh mạch mu bàn chân
+S95.7|Tổn thương đa mạch máu, tầm cổ chân và bàn chân
+S95.8|Tổn thương mạch máu khác, tầm cổ chân và bàn chân
+S95.9|Tổn thương mạch máu không xác định, tầm cổ chân và bàn chân
+T00.0|Tổn thương nông tác động đến vùng đầu kết hợp vùng cổ
+T00.1|Tổn thương nông tác động đến vùng ngực kết hợp vùng bụng, thắt lưng và/hoặc vùng chậu
+T00.2|Tổn thương nông tác động đến nhiều vùng của (các) chi trên
+T00.3|Tổn thương nông tác động đến nhiều vùng của (các) chi dưới
+T00.6|Tổn thương nông tác động đến nhiều vùng của (các) chi trên và (các) chi dưới
+T00.8|Tổn thương nông tác động kết hợp khác ở nhiều vùng cơ thể
+T00.9|Đa tổn thương nông, không xác định
+T01.0|Vết thương hở tác động đến vùng đầu kết hợp vùng cổ
+T01.1|Vết thương hở tác động đến vùng ngực kết hợp vùng bụng, thắt lưng và/hoặc chậu
+T01.2|Vết thương hở ở tác động đến nhiều vùng của (các) chi trên
+T01.3|Vết thương hở tác động đến nhiều vùng của (các) chi dưới
+T01.6|Vết thương hở tác động đến nhiều vùng của (các) chi trên và (các) chi dưới
+T01.8|Vết thương hở tác động kết hợp khác ở nhiều vùng cơ thể
+T01.9|Đa vết thương hở, không xác định
+T02.0|Gãy xương tác động đến vùng đầu kết hợp vùng cổ
+T02.1|Gãy xương tác động đến vùng ngực, thắt lưng và/hoặc vùng chậu
+T02.2|Gãy xương tác động đến nhiều vùng của một chi trên
+T02.3|Gãy xương tác động đến nhiều vùng của một chi dưới
+T02.4|Gãy xương tác động đến nhiều vùng của cả hai chi trên
+T02.5|Gãy xương tác động đến nhiều vùng của cả hai chi dưới
+T02.6|Gãy xương tác động đến nhiều vùng của (các) chi trên và (các) chi dưới
+T02.7|Gãy xương tác động đến vùng ngực và vùng thắt lưng và/hoặc chậu và (các) chi
+T02.8|Gãy xương tác động kết hợp khác ở nhiều vùng cơ thể
+T02.9|Gãy xương, nhiều xương và/hoặc nhiều vị trí, không xác định
+T03.0|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở vùng đầu kết hợp vùng cổ
+T03.1|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở vùng ngực kết hợp thắt lưng và/hoặc vùng chậu
+T03.2|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ tác động đến nhiều vùng của (các) chi trên
+T03.3|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở nhiều vùng của (các) chi dưới
+T03.4|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ tác động đến nhiều vùng của (các) chi trên và (các) chi dưới
+T03.8|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ tác động kết hợp khác ở nhiều vùng cơ thể
+T03.9|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở nhiều vị trí, không xác định
+T04.0|Tổn thương dập nát tác động đến vùng đầu kết hợp vùng cổ
+T04.1|Tổn thương dập nát tác động đến vùng ngực kết hợp vùng bụng, thắt lưng và/hoặc chậu
+T04.2|Tổn thương dập nát tác động đến nhiều vùng của (các) chi trên
+T04.3|Tổn thương dập nát tác động đến nhiều vùng của (các) chi dưới
+T04.4|Tổn thương dập nát tác động đến nhiều vùng của (các) chi trên và (các) chi dưới
+T04.7|Tổn thương dập nát vùng ngực kết hợp vùng bụng, thắt lưng và/hoặc chậu và (các) chi
+T04.8|Tổn thương dập nát tác động kết hợp khác ở nhiều vùng cơ thể
+T04.9|Tổn thương dập nát nhiều vị trí, không xác định
+T05.0|Đứt rời cả hai bàn tay do chấn thương
+T05.1|Đứt rời một bàn tay và cánh tay khác [bất kỳ tầm chi nào, trừ bàn tay] do chấn thương
+T05.2|Đứt rời cả hai cánh tay [bất kỳ tầm chi nào] do chấn thương
+T05.3|Đứt rời cả hai bàn chân do chấn thương
+T05.4|Đứt rời một bàn chân và chân khác [bất kỳ tầm chi nào trừ bàn chân] do chấn thương
+T05.5|Đứt rời cả hai chân [bất kỳ tầm chi nào] do chấn thương
+T05.6|Đứt rời chi trên và chi dưới, bất kỳ sự kết hợp nào [bất kỳ tầm chi nào] do chấn thương
+T05.8|Đứt rời do chấn thương tác động kết hợp khác ở nhiều vùng cơ thể
+T05.9|Đứt rời do chấn thương ở nhiều phần cơ thể, không xác định
+T06.0|Tổn thương não và/hoặc dây thần kinh sọ kết hợp tổn thương của dây thần kinh và/hoặc tuỷ sống vùng cổ
+T06.1|Tổn thương tuỷ sống kết hợp dây thần kinh tác động đến nhiều vùng khác của cơ thể
+T06.2|Tổn thương dây thần kinh tác động đến nhiều vùng khác của cơ thể
+T06.3|Tổn thương mạch máu tác động đến nhiều vùng khác của cơ thể
+T06.4|Tổn thương cơ và/hoặc gân tác động đến nhiều vùng khác của cơ thể
+T06.5|Tổn thương tạng trong khoang ngực kết hợp tạng trong ổ bụng và/hoặc vùng chậu
+T06.8|Tổn thương xác định khác tác động đến nhiều vùng khác của cơ thể
+*T07|Đa tổn thương không xác định|đa chấn thương
+T08.0|Gãy cột sống, đoạn không xác định, gãy kín
+T08.1|Gãy cột sống, đoạn không xác định, gãy hở
+T09.0|Tổn thương nông tại thân, vùng không xác định
+T09.1|Vết thương hở tại thân, vùng không xác định
+T09.2|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở khớp và/hoặc dây chằng không xác định của thân
+T09.3|Tổn thương tuỷ sống, đoạn không xác định
+T09.4|Tổn thương không xác định của dây thần kinh, rễ dây thần kinh cột sống và/hoặc đám rối của thân
+T09.5|Tổn thương không xác định của cơ và/hoặc gân của thân
+T09.6|Đứt rời thân do chấn thương, vùng không xác định
+T09.8|Tổn thương xác định khác tại thân, vùng không xác định
+T09.9|Tổn thương không xác định của thân, vùng không xác định
+T10.0|Gãy xương chi trên, tầm chi không xác định, gãy kín
+T10.1|Gãy xương chi trên, tầm chi không xác định, gãy hở
+T11.0|Tổn thương nông của chi trên, tầm chi không xác định
+T11.1|Vết thương hở của chi trên, tầm chi không xác định
+T11.2|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ khớp không xác định và/hoặc dây chằng chi trên, tầm chi không xác định
+T11.3|Tổn thương dây thần kinh không xác định tại chi trên, tầm chi không xác định
+T11.4|Tổn thương mạch máu không xác định tại chi trên, tầm chi không xác định
+T11.5|Tổn thương cơ không xác định và/hoặc gân tại chi trên, tầm chi không xác định
+T11.6|Đứt rời chi trên do chấn thương, tầm chi không xác định
+T11.8|Tổn thương xác định khác của chi trên, tầm chi không xác định
+T11.9|Tổn thương không xác định của chi trên, tầm chi không xác định
+T12.0|Gãy xương chi dưới, tầm chi không xác định, gãy kín
+T12.1|Gãy xương chi dưới, tầm chi không xác định, gãy hở
+T13.0|Tổn thương nông của chi dưới, tầm chi không xác định
+T13.1|Vết thương hở của chi dưới, tầm chi không xác định
+T13.2|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở khớp và/hoặc dây chằng chi dưới, tầm chi không xác định
+T13.3|Tổn thương dây thần kinh không xác định tại chi dưới, tầm chi không xác định
+T13.4|Tổn thương mạch máu không xác định tại chi dưới, tầm chi không xác định
+T13.5|Tổn thương cơ và/hoặc gân không xác định tại chi dưới, tầm chi không xác định
+T13.6|Đứt rời chi dưới do chấn thương, tầm chi không xác định
+T13.8|Tổn thương xác định khác tại chi dưới, tầm chi không xác định
+T13.9|Tổn thương không xác định tại chi dưới, tầm chi không xác định
+T14.0|Tổn thương nông ở vùng cơ thể không xác định
+T14.1|Vết thương hở ở vùng cơ thể không xác định
+T14.2|Gãy xương ở vùng cơ thể không xác định
+T14.3|Trật khớp, giãn dây chằng [bong gân] và/hoặc căng cơ ở vùng cơ thể không xác định
+T14.4|Tổn thương dây thần kinh ở vùng cơ thể không xác định
+T14.5|Tổn thương mạch máu ở vùng cơ thể không xác định
+T14.6|Tổn thương cơ và/hoặc gân ở vùng cơ thể không xác định
+T14.7|Tổn thương dập nát và/hoặc đứt rời do chấn thương ở vùng cơ thể không xác định
+T14.8|Tổn thương khác ở vùng cơ thể không xác định
+T14.9|Tổn thương, không xác định
+T15.0|Dị vật trong giác mạc
+T15.1|Dị vật trong túi kết mạc
+T15.8|Dị vật ở các vị trí khác và/hoặc nhiều vị trí của mắt ngoài
+T15.9|Dị vật ở mắt ngoài, phần không xác định
+T16|Dị vật ở tai
+T17.0|Dị vật trong xoang mũi
+T17.1|Dị vật trong lỗ mũi
+T17.2|Dị vật trong họng
+T17.3|Dị vật trong thanh quản
+T17.4|Dị vật trong khí quản
+T17.5|Dị vật trong phế quản
+T17.8|Dị vật ở vị trí khác và/hoặc ở nhiều vị trí của đường hô hấp
+T17.9|Dị vật đường hô hấp, phần không xác định
+T18.1|Dị vật trong thực quản|dị vật đường tiêu hóa, hóc xương
+T18.2|Dị vật trong dạ dày|dị vật đường tiêu hóa, hóc xương
+T18.3|Dị vật trong ruột non|dị vật đường tiêu hóa, hóc xương
+T18.4|Dị vật trong đại tràng|dị vật đường tiêu hóa, hóc xương
+T18.5|Dị vật trong hậu môn và/hoặc trực tràng|dị vật đường tiêu hóa, hóc xương
+T18.8|Dị vật ở vị trí khác và/hoặc ở nhiều vị trí của đường tiêu hoá|dị vật đường tiêu hóa, hóc xương
+T18.9|Dị vật trong đường tiêu hoá, phần không xác định|dị vật đường tiêu hóa, hóc xương
+T19.0|Dị vật trong niệu đạo
+T19.1|Dị vật trong bàng quang
+T19.8|Dị vật ở các vị trí khác và/hoặc ở nhiều vị trí của đường sinh dục - tiết niệu
+T19.9|Dị vật đường sinh dục - tiết niệu, phần không xác định
+T79.0|Thuyên tắc khí (do chấn thương)
+T79.1|Thuyên tắc mỡ (do chấn thương)
+T79.2|Xuất huyết thứ phát và/hoặc tái phát do chấn thương
+T79.3|Nhiễm trùng vết thương sau chấn thương, không phân loại mục khác
+T79.4|Sốc do chấn thương
+T79.5|Vô niệu do chấn thương
+T79.6|Thiếu máu cơ do chấn thương
+T79.7|Tràn khí dưới da do chấn thương
+T79.8|Biến chứng sớm khác của chấn thương
+T79.9|Biến chứng sớm không xác định của chấn thương
+T80.0|Thuyên tắc khí sau tiêm truyền, truyền máu và/hoặc tiêm thuốc
+T80.1|Biến chứng mạch máu sau tiêm truyền, truyền máu và/hoặc tiêm thuốc
+T80.2|Nhiễm trùng sau tiêm truyền, truyền máu và/hoặc tiêm thuốc điều trị
+T80.3|Phản ứng ABO không tương thích
+T80.4|Phản ứng Rh không tương thích
+T80.5|Sốc phản vệ do huyết thanh
+T80.6|Phản ứng huyết thanh khác
+T80.8|Biến chứng khác sau tiêm truyền, truyền máu và/hoặc tiêm thuốc điều trị
+T80.9|Biến chứng không xác định sau tiêm truyền, truyền máu và/hoặc tiêm điều trị
+*T81.0|Biến chứng chảy máu và/hoặc tụ máu do can thiệp, không phân loại mục khác|chảy máu sau mổ, tụ máu sau mổ
+T81.1|Sốc kéo dài hoặc hậu quả do can thiệp, không phân loại mục khác
+T81.2|Vô tình thủng và/hoặc rách trong khi can thiệp, không phân loại mục khác
+*T81.3|Toác vết mổ, không phân loại mục khác|bục vết mổ, toác vết mổ, bục thành bụng
+*T81.4|Nhiễm trùng sau can thiệp, không phân loại mục khác|nhiễm trùng vết mổ, nhiễm khuẩn vết mổ, NKVM, áp xe tồn lưu
+T81.5|Dị vật vô tình bị để lại trong khoang cơ thể hoặc vết mổ sau can thiệp
+T81.6|Phản ứng cấp tính với dị vật vô tình bị để lại trong khi thực hiện can thiệp
+T81.7|Biến chứng mạch máu sau can thiệp, không phân loại mục khác
+T81.8|Biến chứng khác do can thiệp, không phân loại mục khác
+T81.9|Biến chứng không xác định của can thiệp
+T82.0|Biến chứng cơ học của van tim nhân tạo
+T82.1|Biến chứng cơ học của thiết bị điện tử tại tim
+T82.2|Biến chứng cơ học của bắc cầu động mạch vành và/hoặc ghép van
+T82.3|Biến chứng cơ học của ghép mạch máu khác
+T82.4|Biến chứng cơ học của catheter thẩm tách mạch máu
+T82.5|Biến chứng cơ học của thiết bị/dụng cụ và/hoặc vật tư cấy ghép khác ở tim và/hoặc mạch máu
+T82.6|Nhiễm trùng và/hoặc phản ứng viêm do van tim nhân tạo
+T82.7|Nhiễm trùng và/hoặc phản ứng viêm do các thiết bị/dụng cụ ở tim và/hoặc mạch máu khác, cấy và/hoặc ghép
+T82.8|Biến chứng xác định khác của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép ở tim và/hoặc mạch máu
+T82.9|Biến chứng không xác định của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép ở tim và/hoặc mạch máu
+*T83.0|Biến chứng cơ học của ống thông tiểu (đặt ống thông tại chỗ)|tắc sonde tiểu, sonde Foley
+*T83.1|Biến chứng cơ học của các thiết bị tiết niệu và/hoặc các cấy khác|biến chứng sonde JJ, tắc JJ
+T83.2|Biến chứng cơ học của ghép cơ quan tiết niệu
+*T83.5|Nhiễm trùng và/hoặc phản ứng viêm do thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép hệ tiết niệu|nhiễm trùng sonde JJ
+T83.8|Biến chứng khác của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép hệ sinh dục - tiết niệu
+T83.9|Biến chứng không xác định của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép hệ sinh dục - tiết niệu
+T84.0|Biến chứng cơ học của khớp nhân tạo bên trong
+T84.1|Biến chứng cơ học của thiết bị/dụng cụ cố định bên trong xương của chi
+T84.2|Biến chứng cơ học của thiết bị/dụng cụ cố định bên trong của xương khác
+T84.3|Biến chứng cơ học của thiết bị/dụng cụ và/hoặc mô xương, cấy và/hoặc ghép
+T84.4|Biến chứng cơ học của thiết bị/dụng cụ chỉnh hình khác, cấy và/hoặc ghép
+T84.5|Nhiễm trùng và/hoặc phản ứng viêm do khớp nhân tạo bên trong
+T84.6|Nhiễm trùng và/hoặc phản ứng viêm do thiết bị/dụng cụ cố định bên trong [bất kỳ vị trí nào]
+T84.7|Nhiễm trùng và/hoặc phản ứng viêm do thiết bị/dụng cụ nhân tạo chỉnh hình, cấy và/hoặc ghép bên trong
+T84.8|Biến chứng khác của thiết bị nhân tạo chỉnh hình, cấy và/hoặc ghép bên trong
+T84.9|Biến chứng không xác định của thiết bị/dụng cụ nhân tạo chỉnh hình, cấy và/hoặc ghép bên trong
+*T85.0|Biến chứng cơ học của dẫn lưu (thông) não thất nội sọ|tắc dẫn lưu não thất, VP shunt, dẫn lưu não thất ổ bụng
+T85.1|Biến chứng cơ học của máy kích thích điện tử được cấy ghép ở hệ thần kinh
+T85.5|Biến chứng cơ học của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép dạ dày - ruột
+T85.6|Biến chứng cơ học của thiết bị/dụng cụ nhân tạo xác định khác, cấy và/hoặc ghép bên trong
+T85.7|Nhiễm trùng và/hoặc phản ứng viêm do thiết bị/dụng cụ nhân tạo khác, cấy và/hoặc ghép bên trong
+T85.8|Biến chứng khác của thiết bị/dụng cụ nhân tạo, cấy và/hoặc ghép bên trong, không phân loại mục khác
+T85.9|Biến chứng không xác định của thiết bị/dụng cụ nhân tạo cấy và/hoặc ghép bên trong
+T86.0|Thải ghép tuỷ xương
+T86.1|Thất bại và/hoặc thải ghép thận
+T86.2|Thất bại và/hoặc thải ghép tim
+T86.3|Thất bại và/hoặc thải ghép tim - phổi
+T86.4|Thất bại và/hoặc thải ghép gan
+T86.8|Thất bại và/hoặc thải khác của ghép tạng và/hoặc mô
+T86.9|Thất bại và/hoặc thải ghép trong cấy ghép nội tạng và/hoặc mô
+T87.0|Biến chứng của (một phần của) chi trên được nối lại
+T87.1|Biến chứng của (một phần của) chi dưới được nối lại
+T87.2|Biến chứng của phần cơ thể được nối lại khác
+T87.3|U thần kinh của mỏm cụt
+T87.4|Nhiễm trùng mỏm cụt
+T87.5|Hoại tử mỏm cụt
+T87.6|Biến chứng khác và/hoặc không xác định của mỏm cụt
+T88.0|Nhiễm trùng sau tiêm chủng
+T88.1|Biến chứng khác sau tiêm chủng, không phân loại mục khác
+T88.2|Sốc do gây mê
+T88.3|Tăng thân nhiệt ác tính do gây mê
+T88.4|Thất bại hoặc khó đặt nội khí quản
+T88.5|Biến chứng khác của gây mê
+T88.6|Sốc phản vệ do tác dụng bất lợi của dược chất hoặc thuốc điều trị thích hợp sử dụng đúng quy cách
+T88.7|Tác dụng bất lợi không xác định của dược chất hoặc thuốc điều trị
+T88.8|Biến chứng xác định khác của chăm sóc ngoại khoa và/hoặc nội khoa, không phân loại mục khác
+T88.9|Biến chứng ngoại khoa và/hoặc nội khoa, không xác định
+*Z08.0|Tái khám sau phẫu thuật u ác tính|theo dõi sau mổ ung thư
+Z08.1|Tái khám sau xạ trị liệu u ác tính
+Z08.2|Tái khám sau hoá trị liệu u ác tính
+Z08.7|Tái khám sau điều trị kết hợp bệnh u ác tính
+Z08.8|Tái khám sau điều trị u ác tính khác
+Z08.9|Tái khám sau điều trị u ác tính không xác định
+*Z09.0|Tái khám sau phẫu thuật bệnh lý khác|tái khám sau mổ
+Z09.1|Tái khám sau xạ trị liệu bệnh lý khác
+Z09.2|Tái khám sau hoá trị liệu bệnh lý khác
+Z09.3|Tái khám sau trị liệu tâm lý
+Z09.4|Tái khám sau điều trị gãy xương
+Z09.7|Tái khám sau điều trị kết hợp đối với bệnh lý khác
+Z09.8|Tái khám sau điều trị khác đối với bệnh lý khác
+Z09.9|Tái khám sau điều trị không xác định đối với bệnh lý khác
+Z43.1|Chăm sóc lỗ mở thông dạ dày
+Z43.2|Chăm sóc lỗ mở thông hồi tràng|đóng hậu môn nhân tạo, HMNT
+*Z43.3|Chăm sóc lỗ mở thông đại tràng|đóng hậu môn nhân tạo, HMNT
+Z43.4|Chăm sóc lỗ mở nhân tạo khác của đường tiêu hoá
+Z43.5|Chăm sóc lỗ mở thông bàng quang
+Z43.6|Chăm sóc các lỗ mở nhân tạo khác của đường tiết niệu
+Z43.8|Chăm sóc lỗ mở nhân tạo khác
+Z43.9|Chăm sóc lỗ mở thông nhân tạo không xác định
+Z46.5|Điều chỉnh ống mở thông hỗng tràng và/hoặc thiết bị khác ở ruột non
+*Z46.6|Điều chỉnh thiết bị tiết niệu|rút sonde JJ, thay sonde JJ, rút JJ, thay JJ, thay sonde dẫn lưu
+Z46.8|Điều chỉnh thiết bị xác định khác
+Z46.9|Điều chỉnh thiết bị không xác định
+*Z48.0|Chăm sóc liên quan băng và/hoặc vết khâu phẫu thuật|thay băng, cắt chỉ
+Z48.8|Chăm sóc sau phẫu thuật xác định khác|chăm sóc sau mổ
+Z48.9|Chăm sóc sau phẫu thuật, không xác định
+Z93.0|Tình trạng lỗ mở khí quản
+Z93.1|Tình trạng lỗ mở thông dạ dày
+*Z93.2|Tình trạng lỗ mở thông hồi tràng [hậu môn nhân tạo]|HMNT
+*Z93.3|Tình trạng lỗ mở thông đại tràng [hậu môn nhân tạo]|HMNT
+Z93.4|Tình trạng lỗ mở nhân tạo khác của dạ dày - ruột
+Z93.5|Tình trạng có ống dẫn lưu bàng quang trên xương mu
+Z93.6|Tình trạng có ống dẫn lưu đường tiết niệu qua da khác
+Z93.8|Tình trạng lỗ mở nhân tạo khác
+Z93.9|Tình trạng lỗ mở nhân tạo, không xác định
+*Z96.0|Sự có mặt thiết bị/dụng cụ cấy ghép tiết niệu sinh dục|sonde JJ, ống thông JJ, double J, thông niệu quản
+Z96.1|Sự có mặt của thấu kính nội nhãn
+Z96.2|Sự có mặt của thiết bị/dụng cụ cấy ghép tai và/hoặc thính giác
+Z96.3|Sự có mặt của thanh quản nhân tạo
+Z96.4|Sự có mặt của thiết bị/dụng cụ cấy ghép nội tiết
+Z96.5|Sự có mặt của chân [trụ] răng và/hoặc thiết bị/dụng cụ tạo hình hàm được cấy ghép
+Z96.6|Sự có mặt của thiết bị/dụng cụ chỉnh hình khớp
+Z96.7|Sự có mặt của mô xương và/hoặc gân được ghép
+Z96.8|Sự có mặt của thiết bị/dụng cụ cấy ghép chức năng xác định khác
+Z96.9|Sự có mặt của thiết bị/dụng cụ cấy ghép chức năng, không xác định
+</script>
+
 <script>
 (function () {
 'use strict';
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.6-thu4', VERSION_DATE = '04/11/2026';
+var VERSION = '2.7-thu1', VERSION_DATE = '04/11/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -1588,7 +3777,7 @@ function openForm(mode, opt) {
     mode: mode, pid: p ? p.id : null,
     name: p ? p.name : pre ? pre.name : '', yob: p && p.yob ? p.yob : pre && pre.yob ? pre.yob : '',
     gender: p ? p.gender : pre ? pre.gender : '', spec: p ? p.spec : pre ? pre.spec : '',
-    doctor: p ? p.doctor : '', want: p ? p.want : 0, dx: p ? p.dx : pre ? pre.icd : '', note: p ? p.note : '',
+    doctor: p ? p.doctor : '', want: p ? p.want : 0, dx: p ? icdExpand(p.dx) : pre ? icdLabel(pre.icd) : '', note: p ? p.note : '',
     date: p ? p.admittedAt : pre && pre.admitAt ? pre.admitAt : today(), src: p ? p.src || '' : pre ? pre.src : '',
     time: p ? p.admitTime || '' : pre ? pre.admitTime || '' : nowHM(),
     srcDept: p ? p.srcDept || '' : pre ? pre.srcDept : '', hisCode: p ? p.hisCode || '' : pre ? pre.code : '',
@@ -1623,7 +3812,9 @@ function openForm(mode, opt) {
       field('Bác sĩ phụ trách', doctorSelect(f.doctor)) +
       field('Ngày, giờ vào khoa', '<div class="dt"><input id="f_date" type="text" placeholder="ngày/tháng/năm" value="' + esc(fmtDate(f.date)) + '" autocomplete="off">' +
         '<input id="f_time" type="text" placeholder="giờ:phút" value="' + esc(f.time) + '" autocomplete="off"></div>') + '</div>' +
-      field('Chẩn đoán', '<input id="f_dx" type="text" value="' + esc(f.dx) + '" autocomplete="off">') +
+      field('Chẩn đoán', '<div class="icdwrap"><input id="f_dx" type="text" value="' + esc(f.dx) + '" autocomplete="off" spellcheck="false">' +
+        '<div id="icdBox" class="icdbox" hidden></div></div><p id="icdNote" class="hint warn"></p>' +
+        '<p class="hint">Gõ tên bệnh hoặc cơ quan (vd: ruột thừa, đại tràng, sỏi thận, CTSN) hay mã ICD để chọn mã. Nhiều chẩn đoán cách nhau bằng dấu ;</p>') +
       field('Ghi chú', '<input id="f_note" type="text" value="' + esc(f.note) + '" autocomplete="off">');
   }
   if (mode !== 'edit') h += '<div class="sugwrap"><h3>Xếp giường</h3><div id="sugBox"></div></div>';
@@ -1686,6 +3877,151 @@ function addDoctor(n) { if (n && state.doctors.indexOf(n) < 0) state.doctors.pus
 function addNurse(n) { if (n && state.nurses.indexOf(n) < 0) state.nurses.push(n); }
 function addDept(n) { if (n && state.depts.indexOf(n) < 0) state.depts.push(n); }
 function deptDatalist() { return '<datalist id="dl_dept">' + state.depts.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('') + '</datalist>'; }
+
+/* ---- gợi ý mã ICD-10 khi gõ chẩn đoán (bác sĩ yêu cầu 04/11/2026) ---- */
+// Danh mục nằm ở khối <script id="icdData">, đọc một lần khi cần. Tìm không dấu, theo đầu chữ, có chữ viết tắt hay dùng.
+// Chọn một mã thì phần đang gõ (sau dấu ; cuối cùng) được thay bằng "Tên bệnh (mã)".
+var ICD = null, ICD_BY = {}, icdHits = [], icdSel = 0, ICD_SHOW = 12, icdNoteCode = '';
+// tên gọi khác → chữ có trong tên chính thức (đã bỏ dấu)
+var ICD_ALIAS = [['ket trang', 'dai trang'], ['ruot gia', 'dai trang'], ['bao tu', 'da day'], ['bong dai', 'bang quang'],
+  ['tien liet tuyen', 'tuyen tien liet'], ['nhiem khuan', 'nhiem trung'], ['tinh mac', 'mang tinh hoan'],
+  ['nq', 'nieu quan'], ['bq', 'bang quang'], ['dt', 'dai trang'], ['dd', 'da day'], ['omc', 'ong mat'], ['tlt', 'tuyen tien liet'],
+  ['ttl', 'tuyen tien liet'], ['vpm', 'viem phuc mac'], ['tv', 'thoat vi'], ['vt', 'vet thuong'], ['ct', 'chan thuong'], ['xh', 'xuat huyet']];
+function icdWords(s) { return ' ' + fold(s).replace(/\./g, '').replace(/[^a-z0-9]+/g, ' ').trim() + ' '; }
+// giữ dấu để phân biệt trĩ/trí, thận/thần; dấu thanh đặt theo một kiểu (hoá = hóa, tuỵ = tụy)
+function icdTone(s) {
+  s = String(s || '').toLowerCase();
+  if (!s.normalize) return ' ' + s + ' ';
+  s = s.normalize('NFD').replace(/o([ae])([̣̀́̃̉])(?![a-zđ])/g, 'o$2$1')
+    .replace(/([^q])uy([̣̀́̃̉])(?![a-zđ])/g, '$1u$2y');
+  return ' ' + s.replace(/[^a-z0-9đ̀-ͯ]+/g, ' ').trim() + ' ';
+}
+function icdLoad() {
+  if (ICD) return ICD;
+  ICD = [];
+  var el = $('icdData');
+  (el ? el.textContent : '').split('\n').forEach(function (l) {
+    l = l.trim();
+    if (!l) return;
+    var w = l.charAt(0) === '*', a = (w ? l.slice(1) : l).split('|');
+    // bỏ cụm "vị trí" (trong "vị trí không xác định") để gõ "tri" không dồn ra hàng loạt mã
+    var x = {c: a[0], n: a[1] || '', w: w, i: ICD.length, k: a[0].toLowerCase().replace('.', ''),
+      s: icdWords(a[1] + ' ' + (a[2] || '')).split(' vi tri ').join(' '), sn: icdWords(a[1]), st: icdTone(a[1] + ' ' + (a[2] || ''))};
+    ICD.push(x); ICD_BY[x.c] = x;
+  });
+  return ICD;
+}
+function icdLabel(code) { icdLoad(); var x = ICD_BY[code]; return x ? x.n + ' (' + x.c + ')' : code || ''; }
+// chẩn đoán chỉ có mã (lấy từ file a.xls) thì hiện thêm tên bệnh
+function icdExpand(dx) { return /^[A-Z]\d\d(\.\d)?$/.test(dx || '') ? icdLabel(dx) : dx || ''; }
+function icdSearch(q) {
+  icdLoad();
+  var t = icdWords(q), open = !/\s$/.test(q);
+  ICD_ALIAS.forEach(function (a) { while (t.indexOf(' ' + a[0] + ' ') >= 0) t = t.replace(' ' + a[0] + ' ', ' ' + a[1] + ' '); });
+  var toks = t.trim().split(' ').filter(Boolean), res = [], best = 0;
+  if (!toks.length) return {hits: [], approx: false};
+  // chữ người dùng gõ có dấu: dùng thêm để xếp (và lọc) cho đúng dấu
+  var dw = icdTone(q).trim().split(' ').filter(function (w) { return w && w !== fold(w); });
+  ICD.forEach(function (x) {
+    var m = 0, e = 0, d = 0;
+    toks.forEach(function (tk, j) {
+      if (/^[a-z]\d/.test(tk)) { if (x.k.indexOf(tk) === 0) { m++; e++; } }   // gõ mã: K35, k358
+      else if (x.s.indexOf(' ' + tk + ' ') >= 0) { m++; e++; }                 // đủ chữ
+      else if (x.s.indexOf(' ' + tk) >= 0 && (tk.length > 1 || (open && j === toks.length - 1))) m++;   // đầu chữ (một chữ cái như K = ung thư thì phải đủ chữ)
+    });
+    if (!m || m < best) return;
+    dw.forEach(function (w, j) { if (x.st.indexOf(' ' + w + (open && j === dw.length - 1 ? '' : ' ')) >= 0) d++; });
+    if (m > best) { best = m; res = []; }
+    res.push({x: x, e: e, d: d});
+  });
+  // không có mã khớp đủ các chữ: chỉ gợi ý gần đúng khi khớp được ít nhất một nửa
+  if (best < toks.length && best * 2 < toks.length) return {hits: [], approx: false};
+  // có mã khớp đủ chữ (không chỉ đầu chữ) thì bỏ các mã chỉ khớp đầu chữ; có mã khớp đúng dấu mọi chữ có dấu thì bỏ mã sai dấu
+  var maxE = 0, maxD = 0;
+  res.forEach(function (r) { maxE = Math.max(maxE, r.e); maxD = Math.max(maxD, r.d); });
+  if (maxE === toks.length) res = res.filter(function (r) { return r.e === maxE; });
+  if (dw.length && maxD === dw.length) res = res.filter(function (r) { return r.d === maxD; });
+  var phrase = ' ' + toks.join(' ');
+  function rank(r) { var x = r.x; return (x.w ? 0 : 4) + (x.sn.indexOf(phrase) >= 0 ? 0 : 2) + (x.sn.indexOf(' ' + toks[0]) === 0 ? 0 : 1); }
+  res.sort(function (a, b) { return b.e - a.e || b.d - a.d || rank(a) - rank(b) || a.x.i - b.x.i; });
+  return {hits: res.map(function (r) { return r.x; }), approx: best < toks.length};
+}
+// phần đang gõ: sau dấu ; hoặc + cuối cùng
+function icdCut(v) { return Math.max(v.lastIndexOf(';'), v.lastIndexOf('+')); }
+function icdHide() { var b = $('icdBox'); if (b) { b.hidden = true; b.innerHTML = ''; } icdHits = []; }
+function icdInput() {
+  var el = $('f_dx');
+  if (!el) return;
+  var seg = el.value.slice(icdCut(el.value) + 1);
+  // lời nhắc chuyên khoa theo mã: bỏ khi mã đó không còn trong ô
+  if (icdNoteCode && el.value.indexOf('(' + icdNoteCode + ')') < 0) { $('icdNote').innerHTML = ''; icdNoteCode = ''; }
+  // đã chọn mã cho chẩn đoán này (còn gõ thêm bên phải, vd "P") hoặc mới gõ 1 chữ: không gợi ý
+  if (/\([A-Z]\d\d(\.\d)?\)/.test(seg) || icdWords(seg).trim().length < 2) { icdHide(); return; }
+  var r = icdSearch(seg), box = $('icdBox');
+  icdHits = r.hits.slice(0, ICD_SHOW); icdSel = 0;
+  if (!icdHits.length) {
+    box.innerHTML = icdWords(seg).trim().length >= 3 ? '<div class="icdn">Không thấy mã ICD phù hợp – vẫn ghi chẩn đoán bằng chữ được.</div>' : '';
+    box.hidden = !box.innerHTML;
+    return;
+  }
+  box.innerHTML = (r.approx ? '<div class="icdn">Không có mã khớp đủ các chữ đã gõ – gợi ý gần đúng:</div>' : '') +
+    icdHits.map(function (x, i) {
+      return '<button type="button" class="icdi' + (i === icdSel ? ' on' : '') + '" data-act="icdPick" data-i="' + i + '"><b>' + esc(x.c) + '</b> ' + esc(x.n) + '</button>';
+    }).join('') +
+    (r.hits.length > ICD_SHOW ? '<div class="icdn">… còn ' + (r.hits.length - ICD_SHOW) + ' mã nữa, gõ thêm chữ để lọc (vd “u đại tràng”, “viêm đại tràng”).</div>' : '');
+  box.hidden = false;
+  box.scrollTop = 0;
+}
+function icdMark() {
+  Array.prototype.forEach.call(document.querySelectorAll('#icdBox .icdi'), function (b, i) {
+    b.classList.toggle('on', i === icdSel);
+    if (i === icdSel && b.scrollIntoView) b.scrollIntoView({block: 'nearest'});
+  });
+}
+// chuyên khoa đoán được chắc từ mã: Niệu, Thần kinh, bệnh tiêu hóa; mã khác (vd tăng huyết áp) thì không đoán
+function icdSpec(code) {
+  var g = guessSpec(code);
+  return g !== 'TH' || /^(K|C1[5-9]|C2[0-6]|D1[23]|D37)/.test(code) ? g : '';
+}
+function icdPick(i) {
+  var x = icdHits[i], el = $('f_dx');
+  if (!x || !el) return;
+  var v = el.value, cut = icdCut(v), first = v.slice(0, cut + 1).replace(/[;+\s]/g, '') === '';
+  el.value = (cut >= 0 ? v.slice(0, cut + 1).replace(/\s+$/, '') + ' ' : '') + x.n + ' (' + x.c + ')';
+  icdHide();
+  el.focus();
+  try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) {}
+  // chẩn đoán chính: chưa chọn chuyên khoa thì chọn sẵn theo mã, chọn khác thì nhắc kiểm tra
+  var g = first && form ? icdSpec(x.c) : '', btn = g ? document.querySelector('[data-act="seg"][data-field="spec"][data-val="' + g + '"]') : null;
+  if (!btn) return;
+  if (!form.spec) {
+    Array.prototype.forEach.call(btn.parentNode.children, function (b) { b.classList.remove('on'); });
+    btn.classList.add('on');
+    form.spec = g;
+    if (!form.preset) form.manual = false;
+    refreshSug();
+    icdNoteCode = x.c;
+    $('icdNote').innerHTML = 'Đã chọn sẵn chuyên khoa <b>' + esc(specName(g)) + '</b> theo mã ' + esc(x.c) + ' – kiểm tra lại.';
+  } else if (form.spec !== g) {
+    icdNoteCode = x.c;
+    $('icdNote').innerHTML = 'Mã ' + esc(x.c) + ' thường thuộc chuyên khoa <b>' + esc(specName(g)) + '</b>, đang chọn ' + esc(specName(form.spec)) + ' – kiểm tra lại.';
+  }
+}
+// phím trong ô chẩn đoán khi đang hiện gợi ý: lên/xuống chọn, Enter lấy mã, Esc đóng danh sách (không đóng bảng)
+function icdKey(e) {
+  var box = $('icdBox');
+  if (!box || box.hidden) return false;
+  var n = icdHits.length, k = e.key;
+  if (k === 'Escape' || k === 'Esc') { icdHide(); e.preventDefault(); return true; }
+  if (k === 'Tab') { icdHide(); return false; }
+  if (!n) return false;
+  if (k === 'ArrowDown' || k === 'Down') icdSel = (icdSel + 1) % n;
+  else if (k === 'ArrowUp' || k === 'Up') icdSel = (icdSel + n - 1) % n;
+  else if (k === 'Enter') { e.preventDefault(); icdPick(icdSel); return true; }
+  else return false;
+  e.preventDefault(); icdMark();
+  return true;
+}
 function saveForm() {
   var f = form, p, msg;
   if (f.mode !== 'edit' && !can('move')) return false;   // bác sĩ chỉ được lưu phần bổ sung thông tin
@@ -3331,7 +5667,7 @@ function importAllWaiting() {
   r.news.forEach(function (h) {
     if (!h.gender || state.patients.some(function (x) { return x.hisCode === h.code; })) return;   // thiếu giới thì để nhận tay
     var f = prefillFrom(h);
-    state.patients.push({id: state.seq++, name: f.name, yob: f.yob, gender: f.gender, spec: f.spec, doctor: '', want: 0, dx: f.icd, note: '',
+    state.patients.push({id: state.seq++, name: f.name, yob: f.yob, gender: f.gender, spec: f.spec, doctor: '', want: 0, dx: icdLabel(f.icd), note: '',
       admittedAt: f.admitAt || today(), admitTime: f.admitAt ? f.admitTime : '', src: f.src, srcDept: f.srcDept, hisCode: f.code, room: null, bed: null, hold: false});
     added++;
   });
@@ -3347,7 +5683,7 @@ function importApply(list, i, link) {
   if (link) p.hisCode = x.h.code;
   if (link && !p.admitTime && x.h.admitAt === p.admittedAt) p.admitTime = hisTime(x.h.admitTime);
   if (link && !p.srcDept && x.h.dept) { p.srcDept = x.h.dept; addDept(x.h.dept); }
-  if (link && !p.dx && x.h.icd) p.dx = x.h.icd;
+  if (link && !p.dx && x.h.icd) p.dx = icdLabel(x.h.icd);
   p.name = x.h.name || p.name;
   if (x.h.yob) p.yob = x.h.yob;
   if (x.h.gender) p.gender = x.h.gender;
@@ -3713,6 +6049,7 @@ document.addEventListener('click', function (e) {
   var eye = e.target.closest ? e.target.closest('[data-eye]') : null;
   if (eye) { togglePw(eye); return; }
   if (qOpen && !(e.target.closest && e.target.closest('.qwrap'))) { qOpen = false; renderSearch(); }
+  if (!(e.target.closest && e.target.closest('.icdwrap'))) icdHide();
   var el = e.target.closest ? e.target.closest('[data-act]') : null;
   if (!el) return;
   var d = el.dataset, p;
@@ -3783,6 +6120,7 @@ document.addEventListener('click', function (e) {
     case 'back': backFromSurgery(+d.pid); break;
     case 'pick': if (form) { form.pick = {room: d.room, bed: +d.bed}; form.manual = true; refreshSug(); } break;
     case 'pickWait': if (form) { form.pick = 'wait'; form.manual = true; refreshSug(); } break;
+    case 'icdPick': icdPick(+d.i); break;
     case 'saveForm': saveForm(); break;
     case 'edit': openForm('edit', {pid: +d.pid}); break;
     case 'move': openForm('move', {pid: +d.pid}); break;
@@ -3853,9 +6191,11 @@ $('q').addEventListener('focus', function () { if (query) { qOpen = true; render
 document.addEventListener('input', function (e) {
   var el = e.target;
   if (el.classList && el.classList.contains('rpf') && shift.day && can('repEdit')) repQueue({k: el.getAttribute('data-k'), v: el.value});
+  else if (el.id === 'f_dx') icdInput();
 });
 window.addEventListener('beforeunload', function () { if (shift.ops.length) repFlush(); });
 document.addEventListener('keydown', function (e) {
+  if (e.target && e.target.id === 'f_dx' && icdKey(e)) return;
   if (e.key !== 'Escape') return;
   if ($('hoa')) hoaHide();
   else if (qOpen) { qOpen = false; renderSearch(); }

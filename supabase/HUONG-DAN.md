@@ -52,6 +52,15 @@ Trong danh sách tài khoản: đổi vai trò bằng ô chọn; **Khóa** để
 
 Mật khẩu theo quy ước `Tên@1234` dễ đoán. Vì vậy app bắt đổi ở lần đăng nhập đầu; nên phát phiếu và nhắc mọi người đăng nhập sớm để đổi.
 
+## Ghi chẩn đoán, chọn mã ICD-10
+
+- Trong ô **Chẩn đoán**, gõ tên bệnh hoặc tên cơ quan: "ruột thừa", "đại tràng", "sỏi thận", "thoát vị bẹn"… hoặc mã ("K35"). App hiện danh sách mã ICD-10 liên quan, mã hay dùng ở khoa đứng trước.
+- Không cần gõ dấu. Hiểu chữ viết tắt hay dùng: VRT, TVB, CTSN, CTCS, XHTH, THA, ĐTĐ, TVĐĐ, HMNT, NKVM, sỏi OMC, sonde JJ, "K đại tràng"…
+- Bấm vào mã cần chọn (hoặc phím mũi tên rồi Enter). Ô ghi "Tên bệnh (mã)"; có thể ghi thêm bên phải, vd "P".
+- **Nhiều chẩn đoán:** gõ dấu **;** rồi gõ chẩn đoán tiếp theo, vd "Sỏi niệu quản (N20.1) P; THA".
+- Chẩn đoán chính: nếu chưa chọn chuyên khoa, app chọn sẵn theo mã; nếu đã chọn khác, app nhắc kiểm tra.
+- Không có mã phù hợp thì cứ ghi bằng chữ.
+
 ## Cập nhật bệnh mới từ phần mềm bệnh viện (máy bàn)
 
 Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để nhập tay như cũ; nút này ẩn trên màn hình nhỏ.
@@ -61,7 +70,7 @@ Dùng cho máy tính bàn. Điện thoại, iPad dùng "+ Nhận bệnh" để n
    - Lần đầu: chọn file `a.xls` trong thư mục Tải xuống. Chrome, Edge sẽ nhớ file này cho những lần sau; mỗi lần mở lại trình duyệt có thể hỏi "Cho phép xem tệp?" một lần, bấm Cho phép.
 3. App so danh sách trong file với sơ đồ:
    - **Không có bệnh mới:** app báo "Không có bệnh mới".
-   - **Có bệnh mới (tối đa 10 người):** mở lần lượt bảng nhận bệnh cho từng người, đã điền sẵn họ tên, năm sinh, giới, mã bệnh nhân, ngày vào, mã ICD, nơi chuyển đến; chuyên khoa được **gợi ý theo mã ICD** (N… → Niệu; S06, I60–I62… → Thần kinh; còn lại → Tiêu hóa). Kiểm tra, chọn giường theo gợi ý hoặc tự chọn, rồi bấm **Lưu & xếp giường**. "Bỏ qua người này" để nhận sau; "Dừng lại" để xem bảng đối chiếu.
+   - **Có bệnh mới (tối đa 10 người):** mở lần lượt bảng nhận bệnh cho từng người, đã điền sẵn họ tên, năm sinh, giới, mã bệnh nhân, ngày vào, mã ICD (kèm tên bệnh), nơi chuyển đến; chuyên khoa được **gợi ý theo mã ICD** (N… → Niệu; S06, I60–I62… → Thần kinh; còn lại → Tiêu hóa). Kiểm tra, chọn giường theo gợi ý hoặc tự chọn, rồi bấm **Lưu & xếp giường**. "Bỏ qua người này" để nhận sau; "Dừng lại" để xem bảng đối chiếu.
    - **Nhiều hơn 10 người** (ví dụ lần đầu đưa cả khoa vào): app hiện danh sách trước. Có thể xếp giường lần lượt, hoặc **đưa tất cả vào danh sách chờ giường** rồi xếp dần.
 4. Bảng **Cần đối chiếu** liệt kê:
    - Ca **nhập tay lúc gấp** mà họ tên **thiếu hoặc gõ sai** (vd "Bà Lụa" ↔ Phạm Thị Lụa, "Khanh" ↔ "Khang"), cùng giới → mục **"Có thể là người đã nhập tay lúc gấp"**. Xem kỹ rồi bấm **Đúng người – gắn mã** (họ tên, năm sinh sửa theo bệnh viện, giường giữ nguyên) hoặc **Không phải**. Khi có mục này, app hiện bảng đối chiếu trước để không nhận trùng.

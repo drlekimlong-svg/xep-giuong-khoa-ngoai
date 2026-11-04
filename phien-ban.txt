@@ -1,2 +1,2 @@
-2.6-thu4
-Báo cáo lưu lượng: tách Thần kinh thành nhóm riêng như Niệu, Tiêu hóa; in khổ ngang
+2.7-thu1
+Gợi ý mã ICD-10 khi gõ chẩn đoán: gõ ruột thừa, đại tràng, sỏi thận… rồi chọn mã

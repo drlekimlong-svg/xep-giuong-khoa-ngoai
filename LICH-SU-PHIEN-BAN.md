@@ -23,6 +23,32 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.7-thu1 — 04/11/2026 — Gợi ý mã ICD-10 khi gõ chẩn đoán
+
+- **File:** `phien-ban/v2.7-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.7-thu1`.
+- **Bối cảnh:** bác sĩ muốn khi nhân viên gõ chẩn đoán bằng chữ hoặc tên cơ quan ("ruột thừa", "đại tràng"…), app gợi ý các mã ICD-10 liên quan để chọn.
+- **Máy chủ:** không đổi.
+
+**Mới so với 2.6-thu4**
+
+1. **Ô Chẩn đoán có danh sách gợi ý** (bảng nhận bệnh và sửa thông tin):
+   - Gõ tên bệnh, tên cơ quan hoặc mã: "ruột thừa", "đại tràng", "sỏi thận", "K35"… Không cần gõ dấu; gõ có dấu thì app lọc đúng dấu (trĩ ≠ trí, thận ≠ thần).
+   - Hiểu chữ viết tắt hay dùng: VRT, TVB, CTSN, CTCS, XHTH, THA, ĐTĐ, TVĐĐ, HMNT, NKVM, TKMP, TMMP, sỏi OMC, sonde JJ, K (= ung thư)…
+   - Chọn bằng chuột/ngón tay, hoặc phím mũi tên lên/xuống rồi Enter; Esc đóng danh sách.
+   - Chọn xong, ô ghi "Tên bệnh (mã)", vd "Viêm ruột thừa cấp tính kèm viêm phúc mạc khu trú (K35.3)". Ghi thêm bên phải được (vd "P"). Nhiều chẩn đoán: gõ dấu ";" rồi gõ chẩn đoán tiếp theo.
+   - Không có mã phù hợp thì vẫn ghi chẩn đoán bằng chữ như cũ.
+2. **Chuyên khoa theo mã:** chọn mã cho chẩn đoán chính khi chưa chọn chuyên khoa thì app chọn sẵn (Niệu, Thần kinh, Tiêu hóa); đã chọn khác thì nhắc kiểm tra. Mã không đoán được chuyên khoa (vd tăng huyết áp) thì không nhắc.
+3. **Mã lấy từ file a.xls** nay hiện kèm tên bệnh, vd "K81.0" thành "Viêm túi mật cấp tính (K81.0)". Hồ sơ cũ chỉ có mã thì khi mở "Sửa" cũng được thêm tên.
+4. **Danh mục:** 2.177 mã các nhóm bệnh khoa Ngoại hay gặp (tiêu hóa, gan mật tụy, tiết niệu – sinh dục nam, thần kinh – cột sống, chấn thương, lồng ngực – mạch máu, u, triệu chứng, biến chứng sau mổ, bệnh kèm thường gặp). Tên bệnh theo danh mục ICD-10 ban hành kèm TT 06/2026/TT-BYT (áp dụng từ 01/07/2026), lấy từ bản điện tử của HL7 Việt Nam. 262 mã hay dùng ở khoa được xếp lên đầu. Tạo lại bằng `cong-cu/tao-icd.py`.
+
+**Đã thử:** bản xem thử: hơn 60 kiểu gõ (có dấu, không dấu, viết tắt, gõ mã, gõ dở chữ); chọn bằng phím và chuột; nhiều chẩn đoán; chuyên khoa chọn sẵn và lời nhắc; đọc file a mẫu TH1 (mã K81.0 hiện kèm tên); sửa hồ sơ chỉ có mã; khổ điện thoại 375 px. Mỗi lần gõ tìm dưới 6 ms trên máy thử.
+
+**Chưa thử:** máy Win7 ở khoa (máy chậm hơn), iPhone/iPad thật.
+
+**Hạn chế:** danh mục chỉ gồm các nhóm bệnh khoa Ngoại hay gặp, không đủ 15.000 mã. File app nặng thêm khoảng 150 KB.
+
+---
+
 ## 2.6-thu4 — 04/11/2026 — Báo cáo lưu lượng: tách riêng Thần kinh
 
 - **File:** `phien-ban/v2.6-thu4/XepGiuong_KhoaNgoai.html` · nhãn git `v2.6-thu4`.
