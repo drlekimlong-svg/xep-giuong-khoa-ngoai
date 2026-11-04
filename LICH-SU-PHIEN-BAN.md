@@ -23,6 +23,44 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.8-thu1 — 04/11/2026 — Báo cáo mặt bệnh; công suất Tiêu hóa riêng
+
+- **File:** `phien-ban/v2.8-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.8-thu1`.
+- **Bối cảnh:** bác sĩ báo phần gợi ý ICD (2.7) đã dùng được; yêu cầu (1) công suất chỉ tính bệnh tiêu hóa, không gộp Thần kinh; (2) thêm báo cáo thống kê mặt bệnh của khoa.
+- **Máy chủ:** không đổi.
+
+**Mới so với 2.7-thu1**
+
+1. **Lưu lượng – công suất Tiêu hóa riêng:**
+   - Dòng Tiêu hóa (Nam, Nữ, cả nhóm) nay so với 42 giường khu Tiêu hóa: công suất, ô vàng/đỏ, chỉ tính người bệnh tiêu hóa.
+   - Thần kinh vẫn ghi "chung khu Tiêu hóa".
+   - Dòng "Cả khu Tiêu hóa (Tiêu hóa + Thần kinh nằm chung)" giữ lại để biết giường khu đó thực sự được dùng bao nhiêu.
+   - Bảng theo kỳ: Niệu, Tiêu hóa mỗi nhóm 5 cột (thêm Công suất); Cả khu Tiêu hóa còn 2 cột (cao nhất, công suất). Excel thêm cột công suất.
+2. **Báo cáo → Mặt bệnh của khoa** (mới):
+   - Theo tháng, quý, năm; tính người bệnh **vào khoa** hoặc **ra khoa** trong kỳ; nút ‹ Trước / Sau ›.
+   - **Bảng 1 – theo nhóm bệnh**, chia 5 phần: Tiêu hóa – gan mật tụy; Tiết niệu – sinh dục nam; Thần kinh – cột sống; Chấn thương; Lồng ngực, mạch máu, phần mềm và bệnh khác. Mỗi nhóm: số người, tỷ lệ, Nam, Nữ, tuổi TB, có đi mổ, ngày nằm TB, chuyển viện, xin về/trốn viện, tử vong.
+   - **Bảng 2 – 20 mã ICD-10 gặp nhiều nhất** (người có mã).
+   - **Bảng 3 – chẩn đoán chưa xếp được nhóm** (ghi bằng chữ), để bổ sung mã.
+   - In khổ A4 ngang, xuất Excel.
+3. **Xếp nhóm theo chẩn đoán chính** (phần đầu ô chẩn đoán, trước dấu ; + /):
+   - Có mã ICD → theo mã. Không có mã → theo chữ, hiểu viết tắt hay dùng (VRT, TVB, sỏi NQ, sỏi OMC, CTSN, MTDMC, TKMP…). Rồi đến mã ICD trong file a.xls, rồi thử danh mục ICD gợi ý.
+   - Ngày 04/11/2026 sơ đồ chung chỉ khoảng 1/3 hồ sơ có mã nên phải xếp được theo chữ.
+   - Mã 3 ký tự nằm giữa chữ không được lấy làm mã (tránh nhầm đốt sống T12, D12).
+4. **Lưu thêm:**
+   - Mã ICD trong file a.xls lưu riêng ở hồ sơ (`icd`), để chẩn đoán có sửa thành chữ vẫn còn mã của bệnh viện.
+   - Kho hồ sơ ra khoa rút gọn (quá 300 người) thêm mã ICD, nhóm bệnh, tuổi, có mổ – vẫn không có họ tên, không có chẩn đoán bằng chữ.
+
+**Đã thử:**
+- Bản xem thử: hơn 110 kiểu chẩn đoán ghi bằng chữ, mã, chữ viết tắt; đã sửa các chỗ khớp nhầm (tĩnh mạch ↔ tinh mạc, viêm tuyến ↔ viêm tụy…).
+- Báo cáo theo tháng/quý/năm, vào/ra khoa, nút trước/sau.
+- Rút gọn hơn 300 hồ sơ ra khoa (dòng kho có đủ ô mới).
+- Lưu lượng: Tiêu hóa + Thần kinh = Cả khu Tiêu hóa; công suất khớp phép chia.
+- Khổ điện thoại không tràn ngang.
+
+**Chưa thử:** in giấy thật, Excel trên máy ở khoa, số liệu thật (chưa đọc chẩn đoán trên máy chủ – xem bảng 3 để biết chẩn đoán nào chưa xếp được).
+
+---
+
 ## 2.7-thu1 — 04/11/2026 — Gợi ý mã ICD-10 khi gõ chẩn đoán
 
 - **File:** `phien-ban/v2.7-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.7-thu1`.

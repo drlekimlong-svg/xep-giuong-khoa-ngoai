@@ -1,2 +1,2 @@
-2.7-thu1
-Gợi ý mã ICD-10 khi gõ chẩn đoán: gõ ruột thừa, đại tràng, sỏi thận… rồi chọn mã
+2.8-thu1
+Báo cáo mới: Mặt bệnh của khoa (theo tháng, quý, năm); công suất Tiêu hóa tính riêng, không gộp Thần kinh

@@ -318,8 +318,14 @@ button.stat:hover{border-color:var(--accent)}
 .flw td.bad{background:#fbd5d2;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 .flw table.sum{min-width:700px}
 .flw table.sum td:first-child{white-space:nowrap}
-#flowNav .nav{margin-left:auto;display:inline-flex;flex-wrap:wrap}
-#flowNav .nav .btn{margin:3px 0 3px 6px}
+#flowNav .nav,#mbNav .nav{margin-left:auto;display:inline-flex;flex-wrap:wrap}
+#flowNav .nav .btn,#mbNav .nav .btn{margin:3px 0 3px 6px}
+/* ---- mặt bệnh ---- */
+.mbr table.mbt{min-width:860px}
+.mbr table.mbc{min-width:0}
+.mbr table.mbt th{text-align:center;font-size:12px}
+.mbr td small{color:#555}
+.mbr h3 span{font-weight:400}
 /* ---- chúc mừng 20/10 ---- */
 .hoa{position:fixed;left:0;top:0;right:0;bottom:0;z-index:96;pointer-events:none;display:flex;align-items:center;justify-content:center;padding:16px}
 .hoa canvas{position:absolute;left:0;top:0;width:100%;height:100%}
@@ -344,7 +350,9 @@ button.stat:hover{border-color:var(--accent)}
   body{background:#fff}
   body>*{display:none!important}
   #printArea{display:block!important}
-  .flw{page:ngang}
+  .flw,.mbr{page:ngang}
+  .mbr table.mbt{min-width:0}
+  .mbr table.mbt th,.mbr table.mbt td{padding:2px 4px;font-size:11.5px}
   .flw table.fl,.flw table.sum{min-width:0}
   .flw table.fl th,.flw table.fl td{padding:2px 3px;font-size:11px}
 }
@@ -2609,12 +2617,12 @@ Z96.9|Sự có mặt của thiết bị/dụng cụ cấy ghép chức năng, kh
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.7-thu1', VERSION_DATE = '04/11/2026';
+var VERSION = '2.8-thu1', VERSION_DATE = '04/11/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
 var KEY = DEMO ? 'xepgiuong.khoangoai.mau' : 'xepgiuong.khoangoai.v1';
-var SAMPLE_VER = 6;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
+var SAMPLE_VER = 7;   // đổi số này khi dữ liệu mẫu thay đổi: bản xem thử tự nạp lại dữ liệu mẫu mới
 
 // Đăng nhập bằng mã (vd LNKhoi): mã được đổi thành địa chỉ nội bộ lnkhoi@khoangoai.invalid.
 // Đuôi ".invalid" là tên miền dành riêng, không bao giờ nhận thư. Quản trị viên vẫn đăng nhập bằng email thật.
@@ -3781,7 +3789,7 @@ function openForm(mode, opt) {
     date: p ? p.admittedAt : pre && pre.admitAt ? pre.admitAt : today(), src: p ? p.src || '' : pre ? pre.src : '',
     time: p ? p.admitTime || '' : pre ? pre.admitTime || '' : nowHM(),
     srcDept: p ? p.srcDept || '' : pre ? pre.srcDept : '', hisCode: p ? p.hisCode || '' : pre ? pre.code : '',
-    fromImport: !!pre,
+    fromImport: !!pre, icd: pre ? pre.icd || '' : '',
     pick: opt.room ? {room: opt.room, bed: opt.bed} : null,
     manual: !!opt.room, preset: !!opt.room
   };
@@ -4066,6 +4074,7 @@ function saveForm() {
   if (f.mode === 'new') {
     p = {id: null, name: f.name, yob: f.yob ? +f.yob : null, gender: f.gender, spec: f.spec, doctor: f.doctor, want: f.want,
       dx: f.dx, note: f.note, admittedAt: f.date, admitTime: f.time, src: f.src, srcDept: f.srcDept, hisCode: f.hisCode, room: null, bed: null, hold: false};
+    if (f.icd) p.icd = f.icd;   // mã ICD trong file a.xls của bệnh viện
     if (f.pick && f.pick !== 'wait') {
       if (!placeOK(p, f.pick.room, f.pick.bed)) { refreshSug(); return false; }
       p.room = f.pick.room; p.bed = f.pick.bed;
@@ -4498,6 +4507,7 @@ function openReportMenu() {
     '<button class="btn menu" data-act="shift"><b>Báo cáo bệnh trong ngày</b><br><small>Giao ca lúc 7 giờ: tổng hợp số lượng, người bệnh mới, ra viện, chuyển khoa, sự việc trong ca trực</small></button>' +
     '<button class="btn menu" data-act="list"><b>Danh sách người bệnh</b><br><small>In theo chuyên khoa, bác sĩ phụ trách hoặc phòng; in riêng cho một bác sĩ; xuất Excel</small></button>' +
     '<button class="btn menu" data-act="longStay"><b>Người bệnh nằm lâu</b><br><small>Đang nằm trên 7 ngày và từ ngày 15; đánh dấu đã làm tờ sơ kết 15 ngày điều trị; lọc theo bác sĩ phụ trách</small></button>' +
+    '<button class="btn menu" data-act="mb"><b>Mặt bệnh của khoa</b><br><small>Số người bệnh theo nhóm bệnh và mã ICD-10 theo tháng, quý, năm: giới, tuổi, có đi mổ, ngày nằm, chuyển viện, tử vong</small></button>' +
     '<button class="btn menu" data-act="flow"><b>Lưu lượng người bệnh theo chuyên khoa</b><br><small>Niệu, Tiêu hóa, Thần kinh theo ngày, tuần, tháng: vào, ra, số nằm trung bình, cao nhất, so với số giường đang phân – để phân bổ phòng</small></button>' +
     '</div><div class="mfoot"><button class="btn" data-act="close">Đóng</button></div>');
 }
@@ -4628,7 +4638,8 @@ function longCsv() {
 // (Thần kinh tách riêng từ 04/11/2026; vẫn nằm chung phòng khu Tiêu hóa nên giường so ở dòng "Khu Tiêu hóa").
 // Tính lại mỗi lần mở từ giờ vào khoa, giờ ra khoa của người đang nằm, người đã ra khoa và kho rút gọn state.flowArc.
 // Lịch sử ra khoa chỉ giữ 300 hồ sơ đầy đủ; hồ sơ cũ hơn được rút thành một dòng KHÔNG có họ tên:
-//   "chuyên khoa|giới|giờ vào|giờ ra|nơi nhận|loại phòng yêu cầu|hình thức ra" (giờ dạng yymmddhhmm), giữ 400 ngày.
+//   "chuyên khoa|giới|giờ vào|giờ ra|nơi nhận|loại phòng yêu cầu|hình thức ra" (giờ dạng yymmddhhmm), giữ 400 ngày;
+//   từ bản 2.8 thêm "|mã ICD|nhóm bệnh|tuổi|có mổ (1/0)" cho báo cáo mặt bệnh (vẫn không có họ tên, không có chẩn đoán bằng chữ).
 var DIS_MAX = 300, ARC_DAYS = 400;
 var FLOW_N = {day: 31, week: 12, month: 12}, FLOW_UNIT = {day: 'ngày', week: 'tuần', month: 'tháng'};
 // [nhóm, tên, khu giường]; LN-MM (ẩn) tính chung nhóm Tiêu hóa
@@ -4651,7 +4662,10 @@ function stayOf(p) {
   if (p.outAt) { var lt = lastTrip(p); o = lt && !lt.back && lt.out >= a ? lt.out : outTs(p); }
   return {a: a, o: o};
 }
-function arcLine(p) { var st = stayOf(p); return [p.spec, p.gender, arcTs(st.a), arcTs(st.o), p.src || '', p.want || 0, p.outType || ''].join('|'); }
+function arcLine(p) {
+  var st = stayOf(p), c = mbClass(p);
+  return [p.spec, p.gender, arcTs(st.a), arcTs(st.o), p.src || '', p.want || 0, p.outType || '', c.how === 'ma' ? c.code : '', c.g === 'CX' ? '' : c.g, mbAge(p), mbOp(p) ? 1 : 0].join('|');
+}
 function trimDischarged() {
   if (!Array.isArray(state.flowArc)) state.flowArc = [];
   while (state.discharged.length > DIS_MAX) state.flowArc.push(arcLine(state.discharged.pop()));
@@ -4781,24 +4795,25 @@ function flowHTML(screen) {
     h += sumRow(label, g(A, key), shared, null, null, null, true);
   }
   zoneRows('Niệu', 'NIEU', b.NIEU);
-  groupRows('Tiêu hóa', 'TH');
+  zoneRows('Tiêu hóa', 'TH', b.TH);   // chỉ người bệnh tiêu hóa, so với giường khu Tiêu hóa (bác sĩ yêu cầu 04/11/2026)
   groupRows('Thần kinh', 'TK');
-  zoneRows('Khu Tiêu hóa (Tiêu hóa + Thần kinh)', 'ZTH', b.TH);
+  zoneRows('Cả khu Tiêu hóa (Tiêu hóa + Thần kinh nằm chung)', 'ZTH', b.TH);
   h += sumRow('Toàn khoa', g(A, 'ALL'), b.ALL.t, null, b.ALL.t, b.ALL.t, true) + '</tbody></table>';
   var others = state.specs.filter(function (sp) { return A['sp' + sp.id] && flowGroup(sp.id) === 'TH' && sp.id !== 'TH'; }).map(function (sp) {
     return sp.name + ' (vào ' + A['sp' + sp.id].inN + ')';
   }).join(', ');
   var src = g(A, 'ALL').src, bySrc = SOURCES.filter(function (x) { return src[x[0]]; }).map(function (x) { return x[1].toLowerCase() + ' ' + src[x[0]]; }).join(', ');
   h += '<p class="rp-note">* Giường dùng chung cho cả hai giới: phòng linh hoạt' + (b.TH.sh || b.NIEU.sh ? ' và phòng nam nữ chung (619)' : '') + '.' +
-    '<br>Tiêu hóa và Thần kinh nằm chung các phòng khu Tiêu hóa, nên so với số giường ở dòng "Khu Tiêu hóa".' +
+    '<br>Công suất Tiêu hóa chỉ tính người bệnh tiêu hóa (không gồm Thần kinh) so với ' + b.TH.t + ' giường khu Tiêu hóa. ' +
+    'Thần kinh chưa có phòng riêng, nằm chung khu Tiêu hóa; dòng "Cả khu Tiêu hóa" cộng cả người bệnh Thần kinh, cho biết giường khu Tiêu hóa thực sự được dùng bao nhiêu.' +
     (others ? '<br>Tính chung nhóm Tiêu hóa: ' + esc(others) + '.' : '') + (bySrc ? '<br>Người bệnh vào từ: ' + esc(bySrc) + '.' : '') + '</p>';
 
   // 2. từng ngày / tuần / tháng
   h += '<h3>2. Theo từng ' + unit + ' <span>(số nhỏ: Nam · Nữ)</span></h3><table class="fl"><thead><tr><th rowspan="2">' + unit.charAt(0).toUpperCase() + unit.slice(1) + '</th>' +
-    FLOW_GROUPS.map(function (z) { return '<th colspan="4">' + z[1] + (z[0] === 'NIEU' ? ' <span>(' + b.NIEU.t + ' giường)</span>' : '') + '</th>'; }).join('') +
-    '<th colspan="3">Khu Tiêu hóa <span>(TH + TK, ' + b.TH.t + ' giường)</span></th><th colspan="2">Toàn khoa <span>(' + b.ALL.t + ')</span></th></tr><tr>' +
-    FLOW_GROUPS.map(function () { return '<th>Vào</th><th>Ra</th><th>Nằm TB</th><th>Cao nhất</th>'; }).join('') +
-    '<th>Nằm TB</th><th>Cao nhất</th><th>Công suất</th><th>Nằm TB</th><th>Công suất</th></tr></thead><tbody>';
+    FLOW_GROUPS.map(function (z) { return '<th colspan="' + (z[0] === 'TK' ? 4 : 5) + '">' + z[1] + (z[0] === 'TK' ? '' : ' <span>(' + b[z[0]].t + ' giường)</span>') + '</th>'; }).join('') +
+    '<th colspan="2">Cả khu Tiêu hóa <span>(TH + TK)</span></th><th colspan="2">Toàn khoa <span>(' + b.ALL.t + ')</span></th></tr><tr>' +
+    FLOW_GROUPS.map(function (z) { return '<th>Vào</th><th>Ra</th><th>Nằm TB</th><th>Cao nhất</th>' + (z[0] === 'TK' ? '' : '<th>Công suất</th>'); }).join('') +
+    '<th>Cao nhất</th><th>Công suất</th><th>Nằm TB</th><th>Công suất</th></tr></thead><tbody>';
   // ô cao nhất của một khu: đỏ khi vượt số giường của khu, vàng khi một giới vượt giường riêng + giường chung
   function overOf(S, key, bz) {
     var x = g(S, key), m = g(S, key + 'M'), w = g(S, key + 'F');
@@ -4809,22 +4824,23 @@ function flowHTML(screen) {
     var S = r.s, lab = r.p.label + (r.p.cur ? ' <small>đang chạy</small>' : r.part ? ' <small>từ ' + fmtDate(minTs(r.t0).slice(0, 10)).slice(0, 5) + '</small>' : '');
     h += '<tr><td>' + lab + '</td>';
     FLOW_GROUPS.forEach(function (z) {
-      var k = z[0], x = g(S, k), over = k === 'NIEU' ? overOf(S, 'NIEU', b.NIEU) : '';
+      var k = z[0], x = g(S, k), bz = b[k], over = bz ? overOf(S, k, bz) : '';   // Niệu, Tiêu hóa: so với giường của khu
       h += '<td class="c">' + x.inN + two(S, k, function (y) { return y.inN; }) + '</td>' +
         '<td class="c">' + x.outN + two(S, k, function (y) { return y.outN; }) + '</td>' +
         '<td class="c">' + dec1(x.avg) + two(S, k, function (y) { return dec1(y.avg); }) + '</td>' +
-        '<td class="c' + over + '">' + x.peak + two(S, k, function (y) { return y.peak; }) + '</td>';
+        '<td class="c' + over + '">' + x.peak + two(S, k, function (y) { return y.peak; }) + '</td>' +
+        (bz ? '<td class="c">' + pct(x.avg, bz.t) + '</td>' : '');
     });
     var zt = g(S, 'ZTH'), all = g(S, 'ALL');
-    h += '<td class="c">' + dec1(zt.avg) + two(S, 'ZTH', function (y) { return dec1(y.avg); }) + '</td>' +
-      '<td class="c' + overOf(S, 'ZTH', b.TH) + '">' + zt.peak + two(S, 'ZTH', function (y) { return y.peak; }) + '</td><td class="c">' + pct(zt.avg, b.TH.t) + '</td>' +
+    h += '<td class="c' + overOf(S, 'ZTH', b.TH) + '">' + zt.peak + two(S, 'ZTH', function (y) { return y.peak; }) + '</td><td class="c">' + pct(zt.avg, b.TH.t) + '</td>' +
       '<td class="c">' + dec1(all.avg) + two(S, 'ALL', function (y) { return dec1(y.avg); }) + '</td><td class="c">' + pct(all.avg, b.ALL.t) + '</td></tr>';
   });
   h += '</tbody></table>';
   h += '<p class="rp-note"><b>Cách tính.</b> Vào = người bệnh mới vào khoa (cấp cứu, phòng khám, khoa khác chuyển đến); đi mổ rồi về không tính lại. ' +
     'Ra = ra hẳn khỏi khoa (xuất viện, chuyển khoa, chuyển viện, xin về, trốn viện, tử vong). ' +
     'Nằm trung bình = số người bệnh có mặt cùng lúc tính trung bình (tổng ngày nằm ÷ số ngày); cao nhất = số người cùng lúc nhiều nhất. ' +
-    'Tính cả người đang đi mổ (giường được giữ) và người chờ giường. Công suất = nằm trung bình ÷ số giường của khu. ' +
+    'Tính cả người đang đi mổ (giường được giữ) và người chờ giường. Công suất = nằm trung bình ÷ số giường của khu; ' +
+    'công suất Tiêu hóa chỉ tính người bệnh tiêu hóa, không gồm Thần kinh nằm chung. ' +
     'Ô vàng: số cao nhất của một giới vượt số giường riêng của giới đó, phải dùng giường chung; ô đỏ: vượt cả giường chung, phải nằm nhờ hoặc chờ giường. ' +
     'Giường đang phân lấy theo Cài đặt hiện tại. Ngày tính từ 0 giờ đến 24 giờ; tuần từ thứ Hai đến Chủ nhật.</p>';
   return h + '</div>';
@@ -4858,10 +4874,12 @@ function changeFlowFrom() {
 }
 function flowCsv() {
   var F = flowData(), head = ['Kỳ', 'Từ', 'Đến'], cols = [], rows;
-  [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa'], ['TK', 'Thần kinh'], ['ZTH', 'Khu Tiêu hóa (TH + TK)'], ['ALL', 'Toàn khoa']].forEach(function (z) {
+  var b = flowBeds(), beds = {NIEU: b.NIEU.t, TH: b.TH.t, ZTH: b.TH.t, ALL: b.ALL.t};
+  [['NIEU', 'Niệu'], ['TH', 'Tiêu hóa'], ['TK', 'Thần kinh'], ['ZTH', 'Cả khu Tiêu hóa (TH + TK)'], ['ALL', 'Toàn khoa']].forEach(function (z) {
     [['inN', 'Vào'], ['outN', 'Ra'], ['avg', 'Nằm TB'], ['peak', 'Cao nhất']].forEach(function (m) {
       ['', 'M', 'F'].forEach(function (gd) { head.push(z[1] + ' – ' + m[1] + (gd ? ' ' + GENDER[gd] : '')); cols.push([z[0] + gd, m[0]]); });
     });
+    if (beds[z[0]]) { head.push(z[1] + ' – Công suất (%, ' + beds[z[0]] + ' giường)'); cols.push([z[0], 'cap', beds[z[0]]]); }
     head.push(z[1] + ' – Ngày nằm TB (người ra)', z[1] + ' – Yêu cầu phòng dịch vụ');
     cols.push([z[0], 'los'], [z[0], 'want']);
   });
@@ -4873,16 +4891,33 @@ function flowCsv() {
   rows = [head].concat(F.rows.map(function (r) {
     return [r.p.label + (r.p.cur ? ' (đang chạy)' : ''), stamp(r.t0), stamp(r.t1)].concat(cols.map(function (c) {
       var x = r.s[c[0]], v = x ? x[c[1]] : c[1] === 'los' ? null : 0;
+      if (c[1] === 'cap') return x ? Math.round(x.avg / c[2] * 100) : 0;
       return c[1] === 'avg' || c[1] === 'los' ? dec1(v, FLOW_DEC) : v;
     }));
   }));
   saveTsv('luu-luong-theo-' + {day: 'ngay', week: 'tuan', month: 'thang'}[flow.by] + '-' + today() + '.csv', rows);
 }
 // Dữ liệu mẫu cho bản xem thử: lịch sử rút gọn (không có họ tên) của những ngày trước, sinh giả theo một hạt cố định.
+// [mã ICD, nhóm bệnh, tỷ lệ có mổ, tần suất] – chỉ để bản xem thử có số liệu mặt bệnh
+var SAMPLE_DX = {
+  NIEU: [['N20.1', 'SOI', 0.6, 30], ['N20.0', 'SOI', 0.5, 14], ['N21.0', 'SOI', 0.7, 5], ['N40', 'TLT', 0.6, 12], ['N13.3', 'UNT', 0.3, 5],
+    ['N10', 'NTN', 0.1, 7], ['C67.9', 'UTN', 0.8, 4], ['Z46.6', 'HEN', 0.9, 10], ['N43.3', 'SDN', 0.9, 4], ['N35.9', 'BQ', 0.7, 3], ['R33', 'BQ', 0.2, 3]],
+  TH: [['K35.8', 'RT', 0.95, 18], ['K35.3', 'RT', 0.9, 6], ['K40.9', 'TVB', 0.95, 10], ['K80.2', 'MAT', 0.8, 9], ['K80.5', 'MAT', 0.7, 5], ['K81.0', 'MAT', 0.7, 4],
+    ['K56.5', 'TR', 0.4, 6], ['K25.1', 'LDD', 0.95, 3], ['K85.9', 'TUY', 0.1, 4], ['K64.2', 'HM', 0.9, 5], ['K61.0', 'HM', 0.9, 3], ['C18.7', 'UTH', 0.8, 3],
+    ['C20', 'UTH', 0.7, 2], ['K92.2', 'XHTH', 0.1, 3], ['R10.4', 'TC', 0, 4], ['S36.0', 'CTB', 0.5, 2], ['L02.2', 'DA', 0.8, 3], ['K75.0', 'GAN', 0.3, 2]],
+  TK: [['S06.5', 'CTSN', 0.5, 4], ['S06.0', 'CTSN', 0, 4], ['M51.1', 'CS', 0.7, 3], ['I61.9', 'XHN', 0.3, 1]]
+};
 function sampleArc(days) {
   var seed = 20261018, a = [], cut = tsMin(addDays(today(), -1) + ' 00:00');
   function rnd() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
   function count(mean) { var n = 0, L = Math.exp(-mean), q = rnd(); while (q > L) { n++; q *= rnd(); } return n; }
+  function pick(list) {
+    var tot = 0, q;
+    list.forEach(function (x) { tot += x[3]; });
+    q = rnd() * tot;
+    for (var j = 0; j < list.length; j++) { q -= list[j][3]; if (q < 0) return list[j]; }
+    return list[0];
+  }
   for (var i = days; i >= 2; i--) {
     var day = addDays(today(), -i), wk = weekday(day), base = tsMin(day + ' 00:00');
     [['NIEU', 3, 0.68], ['TH', 4.2, 0.5], ['TK', 0.3, 0.6]].forEach(function (sp) {
@@ -4892,7 +4927,9 @@ function sampleArc(days) {
         var om = tsMin(addDays(day, los) + ' 00:00') + 480 + Math.floor(rnd() * 540);
         if (om >= cut) continue;
         var src = rnd() < 0.55 ? 'CC' : rnd() < 0.8 ? 'PK' : 'KK', want = rnd() < 0.12 ? (rnd() < 0.5 ? 2 : 3) : 0;
-        a.push([sp[0], rnd() < sp[2] ? 'M' : 'F', arcTs(minTs(am)), arcTs(minTs(om)), src, want, rnd() < 0.9 ? 'XV' : 'CK'].join('|'));
+        var q = rnd(), ot = q < 0.86 ? 'XV' : q < 0.93 ? 'CK' : q < 0.96 ? 'CV' : q < 0.99 ? 'XVE' : 'TV';
+        var dx = pick(SAMPLE_DX[sp[0]]), code = rnd() < 0.6 ? dx[0] : '';   // khoảng 40% chỉ ghi chữ (đã xếp nhóm theo chữ)
+        a.push([sp[0], rnd() < sp[2] ? 'M' : 'F', arcTs(minTs(am)), arcTs(minTs(om)), src, want, ot, code, dx[1], 18 + Math.floor(rnd() * 70), rnd() < dx[2] ? 1 : 0].join('|'));
       }
     });
   }
@@ -5667,7 +5704,7 @@ function importAllWaiting() {
   r.news.forEach(function (h) {
     if (!h.gender || state.patients.some(function (x) { return x.hisCode === h.code; })) return;   // thiếu giới thì để nhận tay
     var f = prefillFrom(h);
-    state.patients.push({id: state.seq++, name: f.name, yob: f.yob, gender: f.gender, spec: f.spec, doctor: '', want: 0, dx: icdLabel(f.icd), note: '',
+    state.patients.push({id: state.seq++, name: f.name, yob: f.yob, gender: f.gender, spec: f.spec, doctor: '', want: 0, dx: icdLabel(f.icd), icd: f.icd || '', note: '',
       admittedAt: f.admitAt || today(), admitTime: f.admitAt ? f.admitTime : '', src: f.src, srcDept: f.srcDept, hisCode: f.code, room: null, bed: null, hold: false});
     added++;
   });
@@ -5684,6 +5721,7 @@ function importApply(list, i, link) {
   if (link && !p.admitTime && x.h.admitAt === p.admittedAt) p.admitTime = hisTime(x.h.admitTime);
   if (link && !p.srcDept && x.h.dept) { p.srcDept = x.h.dept; addDept(x.h.dept); }
   if (link && !p.dx && x.h.icd) p.dx = icdLabel(x.h.icd);
+  if (link && x.h.icd && !p.icd) p.icd = x.h.icd;
   p.name = x.h.name || p.name;
   if (x.h.yob) p.yob = x.h.yob;
   if (x.h.gender) p.gender = x.h.gender;
@@ -5931,6 +5969,312 @@ function loadSample(silent) {
   closeModal(); commit(); toast('Đã nạp dữ liệu mẫu để tập thao tác.');
 }
 
+/* ---- mặt bệnh của khoa (bản 2.8) ---- */
+// Bác sĩ yêu cầu 04/11/2026: thống kê mặt bệnh theo tháng, quý, năm. Mỗi người bệnh vào MỘT nhóm bệnh theo chẩn đoán chính
+// (phần trước dấu ; + / đầu tiên trong ô chẩn đoán):
+//   1) có mã ICD-10 → theo mã;  2) không có mã → theo chữ (từ khóa, chữ viết tắt hay dùng);
+//   3) mã lấy từ file a.xls (p.icd);  4) thử danh mục ICD gợi ý (bản 2.7);  5) không được: "Chưa xếp nhóm" theo chuyên khoa.
+// Ngày 04/11/2026 trên sơ đồ chung chỉ khoảng 1/3 hồ sơ có mã ICD, còn lại ghi bằng chữ, nên phải xếp được theo chữ.
+var MB_SECTIONS = [['TH', 'Tiêu hóa – gan mật tụy'], ['NIEU', 'Tiết niệu – sinh dục nam'], ['TK', 'Thần kinh – cột sống'],
+  ['CT', 'Chấn thương bụng, ngực và chấn thương khác'], ['KH', 'Lồng ngực, mạch máu, phần mềm và bệnh khác']];
+var MB_CX_NAME = {TH: 'Chưa xếp nhóm (người bệnh Tiêu hóa)', NIEU: 'Chưa xếp nhóm (người bệnh Niệu)', TK: 'Chưa xếp nhóm (người bệnh Thần kinh)'};
+// đầu cụm "u / K / ung thư … <cơ quan>" (chữ đã bỏ dấu); "u xơ tiền liệt tuyến", "ứ nước thận" không khớp vì phải liền tên cơ quan
+var MB_U = '(^| )(u|k|ung thu|ut|carcinoma?|adenocarcinoma?|sarcoma?|lymphoma?|di can)( (ac|lanh))?( tinh)?( (o|cua|vung))? ';
+// [mã nhóm, tên nhóm, phần, mã ICD (đầu mã, hoặc khoảng theo 3 ký tự), chữ đã bỏ dấu, chữ còn dấu (tùy chọn)] – theo thứ tự hiển thị
+var MB_GROUPS = [
+  ['RT', 'Viêm ruột thừa', 'TH', 'K35-K38', /ruot thua|\bvrt\b|\bvrtc\b|\bvpmrt\b|dam quanh/],
+  ['TVB', 'Thoát vị bẹn, đùi, rốn, thành bụng', 'TH', 'K40-K46',
+    /thoat vi (ben|dui|ron|canh ron|thanh bung|vet mo|duong trang|hoanh|thanh)|\btvb\b|\btvbn\b|\btv (ben|dui|ron)\b/],
+  ['MAT', 'Sỏi mật, viêm túi mật, viêm – tắc đường mật', 'TH', 'K80-K83 K87.0',
+    /soi (mat|tui mat|ong mat|omc|duong mat|gan|trong gan|tm|ong gan)\b|tui mat|duong mat|\bong mat\b|\bvtm\b|\bomc\b|tac mat|\bntdm\b/],
+  ['TR', 'Tắc ruột, dính ruột, lồng – xoắn ruột', 'TH', 'K56 K91.3 K66.0',
+    /tac ruot|ban tac|dinh ruot|day dinh|xoan (ruot|dai trang|sigma)|long ruot|liet ruot|tac (dai trang|ta trang)/],
+  ['LDD', 'Loét, thủng, hẹp môn vị dạ dày – tá tràng', 'TH', 'K25-K28 K31.1',
+    /thung (da day|ta trang|o loet|dd|tt|tang rong|bao tu)\b|loet (da day|ta trang|hanh ta trang|bo cong|dd)\b|\blddtt\b|hep mon vi/],
+  ['XHTH', 'Xuất huyết tiêu hóa', 'TH', 'K92.0 K92.1 K92.2 I85',
+    /xuat huyet tieu hoa|\bxhth\b|\bxhtht\b|non ra mau|phan den|cau ra mau/, /tiêu ra máu/],
+  ['TUY', 'Viêm tụy, nang tụy', 'TH', 'K85-K86 K87.1', /viem tuy\b|\bvtc\b|nang (gia )?tuy\b|hoai tu tuy\b/],
+  ['GAN', 'Áp xe gan, xơ gan, bệnh gan khác', 'TH', 'K70-K77 A06.4 B66 B67', /ap xe gan\b|xo gan\b|san la gan\b|nang gan\b/],
+  ['HM', 'Trĩ, rò, áp xe, nứt hậu môn – trực tràng', 'TH', 'K60-K62 K64',
+    /\btri (noi|ngoai|hon hop|tac mach|vong|do|nhieu|tac)\b|ro (hau mon|canh hau mon|quanh hau mon|truc trang)|\brhm\b|(ap xe|apxe) (hau mon|canh hau mon|quanh hau mon|hm|ho ngoi)|nut (ke )?hau mon|sa truc trang|hep hau mon/, /trĩ/],
+  ['UTH', 'U, ung thư đường tiêu hóa – gan mật tụy', 'TH', 'C15-C26 C45 C48 C78.4 C78.5 C78.6 C78.7 C78.8 D00 D01 D12 D13 D37 K62.1 K63.5',
+    new RegExp(MB_U + '(thuc quan|tam vi|da day|bao tu|ta trang|ruot non|hong trang|hoi trang|ruot thua|manh trang|dai trang|ket trang|ruot gia|sigma|' +
+      'truc trang|hau mon|gan|tui mat|duong mat|ong mat|rong gan|bong vater|tuy(?! song)|dau tuy|phuc mac|sau phuc mac|dd|dt)\\b|\\bhcc\\b|klatskin|\\bgist\\b|' +
+      'polyp (dai trang|truc trang|da day|ong hau mon)')],
+  ['THK', 'Bệnh tiêu hóa khác', 'TH', 'K',
+    /viem phuc mac|\bvpm\b|viem (da day|ta trang|dai trang|ruot)\b|thieu mau mac treo|hoai tu ruot|tran (dich|mau) (o bung|phuc mac)|ro (tieu hoa|ruot)\b|tui thua/],
+  ['SOI', 'Sỏi tiết niệu', 'NIEU', 'N20-N23',
+    /soi (than|nieu quan|nq|bang quang|bq|nieu dao|tiet nieu|tn|san than|be than|duong tiet nieu)\b|\bsnq\b|dau quan than/],
+  ['UNT', 'Thận ứ nước, hẹp khúc nối, hẹp niệu quản', 'NIEU', 'N13 Q62',
+    /\bu nuoc\b|u mu than\b|\bthan u mu\b|hep khuc noi|hep (nieu quan|nq)\b|phinh nieu quan|gian dai be than/],
+  ['TLT', 'Phì đại, viêm tuyến tiền liệt', 'NIEU', 'N40-N42 N51.0', /tien liet|\btlt\b|\bttl\b|\bbph\b/],
+  ['NTN', 'Nhiễm trùng tiết niệu, viêm thận bể thận', 'NIEU', 'N10-N12 N15 N30 N34 N39.0',
+    /nhiem (trung|khuan) (tiet nieu|tieu|duong tieu|duong tiet nieu|nieu)|\bntt\b|\bnktn\b|\bnttn\b|viem (than be than|be than|than|bang quang|nieu dao)\b|ap xe (than|quanh than)/],
+  ['BQ', 'Bí tiểu, hẹp niệu đạo, bệnh bàng quang', 'NIEU', 'N31-N33 N35-N36 R33 R39',
+    /\bbi (tieu|dai)\b|hep (nieu dao|co bang quang)|bang quang than kinh|tieu kho|tieu khong tu chu|ro bang quang|tui thua bang quang/],
+  ['SDN', 'Bệnh tinh hoàn, bìu, dương vật', 'NIEU', 'N43-N51 I86.1 Q53-Q55',
+    /tinh hoan|\btinh mac\b|thung tinh|mao tinh|bao quy dau|duong vat|\bbiu\b|\btdtm\b|varicocele|phimosis/],
+  ['UTN', 'U, ung thư tiết niệu – sinh dục nam', 'NIEU', 'C60-C68 C79.0 C79.1 D09.0 D29 D30 D40 D41',
+    new RegExp(MB_U + '(than|be than|nieu quan|nq|bang quang|bq|nieu dao|tinh hoan|duong vat|thuong than)\\b|' +
+      '(^| )(k|ung thu|ut|carcinoma?|adenocarcinoma?)( (o|cua))? (tuyen tien liet|tien liet tuyen|tlt|ttl)\\b')],
+  ['NK', 'Bệnh tiết niệu – sinh dục khác', 'NIEU', 'N R30-R32 R34-R36 Q60-Q64',
+    /tieu mau|dai (ra )?mau|nang than\b|suy than\b|than teo|than da nang/, /tiểu (ra )?máu/],
+  ['CTSN', 'Chấn thương sọ não', 'TK', 'S00-S09 T90',
+    /\bctsn\b|chan thuong (so nao|so|dau)\b|mau tu (ngoai mang cung|nmc)\b|\bmtnmc\b|(\bxhdn\b|\bxhn\b|xuat huyet (nao|duoi nhen|trong nao)).*chan thuong|dap nao|vet thuong (da dau|so nao|dau)\b|lun so|vo (xuong )?(so|nen so|vom so)\b|chan dong nao|(nao|nhen|mang cung)\b.*chan thuong|(mau tu|xuat huyet) (duoi mang cung|dmc)\b(?! man)|\bmtdmc\b(?! man)/],
+  ['CTCS', 'Chấn thương cột sống – tủy sống', 'TK', 'S12-S14 S22.0 S22.1 S24 S32.0 S32.1 S32.2 S32.7 S34 T08 T09 T91.1 T91.3',
+    /\bctcs\b|chan thuong (cot song|tuy)|gay (dot song|cot song|xep|lun dot)|lun dot song|vo (than )?dot song|(cot song|tuy song|dot song).*chan thuong/],
+  ['XHN', 'Xuất huyết não, đột quỵ (không do chấn thương)', 'TK', 'I60-I64 I67 I69',
+    /xuat huyet (nao|duoi nhen|trong nao|nhu mo nao|nao that)|\bxhn\b|\bxhdn\b|dot quy|nhoi mau nao|phinh (dong )?mach nao|(mau tu|xuat huyet) (duoi mang cung|dmc) man|\bmtdmc man/],
+  ['UNAO', 'U não, u tủy sống', 'TK', 'C70-C72 C75.1 C75.2 C75.3 C79.3 C79.4 D32 D33 D35.2 D35.3 D35.4 D42 D43',
+    new RegExp(MB_U + '(nao|mang nao|tuy song|tuyen yen|goc cau tieu nao|tieu nao|thuy (tran|thai duong|dinh|cham)|bao than kinh|day than kinh|dot song|ong song)\\b|glioma|meningioma|schwannoma')],
+  ['CS', 'Bệnh cột sống – đĩa đệm', 'TK', 'M40-M54 M96.1',
+    /thoat vi dia dem|\btvdd\b|dia dem|hep ong song|truot (dot song|cot song|than dot)|thoai hoa cot song|dau (that lung|lung|than kinh toa|cot song)\b|benh ly re|hoi chung (re|chum duoi ngua)/],
+  ['TKK', 'Não úng thủy, bệnh thần kinh khác', 'TK', 'G Q00-Q07',
+    /ung thuy|gian nao that|ap xe nao|dan luu nao that|\bshunt\b|dong kinh|co giat|dau dau|ong co tay|tran dich nao/],
+  ['CTB', 'Chấn thương, vết thương bụng – chậu', 'CT', 'S30-S39',
+    /chan thuong (bung|than|nieu dao|bang quang|lach|gan|tang|tuy|khung chau)\b|vet thuong (thau )?(bung|thanh bung)\b|\bctb\b|\bctbk\b|\bvtb\b|\bvttb\b|vo (lach|gan|tuy|than|bang quang|ruot non)\b|dap (lach|gan|than|tuy)\b|dut (nieu dao|nieu quan)|gay (khung chau|xuong chau)/],
+  ['CTN', 'Chấn thương, vết thương ngực', 'CT', 'S20-S29',
+    /chan thuong nguc|vet thuong (thau )?nguc|\bctn\b|\bvtn\b|\bvttn\b|gay (nhieu )?(xuong )?suon|mang suon|dap phoi|((tran mau|tran khi)( tran (mau|khi))? mang phoi|\btmmp\b|\btkmp\b).*(chan thuong|\bct\b)/],
+  ['CTK', 'Đa chấn thương, chấn thương – vết thương khác', 'CT', 'S T00-T14',
+    /da chan thuong|chan thuong|vet thuong|tai nan|\btngt\b|\btnsh\b|\btnld\b|te nga|gay (xuong|tay|chan|dui|cang)|\bdct\b/],
+  ['LN', 'Bệnh lồng ngực (màng phổi, phổi, trung thất)', 'KH', 'J85-J94 C33 C34 C37 C38 C78.0 C78.1 C78.2',
+    /tran (khi|dich|mau|mu)( (va|tran) (khi|dich|mau))? mang phoi|\btkmp\b|\btdmp\b|\btmmp\b|mu mang phoi|ap xe phoi|(^| )u (phoi|trung that)\b|ken khi|dan luu mang phoi/],
+  ['MM', 'Bệnh mạch máu (động mạch, tĩnh mạch)', 'KH', 'I70-I89',
+    /tinh mach|dong mach|phinh (dong mach|mach)|huyet khoi|\bdvt\b|\bhktms\b|tac mach chi|thieu mau chi|hoai tu chi/],
+  ['DA', 'Nhiễm trùng da, phần mềm (áp xe, viêm tấy, hoại tử)', 'KH', 'L00-L08 L88 L89 L97 M72 A46 A48',
+    /ap xe|apxe|viem mo te bao|viem tay|\bnhot\b|hoai tu (da|mo mem|phan mem|chi|ngon|vet thuong)|nang long|viem can|loet (ti de|ty de|cung cut)|nhiem trung (ban chan|vet thuong|mo mem|phan mem)|ban chan (dai thao duong|dtd)/],
+  ['UPM', 'U phần mềm, nang bã, u mỡ', 'KH', 'D17-D21 D23 L72',
+    /(^| )u (mo|ba|ba dau|mau|phan mem|xo|nang|bao hoat dich)\b|nang (ba|ba dau|thuong bi|bao hoat dich)\b|lipoma/],
+  ['UK', 'U, ung thư cơ quan khác (vú, giáp…)', 'KH', 'C D00-D09 D24 D34 D44 D48 E04 E05 N60-N64',
+    new RegExp(MB_U + '(vu|giap|tuyen giap|co|xuong)\\b|buou (giap|co|tuyen giap)|(^| )(ung thu|carcinoma)\\b')],
+  ['BC', 'Biến chứng sau phẫu thuật, thủ thuật', 'KH', 'T80-T88 K91.0 K91.1 K91.2 K91.4 K91.5 K91.8 K91.9 N99 G97 I97 J95',
+    /buc (vet mo|thanh bung|mieng noi|chi)|toac vet mo|nhiem (trung|khuan) vet mo|\bnkvm\b|ro (tieu hoa|mieng noi|sau mo|ruot|tuy|mat)\b|chay mau sau mo|bien chung sau (mo|phau thuat)|ap xe ton luu|ap xe (vet mo|thanh bung)|tac (sonde|ong thong)|tut (sonde|jj|ong)/],
+  ['HEN', 'Vào theo hẹn sau mổ (rút JJ, đóng hậu môn nhân tạo…)', 'KH', 'Z',
+    /rut (sonde )?(jj|double j|ong thong|ong dan luu|dan luu)|thay (sonde )?(jj|double j)|dong (hau mon nhan tao|hmnt)|\bdong hm\b|tai kham|hoa tri|cat chi/],
+  ['TC', 'Đau bụng, triệu chứng chưa rõ chẩn đoán', 'KH', 'R',
+    /dau bung|\btd\b|theo doi|\bsot\b|vang da|cuong dau|non oi|met moi|kho tho/],
+  ['BK', 'Bệnh khác', 'KH', '', /\btha\b|tang huyet ap|\bdtd\b|dai thao duong|tieu duong|\bcopd\b|suy tim|viem phoi|thieu mau\b/]
+];
+// thứ tự xét: u – ung thư, chấn thương, biến chứng, hẹn sau mổ trước các nhóm bệnh thường; nhóm "khác" sau cùng
+var MB_EVAL = 'UTH UTN UNAO CTSN XHN CTCS CTB CTN LN UK BC HEN RT TVB HM TR LDD XHTH MAT TUY GAN SOI UNT TLT NTN SDN BQ NK CS TKK MM DA UPM CTK TC THK BK'.split(' ');
+var MB_BY = {}, mbCache = {};
+MB_GROUPS.forEach(function (x) {
+  MB_BY[x[0]] = {id: x[0], name: x[1], sec: x[2], t: x[4], r: x[5] || null, cr: x[3] ? x[3].split(' ').map(function (c) {
+    var a = c.split('-');
+    return a.length === 2 ? {a: a[0], b: a[1]} : {p: c};
+  }) : []};
+});
+var MB_LIST = MB_EVAL.map(function (k) { return MB_BY[k]; });
+function mbText(s) { return ' ' + fold(s).replace(/[^a-z0-9]+/g, ' ').trim() + ' '; }
+function mbRaw(s) { s = String(s || '').toLowerCase(); return s.normalize ? icdTone(s).normalize('NFC') : s; }
+function mbGroupOfCode(code) {
+  var c3 = code.slice(0, 3);
+  for (var i = 0; i < MB_LIST.length; i++) {
+    var g = MB_LIST[i];
+    if (!g.cr.length && g.id === 'BK') return 'BK';
+    for (var j = 0; j < g.cr.length; j++) {
+      var r = g.cr[j];
+      if (r.p ? code.indexOf(r.p) === 0 : c3.charAt(0) === r.a.charAt(0) && c3 >= r.a && c3 <= r.b) return g.id;
+    }
+  }
+  return 'BK';
+}
+function mbGroupOfText(s) {
+  if (!s) return '';
+  var t = mbText(s), raw = mbRaw(s);
+  for (var i = 0; i < MB_LIST.length; i++) {
+    var g = MB_LIST[i];
+    if ((g.t && g.t.test(t)) || (g.r && g.r.test(raw))) return g.id;
+  }
+  return '';
+}
+// Mã ICD trong chữ: trong ngoặc "(K35.8)", có phần thập phân "K35.8", hoặc cả ô chỉ là mã ("N40").
+// Không lấy mã 3 ký tự nằm giữa chữ vì dễ nhầm đốt sống (T12, D12).
+function mbCodeIn(s) {
+  s = String(s || '');
+  var m = /\(([A-Z]\d\d(?:\.\d{1,2})?)\)/.exec(s);
+  if (m) return m[1];
+  m = /(^|[^A-Za-z0-9])([A-Z]\d\d\.\d{1,2})(?![0-9])/.exec(s);
+  if (m) return m[2];
+  m = /^\s*([A-Z]\d\d)\s*$/.exec(s);
+  return m ? m[1] : '';
+}
+function mbPrimary(dx) { return String(dx || '').split(/[;+\/]/)[0]; }
+// Xếp nhóm một hồ sơ: {g: mã nhóm hoặc "CX", code: mã ICD dùng để xếp, how: "ma" (theo mã) | "chu" (theo chữ) | "doan" (danh mục gợi ý) | ""}
+function mbClassDx(dx, his) {
+  var key = (dx || '') + '\u0001' + (his || '');
+  if (mbCache[key]) return mbCache[key];
+  var prim = mbPrimary(dx), c = mbCodeIn(prim), r = null, tg = '';
+  if (c) r = {g: mbGroupOfCode(c), code: c, how: 'ma'};
+  if (!r) { tg = mbGroupOfText(prim); if (tg && tg !== 'TC') r = {g: tg, code: '', how: 'chu'}; }
+  if (!r && his) r = {g: mbGroupOfCode(his), code: his, how: 'ma'};
+  if (!r && tg) r = {g: tg, code: '', how: 'chu'};
+  if (!r && prim !== (dx || '')) {   // chẩn đoán chính không xếp được: xét cả ô
+    c = mbCodeIn(dx); tg = mbGroupOfText(dx);
+    if (tg) r = {g: tg, code: '', how: 'chu'}; else if (c) r = {g: mbGroupOfCode(c), code: c, how: 'ma'};
+  }
+  if (!r && fold(prim).replace(/[^a-z]/g, '').length >= 3) {
+    var s = icdSearch(prim.trim() + ' ');
+    if (s.hits.length && !s.approx) r = {g: mbGroupOfCode(s.hits[0].c), code: s.hits[0].c, how: 'doan'};
+  }
+  return (mbCache[key] = r || {g: 'CX', code: '', how: ''});
+}
+function mbClass(p) { return mbClassDx(p.dx, p.icd); }
+function mbAge(p) { var y = +String(p.admittedAt || '').slice(0, 4) - (+p.yob || 0); return p.yob && y >= 0 && y < 120 ? y : ''; }
+function mbOp(p) { return opTrips(p).length > 0 || p.outType === 'MO'; }
+// Mỗi hồ sơ một dòng: giờ vào, giờ ra (phút), giới, chuyên khoa, nhóm bệnh, mã, tuổi, có mổ, hình thức ra khoa, chẩn đoán
+function mbRecs() {
+  var out = [];
+  function add(a, o, r) {
+    var am = tsMin(a), om = o ? tsMin(o) : null;
+    if (isNaN(am) || om !== null && !(om > am)) return;
+    r.a = am; r.o = om; out.push(r);
+  }
+  state.patients.concat(state.discharged).forEach(function (p) {
+    var st = stayOf(p), c = mbClass(p);
+    add(st.a, st.o, {g: p.gender, sp: p.spec, grp: c.g, code: c.how === 'ma' ? c.code : '', how: c.how, age: mbAge(p), op: mbOp(p),
+      out: st.o ? p.outType || '' : '', dx: mbPrimary(p.dx).replace(/\s+/g, ' ').trim()});
+  });
+  // kho rút gọn: "…|mã ICD|nhóm|tuổi|có mổ" (từ bản 2.8); dòng cũ hơn không có các ô này
+  (state.flowArc || []).forEach(function (x) {
+    var f = String(x).split('|'), code = f[7] || '', grp = code ? mbGroupOfCode(code) : MB_BY[f[8]] ? f[8] : '';
+    add(arcTsBack(f[2]), arcTsBack(f[3]), {g: f[1], sp: f[0], grp: grp || 'CX', code: code, how: code ? 'ma' : grp ? 'chu' : '',
+      age: f[9] ? +f[9] : '', op: f[10] === '1', out: f[6] || '', dx: '', arc: f.length < 8});
+  });
+  return out;
+}
+var mb = {by: 'month', off: 0, basis: 'in'};
+var MB_UNIT = {month: 'tháng', quarter: 'quý', year: 'năm'};
+function mbPeriod() {
+  var t = today(), y = +t.slice(0, 4), m = +t.slice(5, 7) - 1, d, n;
+  if (mb.by === 'year') { d = new Date(y - mb.off, 0, 1); n = 12; }
+  else if (mb.by === 'quarter') { d = new Date(y, m - m % 3 - 3 * mb.off, 1); n = 3; }
+  else { d = new Date(y, m - mb.off, 1); n = 1; }
+  var from = ymd(d), to = addMonths(from, n), q = Math.floor(d.getMonth() / 3);
+  return {from: from, to: to, cur: from <= t && t < to,
+    label: mb.by === 'year' ? 'Năm ' + d.getFullYear() : mb.by === 'quarter' ? 'Quý ' + ['I', 'II', 'III', 'IV'][q] + '/' + d.getFullYear() : 'Tháng ' + fmtDate(from).slice(3)};
+}
+function mbSecOf(r) { return r.grp === 'CX' ? flowGroup(r.sp) : MB_BY[r.grp].sec; }
+function mbData() {
+  var P = mbPeriod(), start = tsMin(flowStart() + ' 00:00'), now = tsMin(nowTs());
+  var t0 = Math.max(tsMin(P.from + ' 00:00'), start), t1 = Math.min(tsMin(P.to + ' 00:00'), now);
+  var D = {P: P, t0: t0, t1: t1, S: {}, codes: {}, cx: {}, how: {ma: 0, chu: 0, doan: 0, '': 0}, sel: []};
+  if (!(t1 > t0)) return D;
+  D.sel = mbRecs().filter(function (r) { return mb.basis === 'out' ? r.o !== null && r.o >= t0 && r.o < t1 : r.a >= t0 && r.a < t1; });
+  function st(k) { return D.S[k] || (D.S[k] = {n: 0, M: 0, F: 0, ageS: 0, ageN: 0, op: 0, losS: 0, losN: 0, CV: 0, XV: 0, TV: 0}); }
+  D.sel.forEach(function (r) {
+    var gk = r.grp === 'CX' ? 'CX_' + mbSecOf(r) : r.grp;
+    [gk, 'SEC_' + mbSecOf(r), 'ALL'].forEach(function (k) {
+      var x = st(k);
+      x.n++;
+      if (r.g === 'M' || r.g === 'F') x[r.g]++;
+      if (r.age !== '') { x.ageS += r.age; x.ageN++; }
+      if (r.op) x.op++;
+      if (r.o !== null) { x.losS += (r.o - r.a) / 1440; x.losN++; if (r.out === 'CV') x.CV++; else if (r.out === 'XVE' || r.out === 'TRON') x.XV++; else if (r.out === 'TV') x.TV++; }
+    });
+    D.how[r.how]++;
+    if (r.code) D.codes[r.code] = (D.codes[r.code] || 0) + 1;
+    if (r.grp === 'CX') { var k = r.arc ? '(hồ sơ cũ đã rút gọn, không còn chẩn đoán)' : r.dx || '(để trống)'; D.cx[k] = (D.cx[k] || 0) + 1; }
+  });
+  return D;
+}
+function mbHTML(screen) {
+  var D = mbData(), P = D.P, A = D.S.ALL, N = A ? A.n : 0;
+  var h = '<div class="rp mbr"><div class="rp-top"><b>' + esc(state.ward.toUpperCase()) + '</b><span>In lúc ' + nowStamp() + '</span></div>' +
+    '<h2>MẶT BỆNH CỦA KHOA</h2>' +
+    '<p class="rp-sum">' + P.label + (D.t1 > D.t0 ? ' · từ ' + fmtDate(minTs(D.t0).slice(0, 10)) + ' đến ' + (P.cur ? 'hiện tại (' + nowStamp() + ')' : fmtDate(addDays(P.to, -1))) : '') +
+    ' · tính người bệnh <b>' + (mb.basis === 'out' ? 'ra khoa' : 'vào khoa') + '</b> trong kỳ</p>';
+  if (!N) return h + '<p class="rp-sum">Chưa có người bệnh nào ' + (mb.basis === 'out' ? 'ra khoa' : 'vào khoa') + ' trong kỳ này' +
+    (P.to <= flowStart() ? ' (số liệu tính từ ' + fmtDate(flowStart()) + ')' : '') + '.</p></div>';
+  function pc(v, t) { return t ? Math.round(v / t * 1000) / 10 : 0; }
+  function pct(v, t) { return t ? dec1(pc(v, t)) + '%' : ''; }
+  function age(x) { return x.ageN ? Math.round(x.ageS / x.ageN) : ''; }
+  h += '<p class="rp-sum">Tổng số <b>' + N + '</b> người bệnh (Nam ' + A.M + ' · Nữ ' + A.F + ') · tuổi trung bình ' + age(A) + ' · có đi mổ ' + A.op + ' (' + pct(A.op, N) + ')' +
+    (A.losN ? ' · ngày nằm trung bình ' + dec1(A.losS / A.losN) + ' (người đã ra khoa)' : '') + '</p>';
+  // 1. theo nhóm bệnh
+  h += '<h3>1. Theo nhóm bệnh</h3><table class="mbt"><thead><tr><th>Nhóm bệnh</th><th>Số người bệnh</th><th>Tỷ lệ</th><th>Nam</th><th>Nữ</th><th>Tuổi TB</th>' +
+    '<th>Có đi mổ</th><th>Ngày nằm TB</th><th>Chuyển viện</th><th>Xin về, trốn viện</th><th>Tử vong</th></tr></thead><tbody>';
+  function row(label, x, cls) {
+    return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + label + '</td><td class="c">' + x.n + '</td><td class="c">' + pct(x.n, N) + '</td><td class="c">' + x.M + '</td><td class="c">' + x.F +
+      '</td><td class="c">' + age(x) + '</td><td class="c">' + x.op + (x.op ? ' <small>(' + Math.round(x.op / x.n * 100) + '%)</small>' : '') + '</td><td class="c">' + (x.losN ? dec1(x.losS / x.losN) : '') +
+      '</td><td class="c">' + (x.CV || '') + '</td><td class="c">' + (x.XV || '') + '</td><td class="c">' + (x.TV || '') + '</td></tr>';
+  }
+  MB_SECTIONS.forEach(function (s) {
+    var sx = D.S['SEC_' + s[0]];
+    if (!sx) return;
+    h += row(s[1], sx, 'grp');
+    var gs = MB_GROUPS.filter(function (g) { return g[2] === s[0] && D.S[g[0]]; }).map(function (g) { return [g[1], D.S[g[0]]]; });
+    if (D.S['CX_' + s[0]]) gs.push([MB_CX_NAME[s[0]], D.S['CX_' + s[0]]]);
+    gs.sort(function (a, b) { return b[1].n - a[1].n; }).forEach(function (g) { h += row('&nbsp;&nbsp;' + esc(g[0]), g[1]); });
+  });
+  h += row('Toàn khoa', A, 'grp') + '</tbody></table>';
+  h += '<p class="rp-note">Xếp nhóm theo chẩn đoán chính (phần đầu ô chẩn đoán): theo mã ICD-10 <b>' + D.how.ma + '</b> người, theo chữ <b>' + D.how.chu + '</b>' +
+    (D.how.doan ? ', theo danh mục ICD gợi ý ' + D.how.doan : '') + ', chưa xếp được <b>' + D.how[''] + '</b>. ' +
+    'Ngày nằm TB tính cho người đã ra khoa. Có đi mổ = đã chuyển mổ ít nhất một lần trong lần nằm này.</p>';
+  // 2. các mã ICD gặp nhiều nhất
+  var codes = Object.keys(D.codes).sort(function (a, b) { return D.codes[b] - D.codes[a] || (a < b ? -1 : 1); }), nc = 0;
+  codes.forEach(function (c) { nc += D.codes[c]; });
+  h += '<h3>2. Mã ICD-10 gặp nhiều nhất <span>(' + nc + '/' + N + ' người bệnh có mã)</span></h3>';
+  if (codes.length) {
+    icdLoad();
+    h += '<table class="mbt mbc"><thead><tr><th class="c">STT</th><th class="c">Mã</th><th>Tên bệnh</th><th>Số người bệnh</th><th>Tỷ lệ</th></tr></thead><tbody>' +
+      codes.slice(0, 20).map(function (c, i) {
+        return '<tr><td class="c">' + (i + 1) + '</td><td class="c"><b>' + esc(c) + '</b></td><td>' + esc(ICD_BY[c] ? ICD_BY[c].n : '') + '</td><td class="c">' + D.codes[c] + '</td><td class="c">' + pct(D.codes[c], N) + '</td></tr>';
+      }).join('') + '</tbody></table>' + (codes.length > 20 ? '<p class="rp-note">Còn ' + (codes.length - 20) + ' mã khác (xem trong file Excel).</p>' : '');
+  } else h += '<p class="none">Chưa có người bệnh nào có mã ICD trong kỳ.</p>';
+  // 3. chẩn đoán chưa xếp được nhóm
+  var cx = Object.keys(D.cx).sort(function (a, b) { return D.cx[b] - D.cx[a] || a.localeCompare(b, 'vi'); });
+  if (cx.length) {
+    h += '<h3>3. Chẩn đoán chưa xếp được nhóm <span>(' + D.how[''] + ' người bệnh)</span></h3><table class="mbt mbc"><thead><tr><th>Chẩn đoán (ghi trên app)</th><th>Số người bệnh</th></tr></thead><tbody>' +
+      cx.slice(0, 30).map(function (k) { return '<tr><td>' + esc(k) + '</td><td class="c">' + D.cx[k] + '</td></tr>'; }).join('') + '</tbody></table>' +
+      '<p class="rp-note">Gõ lại chẩn đoán và chọn mã ICD trong ô Chẩn đoán (Sửa thông tin) thì lần sau được xếp đúng nhóm.' + (cx.length > 30 ? ' Còn ' + (cx.length - 30) + ' chẩn đoán khác (xem trong file Excel).' : '') + '</p>';
+  }
+  return h + '</div>';
+}
+function renderMb() {
+  if (!$('mbBox')) return;
+  var P = mbPeriod();
+  $('mbNav').innerHTML = seg('mbBy', [['month', 'Theo tháng'], ['quarter', 'Theo quý'], ['year', 'Theo năm']], mb.by) +
+    seg('mbBasis', [['in', 'Vào khoa trong kỳ'], ['out', 'Ra khoa trong kỳ']], mb.basis) +
+    '<span class="nav"><button class="btn small" data-act="mbNav" data-n="1"' + (P.from <= flowStart() ? ' disabled' : '') + '>‹ Trước</button>' +
+    '<button class="btn small" data-act="mbNav" data-n="-1"' + (mb.off ? '' : ' disabled') + '>Sau ›</button>' +
+    (mb.off ? '<button class="btn small" data-act="mbNav" data-n="0">Về hiện tại</button>' : '') + '</span>';
+  $('mbBox').innerHTML = mbHTML(true);
+}
+function openMb() {
+  mb.off = 0;
+  showModal(mhead('Mặt bệnh của khoa') + '<div class="mbody"><div class="rbar" id="mbNav"></div><div id="mbBox" class="reportbox"></div></div>' +
+    '<div class="mfoot"><button class="btn" data-act="close">Đóng</button><span class="sp"></span><button class="btn" data-act="mbCsv">Xuất Excel</button>' +
+    '<button class="btn primary" data-act="mbPrint">In / Lưu PDF</button></div>', 'wide');
+  renderMb();
+}
+function mbNav(n) { mb.off = n ? Math.max(0, mb.off + n) : 0; renderMb(); }
+function printMb() { $('printArea').innerHTML = mbHTML(false); window.print(); }
+function mbCsv() {
+  var D = mbData(), N = D.S.ALL ? D.S.ALL.n : 0, rows = [];
+  rows.push(['Mặt bệnh của khoa – ' + D.P.label + ' – người bệnh ' + (mb.basis === 'out' ? 'ra khoa' : 'vào khoa') + ' trong kỳ']);
+  rows.push(['Phần', 'Nhóm bệnh', 'Số người bệnh', 'Tỷ lệ %', 'Nam', 'Nữ', 'Tuổi TB', 'Có đi mổ', 'Ngày nằm TB (người đã ra)', 'Chuyển viện', 'Xin về, trốn viện', 'Tử vong']);
+  function line(sec, name, x) {
+    return [sec, name, x.n, N ? dec1(x.n / N * 100, FLOW_DEC) : '', x.M, x.F, x.ageN ? Math.round(x.ageS / x.ageN) : '', x.op, x.losN ? dec1(x.losS / x.losN, FLOW_DEC) : '', x.CV, x.XV, x.TV];
+  }
+  MB_SECTIONS.forEach(function (s) {
+    if (!D.S['SEC_' + s[0]]) return;
+    rows.push(line(s[1], 'Cộng', D.S['SEC_' + s[0]]));
+    MB_GROUPS.forEach(function (g) { if (g[2] === s[0] && D.S[g[0]]) rows.push(line(s[1], g[1], D.S[g[0]])); });
+    if (D.S['CX_' + s[0]]) rows.push(line(s[1], MB_CX_NAME[s[0]], D.S['CX_' + s[0]]));
+  });
+  if (N) rows.push(line('Toàn khoa', '', D.S.ALL));
+  rows.push([]); rows.push(['Mã ICD-10', 'Tên bệnh', 'Số người bệnh']);
+  icdLoad();
+  Object.keys(D.codes).sort(function (a, b) { return D.codes[b] - D.codes[a] || (a < b ? -1 : 1); }).forEach(function (c) { rows.push([c, ICD_BY[c] ? ICD_BY[c].n : '', D.codes[c]]); });
+  var cx = Object.keys(D.cx);
+  if (cx.length) {
+    rows.push([]); rows.push(['Chẩn đoán chưa xếp được nhóm', 'Số người bệnh']);
+    cx.sort(function (a, b) { return D.cx[b] - D.cx[a]; }).forEach(function (k) { rows.push([k, D.cx[k]]); });
+  }
+  saveTsv('mat-benh-' + {month: 'thang', quarter: 'quy', year: 'nam'}[mb.by] + '-' + D.P.from.slice(0, 7) + '.csv', rows);
+}
+
 /* ---- chúc mừng ngày Phụ nữ Việt Nam 20/10 (bản 2.6-thu2) ---- */
 // Bác sĩ yêu cầu 20/10/2026: trong ngày 20/10, lần đầu mở app và ngẫu nhiên khi bấm nút sẽ hiện lẵng hoa, pháo hoa giấy và
 // một lời chúc. Không chặn thao tác (bấm xuyên qua được, trừ ô lời chúc), tự tắt sau 6 giây; nút "Hoa 20/10" để xem lại.
@@ -6113,6 +6457,8 @@ document.addEventListener('click', function (e) {
       }
       else if (d.field === 'delKind') { if (delForm) delForm.kind = d.val; }
       else if (d.field === 'flowBy') { flow.by = d.val; flow.off = 0; renderFlow(); }
+      else if (d.field === 'mbBy') { mb.by = d.val; mb.off = 0; renderMb(); }
+      else if (d.field === 'mbBasis') { mb.basis = d.val; renderMb(); }
       else if (d.field === 'src') { if (form) form.src = d.val; }
       else if (form) { form[d.field] = d.field === 'want' ? +d.val : d.val; if (!form.preset) form.manual = false; refreshSug(); }
       break;
@@ -6142,6 +6488,10 @@ document.addEventListener('click', function (e) {
     case 'flowNav': flowNav(+d.n); break;
     case 'flowPrint': printFlow(); break;
     case 'flowCsv': flowCsv(); break;
+    case 'mb': openMb(); break;
+    case 'mbNav': mbNav(+d.n); break;
+    case 'mbPrint': printMb(); break;
+    case 'mbCsv': mbCsv(); break;
     case 'flowFrom': changeFlowFrom(); break;
     case 'shiftDay': shiftDay(+d.n); break;
     case 'shiftPrint': printShift(); break;

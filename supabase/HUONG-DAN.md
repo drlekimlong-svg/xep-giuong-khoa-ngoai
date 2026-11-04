@@ -153,7 +153,8 @@ Bấm **Báo cáo** → **Báo cáo bệnh trong ngày**.
 Bấm **Báo cáo** → **Lưu lượng người bệnh theo chuyên khoa**. Mọi tài khoản đều xem, in, xuất Excel được.
 
 - **Mục đích:** biết Niệu, Tiêu hóa và Thần kinh thực sự cần bao nhiêu giường, Nam bao nhiêu, Nữ bao nhiêu, để phân bổ phòng trong Cài đặt.
-- **Thần kinh** có phần riêng (từ bản 2.6-thu4). Thần kinh chưa có phòng riêng, nằm chung các phòng khu Tiêu hóa, nên công suất và ô vàng/đỏ của hai nhóm này xem ở dòng **Khu Tiêu hóa (Tiêu hóa + Thần kinh)**.
+- **Thần kinh** có phần riêng (từ bản 2.6-thu4), chưa có phòng riêng, nằm chung các phòng khu Tiêu hóa.
+- **Công suất Tiêu hóa** (từ bản 2.8-thu1) chỉ tính người bệnh tiêu hóa, so với số giường khu Tiêu hóa; không gộp Thần kinh. Dòng **Cả khu Tiêu hóa (Tiêu hóa + Thần kinh nằm chung)** cho biết giường khu Tiêu hóa thực sự được dùng bao nhiêu.
 - **Chọn cách xem:**
   - **Theo ngày:** 31 ngày gần nhất.
   - **Theo tuần:** 12 tuần, thứ Hai → Chủ nhật.
@@ -171,7 +172,18 @@ Bấm **Báo cáo** → **Lưu lượng người bệnh theo chuyên khoa**. M�
   - **Ra:** ra hẳn khỏi khoa.
   - Người đang đi mổ (giường được giữ) và người chờ giường vẫn tính là có mặt.
 - **Số liệu bắt đầu từ 16/10/2026** (ngày đưa cả khoa vào app); nên xem sau vài tuần để có kết luận. Quản trị viên đổi ngày bắt đầu bằng nút "Đổi ngày".
-- **Lưu trữ:** hồ sơ ra khoa cũ hơn 300 người gần nhất được rút gọn thành một dòng không có họ tên, chỉ để tính lưu lượng, giữ 400 ngày.
+- **Lưu trữ:** hồ sơ ra khoa cũ hơn 300 người gần nhất được rút gọn thành một dòng không có họ tên, chỉ để tính lưu lượng và mặt bệnh, giữ 400 ngày.
+
+## Mặt bệnh của khoa
+
+Bấm **Báo cáo** → **Mặt bệnh của khoa**. Mọi tài khoản đều xem, in, xuất Excel được.
+
+- **Chọn kỳ:** theo tháng, quý hoặc năm; nút "‹ Trước / Sau ›" để xem kỳ cũ. Chọn tính người bệnh **vào khoa** trong kỳ hoặc **ra khoa** trong kỳ.
+- **Bảng 1 – theo nhóm bệnh:** chia 5 phần (Tiêu hóa; Tiết niệu – sinh dục nam; Thần kinh – cột sống; Chấn thương; Lồng ngực, mạch máu, phần mềm và bệnh khác). Mỗi nhóm có số người, tỷ lệ, Nam/Nữ, tuổi trung bình, số có đi mổ, ngày nằm trung bình (người đã ra), chuyển viện, xin về/trốn viện, tử vong.
+- **Bảng 2:** 20 mã ICD-10 gặp nhiều nhất.
+- **Bảng 3:** chẩn đoán chưa xếp được nhóm. Mở hồ sơ → Sửa, gõ lại chẩn đoán và chọn mã ICD để lần sau được xếp đúng.
+- **Cách xếp nhóm:** theo chẩn đoán chính (phần đầu ô chẩn đoán). Có mã ICD thì theo mã; không có thì theo chữ (hiểu cả viết tắt như VRT, TVB, sỏi NQ, CTSN). Vì vậy nên ghi chẩn đoán chính trước, chẩn đoán kèm sau dấu **;**.
+- **Số liệu bắt đầu từ 16/10/2026** như báo cáo lưu lượng.
 
 ## Cấu hình máy tối thiểu
 
