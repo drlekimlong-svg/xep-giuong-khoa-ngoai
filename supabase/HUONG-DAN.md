@@ -90,6 +90,15 @@ File chỉ được đọc trong trình duyệt của máy đó. Chỉ những n
 
 **Danh sách khoa:** "Khoa chuyển đến" khi nhận bệnh và "Chuyển đến khoa" khi chuyển khoa chọn từ danh sách khoa trong Cài đặt (mục 4). Khoa mới xuất hiện trong file a được tự thêm vào; quản trị viên bổ sung các khoa còn thiếu.
 
+## Bấm nhầm "Chuyển đi mổ"
+
+Người bệnh không đi mổ mà lỡ bấm "Chuyển đi mổ" thì phải gỡ lượt đó, nếu không báo cáo giao ca tính thêm một lượt chuyển mổ và một lượt mổ về. Bấm vào người bệnh trên sơ đồ, xem dòng **Đi mổ**:
+
+- **Chưa bấm "Mổ về":** bấm **Bấm nhầm – hủy** (điều dưỡng làm được). Người bệnh về lại giường cũ.
+- **Đã lỡ bấm "Mổ về":** báo điều dưỡng trưởng. Điều dưỡng trưởng (hoặc quản trị viên) bấm **Xóa lượt này (bấm nhầm)**. Giường giữ nguyên.
+- **Người bệnh đã ra khoa:** Lịch sử → **Hoàn tác** ra khoa → xóa lượt đi mổ như trên → cho ra khoa lại, ghi đúng ngày giờ ra khoa cũ.
+- Đừng dùng "Mổ về" để sửa bấm nhầm: "Mổ về" chỉ ghi giờ về, lượt đi mổ vẫn còn.
+
 ## Nhập trùng, nhập nhầm, cùng họ tên
 
 - **Xóa khác Ra khoa.** "Ra khoa" là người bệnh rời khoa thật và được tính vào số liệu. "Xóa…" dùng khi hồ sơ **không nên có**: một người bị nhập 2 lần, hoặc nhập nhầm người không thuộc khoa (vd khoa khác nhập nhầm trên phần mềm bệnh viện).

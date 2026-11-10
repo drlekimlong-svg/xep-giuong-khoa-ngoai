@@ -23,6 +23,27 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.8-thu2 — 10/11/2026 — Sửa lượt đi mổ bấm nhầm
+
+- **File:** `phien-ban/v2.8-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.8-thu2`.
+- **Bối cảnh:** điều dưỡng trưởng báo (09/11/2026): điều dưỡng bấm nhầm "Chuyển đi mổ" cho một người bệnh không đi mổ, rồi bấm "Mổ về" để đưa lại. Lượt đi mổ không có thật vẫn nằm trong hồ sơ nên báo cáo giao ca tính thêm một lượt chuyển mổ và một lượt mổ về; mặt bệnh tính là "có đi mổ". Việc này hay xảy ra; trước bản này không có cách sửa trong app.
+- **Máy chủ:** không đổi.
+
+**Mới so với 2.8-thu1** – hồ sơ người bệnh, dòng "Đi mổ" liệt kê từng lượt và có nút sửa:
+
+1. **Còn đang đi mổ (chưa bấm "Mổ về"):** nút **"Bấm nhầm – hủy"** (điều dưỡng, điều dưỡng trưởng, quản trị). Lượt đi mổ bị bỏ, người bệnh về lại giường cũ (giường cũ đã có người thì vào danh sách chờ).
+2. **Đã lỡ bấm "Mổ về":** nút **"Xóa lượt này (bấm nhầm)"** (chỉ điều dưỡng trưởng và quản trị viên, vì làm thay đổi số liệu báo cáo đã qua). Giường giữ nguyên.
+3. Cả hai đều hỏi xác nhận và ghi một dòng vào nhật ký ("Hủy đi mổ (bấm nhầm)…", "Xóa lượt đi mổ bấm nhầm…"); dòng nhật ký cũ giữ nguyên. Báo cáo giao ca, tổng hợp trong ngày, mặt bệnh tự tính lại.
+4. Người đã ra khoa: vào Lịch sử → Hoàn tác ra khoa → xóa lượt đi mổ → cho ra khoa lại (ghi đúng giờ ra khoa cũ).
+
+**Đã thử:** bản xem thử: hủy lượt đang đi mổ (về lại giường 616 – G2), xóa lượt đã mổ về; báo cáo giao ca từ 3 lượt "chuyển khoa khác (gồm chuyển mổ)" còn 1, mất dòng mổ về; nhật ký có dòng sửa.
+
+**Chưa thử:** trên máy chủ thật với tài khoản điều dưỡng, điều dưỡng trưởng (quyền chỉ khác ở `ROLE_ACTS`, máy chủ không đổi).
+
+**Lỗi lúc làm (đã sửa trước khi phát hành):** câu hỏi xác nhận bị chèn dấu xuống dòng thật vào chuỗi JS làm app không chạy – phát hiện khi thử trên trình duyệt.
+
+---
+
 ## 2.8-thu1 — 04/11/2026 — Báo cáo mặt bệnh; công suất Tiêu hóa riêng
 
 - **File:** `phien-ban/v2.8-thu1/XepGiuong_KhoaNgoai.html` · nhãn git `v2.8-thu1`.

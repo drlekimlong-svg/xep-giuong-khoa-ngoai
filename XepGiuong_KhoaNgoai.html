@@ -2617,7 +2617,7 @@ Z96.9|Sự có mặt của thiết bị/dụng cụ cấy ghép chức năng, kh
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.8-thu1', VERSION_DATE = '04/11/2026';
+var VERSION = '2.8-thu2', VERSION_DATE = '10/11/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -2639,14 +2639,17 @@ var ROLE_ACTS = {
 };
 ROLE_ACTS.nurse.push('dupOk');   // xác nhận hai người cùng họ tên là khác người
 ROLE_ACTS.nurse.push('sk15');    // đánh dấu đã làm tờ sơ kết 15 ngày điều trị
+ROLE_ACTS.nurse.push('opCancel');   // bấm nhầm "Chuyển đi mổ", người bệnh còn chưa "Mổ về": hủy, về lại giường cũ
 // điều dưỡng trưởng: như điều dưỡng, thêm quyền xóa và khôi phục hồ sơ nhập trùng, nhập nhầm (bác sĩ quyết định 16/10/2026)
 ROLE_ACTS.headnurse = ROLE_ACTS.nurse.concat(['delRec', 'delConfirm', 'restoreDel']);
+// điều dưỡng trưởng còn xóa được lượt đi mổ bấm nhầm đã lỡ bấm "Mổ về" (điều dưỡng trưởng báo 09/11/2026), vì làm thay đổi số liệu báo cáo đã qua
+ROLE_ACTS.headnurse.push('opDel');
 // Các nút cần quyền; nút không có trong danh sách này (xem, in, xuất Excel, lịch sử…) ai cũng dùng được.
 var GUARDED = ['new', 'admit', 'saveForm', 'edit', 'move', 'discharge', 'confirmOut', 'back', 'doMove', 'hold', 'pick', 'pickWait',
   'undo', 'settings', 'backup', 'restore', 'sample', 'wipe', 'wipeSample', 'snap', 'resetRooms', 'cloudOn',
   'accounts', 'accPreview', 'accCreate', 'accPrint', 'accReset', 'accLock',
   'importHis', 'impStart', 'impOne', 'impSkip', 'impStop', 'impWait', 'impLink', 'impFix', 'impReread', 'impRepick', 'impMaybe', 'impNot',
-  'repEdit', 'repAddEv', 'repDelEv', 'delRec', 'delConfirm', 'restoreDel', 'dupOk', 'flowFrom'];
+  'repEdit', 'repAddEv', 'repDelEv', 'delRec', 'delConfirm', 'restoreDel', 'dupOk', 'flowFrom', 'opCancel', 'opDel'];
 
 // DÙNG CHUNG NHIỀU MÁY QUA SUPABASE
 // Một file chạy được ba kiểu, chọn bằng cách mở:
@@ -4141,7 +4144,7 @@ function openPatient(pid) {
     row('Mã bệnh nhân', esc(p.hisCode || '— (chưa có, nhập tay)')) +
     (twinsOf(p).length ? row('Trùng họ tên', '<span class="chip warn">đối chiếu mã</span> ' + twinsOf(p).map(function (x) {
       return esc(placeOf(x)) + (x.hisCode ? ' (mã ' + esc(x.hisCode) + ')' : ' (chưa có mã)'); }).join('; ') + ' <button class="btn small" data-act="dupView">Rà soát</button>') : '') +
-    (lastTrip(p) ? row('Đi mổ', opText(p)) : p.opAt ? row('Đi mổ', 'ngày ' + fmtDate(p.opAt) + (p.away ? ' – chưa về khoa' : '')) : '') +
+    (lastTrip(p) ? row('Đi mổ', opRows(p)) : p.opAt ? row('Đi mổ', 'ngày ' + fmtDate(p.opAt) + (p.away ? ' – chưa về khoa' : '')) : '') +
     row('Loại phòng yêu cầu', p.want ? p.want + ' giường' + (rm && rm.size !== p.want ? ' <span class="chip warn">chưa đáp ứng</span>' : '')
       : 'Không yêu cầu' + (rm && rm.svc ? ' <span class="chip warn">đang tạm nằm phòng dịch vụ</span>' : '')) +
     row('Ghi chú', esc(p.note || '—')) + '</table>' +
@@ -4283,9 +4286,52 @@ function shiftData(D) {
   Object.keys(r.out).forEach(function (k) { r.out[k].sort(byTs); });
   return r;
 }
-function opText(p) {
-  var tr = opTrips(p), lt = tr[tr.length - 1];
-  return 'lúc ' + tsText(lt.out) + (lt.back ? ' · mổ về lúc ' + tsText(lt.back) : ' – chưa về khoa') + (tr.length > 1 ? ' (lần thứ ' + tr.length + ')' : '');
+// Các lượt đi mổ trong hồ sơ người bệnh, kèm nút sửa khi bấm nhầm "Chuyển đi mổ" (ẩn với người không có quyền)
+function opRows(p) {
+  var tr = opTrips(p);
+  return tr.map(function (t, i) {
+    var b = !t.back ? (p.away && i === tr.length - 1 ? ' <button class="btn small" data-act="opCancel" data-pid="' + p.id + '" ' +
+        'title="Người bệnh không đi mổ: hủy lượt này, về lại giường cũ">Bấm nhầm – hủy</button>' : '')
+      : ' <button class="btn small" data-act="opDel" data-pid="' + p.id + '" data-i="' + i + '" ' +
+        'title="Người bệnh không đi mổ: xóa lượt này khỏi báo cáo">Xóa lượt này (bấm nhầm)</button>';
+    return (tr.length > 1 ? 'Lần ' + (i + 1) + ': ' : '') + 'đi lúc ' + tsText(t.out) + (t.back ? ' · mổ về lúc ' + tsText(t.back) : ' – chưa về khoa') + b;
+  }).join('<br>');
+}
+// Bấm nhầm "Chuyển đi mổ" (điều dưỡng trưởng báo, bác sĩ hỏi 10/11/2026): lượt đi mổ không có thật thì phải gỡ khỏi hồ sơ,
+// nếu không báo cáo giao ca tính một lượt chuyển mổ + một lượt mổ về, mặt bệnh tính là "có đi mổ".
+//   - còn đang đi mổ: điều dưỡng bấm "Bấm nhầm – hủy", người bệnh về lại giường cũ (giường cũ đã có người thì vào danh sách chờ);
+//   - đã bấm "Mổ về": điều dưỡng trưởng hoặc quản trị viên bấm "Xóa lượt này (bấm nhầm)".
+// Các báo cáo tính lại từ p.ops nên tự đúng; nhật ký giữ dòng cũ và thêm một dòng ghi việc sửa.
+function opSyncDate(p) {
+  var lt = lastTrip(p);
+  if (lt) { p.opAt = lt.out.slice(0, 10); p.opTime = lt.out.slice(11, 16); } else { delete p.opAt; delete p.opTime; }
+}
+function opCancel(pid) {
+  var p = patientById(pid);
+  if (!p || !p.away) return;
+  var lt = lastTrip(p);
+  if (!confirm('Hủy lượt đi mổ của ' + p.name + (lt ? ' (lúc ' + tsText(lt.out) + ')' : '') + '?\n' +
+    'Chỉ dùng khi bấm nhầm, người bệnh không đi mổ. Lượt này sẽ không tính vào báo cáo.')) return;
+  var ok = keepBedOK(p), bed = ok ? bedLabel(p.keepRoom, p.keepBed) : '';
+  p.ops = opTrips(p).slice(0, -1);
+  p.away = false;
+  if (ok) { p.room = p.keepRoom; p.bed = p.keepBed; } else { p.room = null; p.bed = null; }
+  p.keepRoom = null; p.keepBed = null;
+  opSyncDate(p);
+  addLog('Hủy đi mổ (bấm nhầm): ' + p.name + (ok ? ' → về lại ' + bed : ' → chờ giường'));
+  commit(); openPatient(p.id);
+  toast(ok ? 'Đã hủy lượt đi mổ, ' + p.name + ' về lại giường ' + bed + '.' : 'Đã hủy lượt đi mổ. Giường cũ đã có người – ' + p.name + ' vào danh sách chờ giường.');
+}
+function opDel(pid, i) {
+  var p = patientById(pid), tr = p ? opTrips(p) : [], t = tr[i];
+  if (!t || !t.back) return;   // lượt chưa về khoa thì dùng "Bấm nhầm – hủy"
+  if (!confirm('Xóa lượt đi mổ của ' + p.name + ': đi lúc ' + tsText(t.out) + ', mổ về lúc ' + tsText(t.back) + '?\n' +
+    'Chỉ dùng khi bấm nhầm, người bệnh không đi mổ. Báo cáo giao ca và mặt bệnh sẽ không tính lượt này nữa. Giường giữ nguyên.')) return;
+  p.ops = tr.filter(function (x, k) { return k !== i; });
+  opSyncDate(p);
+  addLog('Xóa lượt đi mổ bấm nhầm (đi ' + tsText(t.out) + ', về ' + tsText(t.back) + '): ' + p.name);
+  commit(); openPatient(p.id);
+  toast('Đã xóa lượt đi mổ bấm nhầm của ' + p.name + '.');
 }
 function opNote(x) {
   var p = x.p, tr = x.op;
@@ -6464,6 +6510,8 @@ document.addEventListener('click', function (e) {
       break;
     case 'confirmOut': confirmOut(); break;
     case 'back': backFromSurgery(+d.pid); break;
+    case 'opCancel': opCancel(+d.pid); break;
+    case 'opDel': opDel(+d.pid, +d.i); break;
     case 'pick': if (form) { form.pick = {room: d.room, bed: +d.bed}; form.manual = true; refreshSug(); } break;
     case 'pickWait': if (form) { form.pick = 'wait'; form.manual = true; refreshSug(); } break;
     case 'icdPick': icdPick(+d.i); break;
