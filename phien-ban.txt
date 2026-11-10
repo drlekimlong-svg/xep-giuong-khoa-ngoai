@@ -1,2 +1,2 @@
-2.8-thu2
-Sửa lượt đi mổ bấm nhầm: nút "Bấm nhầm – hủy" và "Xóa lượt này (bấm nhầm)" trong hồ sơ người bệnh
+2.8-thu3
+Sửa lượt đi mổ bấm nhầm (nút "Bấm nhầm – hủy", "Xóa lượt này"); bảng "Có gì mới" cho điều dưỡng

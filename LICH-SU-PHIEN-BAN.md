@@ -23,6 +23,24 @@ Các địa chỉ này cùng một trang web nên trên cùng một máy, bản 
 
 ---
 
+## 2.8-thu3 — 10/11/2026 — Bảng "Có gì mới" cho điều dưỡng
+
+- **File:** `phien-ban/v2.8-thu3/XepGiuong_KhoaNgoai.html` · nhãn git `v2.8-thu3`.
+- **Bối cảnh:** bác sĩ duyệt bản 2.8-thu2 và yêu cầu trước khi đưa lên web thêm một bảng thông báo tính năng mới cho các chị điều dưỡng, hiện ở lần thao tác đầu tiên mỗi ngày, trong 1 tuần. Bản 2.8-thu2 chưa từng lên web; bản này gồm cả 2.8-thu2.
+- **Máy chủ:** không đổi.
+
+**Mới so với 2.8-thu2:**
+
+1. Bảng **"Có gì mới trong app"** hiện khi mở app (sau khi đăng nhập xong) hoặc ở lần bấm đầu tiên trong ngày nếu app để mở qua đêm; đang mở bảng khác thì đợi đến lần bấm sau. Mỗi người mỗi ngày một lần (bản dùng chung theo tài khoản, bản một máy và bản xem thử theo máy), từ 10/11 đến hết 16/11/2026. Ghi nhớ trong `localStorage` (khóa `….news`, chỉ có mã tài khoản và ngày).
+2. Chỉ hiện với điều dưỡng, điều dưỡng trưởng, quản trị viên (không hiện với bác sĩ, chỉ xem). Nội dung: cách sửa bấm nhầm "Chuyển đi mổ" (điều dưỡng: lỡ bấm "Mổ về" thì báo điều dưỡng trưởng; điều dưỡng trưởng, quản trị: thấy nút "Xóa lượt này"), lưu ý đừng dùng "Mổ về" để sửa; nhắc gợi ý mã ICD-10 ở ô Chẩn đoán (từ bản 2.7).
+3. Lần sau có tính năng mới: đổi `NEWS` (id, ngày bắt đầu, số ngày) và nội dung trong `newsShow()`.
+
+**Đã thử:** bản xem thử: mở lần đầu trong ngày thì hiện; đóng, bấm tiếp, tải lại trang thì không hiện lại; giả ngày đã xem là hôm qua thì hiện lại; khổ điện thoại 375 px không tràn ngang; tab mới không có lỗi trong console.
+
+**Chưa thử:** bản dùng chung với tài khoản điều dưỡng (nội dung dòng 2 khác điều dưỡng trưởng), tài khoản bác sĩ (không hiện); trường hợp app để mở qua đêm (chỉ đọc lại mã).
+
+---
+
 ## 2.8-thu2 — 10/11/2026 — Sửa lượt đi mổ bấm nhầm
 
 - **File:** `phien-ban/v2.8-thu2/XepGiuong_KhoaNgoai.html` · nhãn git `v2.8-thu2`.

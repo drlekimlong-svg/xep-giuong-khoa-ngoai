@@ -136,6 +136,13 @@ footer{margin-top:12px;color:var(--muted);font-size:12.5px}
 .mfoot{display:flex;align-items:center;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
 .mfoot .btn{margin-left:8px}
 .mfoot .sp{flex:1}
+/* thông báo tính năng mới */
+.news p{margin:0 0 8px;font-size:14px;line-height:1.5}
+.news ol{margin:4px 0 10px;padding-left:22px;font-size:14px;line-height:1.5}
+.news li{margin-bottom:7px}
+.news .mock{pointer-events:none;cursor:default;display:inline-block;margin:1px 0}
+.news .wl{background:var(--warn-bg);border-left:4px solid var(--warn);padding:7px 10px;border-radius:6px}
+.mfoot .nf{flex:1;margin-right:10px}
 .fld{margin-bottom:10px}
 .fld>label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:3px}
 .fld input[type=text],.fld input[type=number]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
@@ -2617,7 +2624,7 @@ Z96.9|Sự có mặt của thiết bị/dụng cụ cấy ghép chức năng, kh
 
 /* ================= CẤU HÌNH CỐ ĐỊNH ================= */
 // Số phiên bản: đổi ở đây mỗi lần phát hành và ghi vào LICH-SU-PHIEN-BAN.md
-var VERSION = '2.8-thu2', VERSION_DATE = '10/11/2026';
+var VERSION = '2.8-thu3', VERSION_DATE = '10/11/2026';
 // Mở bằng liên kết có đuôi "#mau" = bản xem thử giao diện: tự nạp dữ liệu mẫu, không tự tải file sao lưu.
 // Bản xem thử lưu riêng (khóa ".mau"), không đụng tới dữ liệu thật của bản một máy trên cùng trình duyệt.
 var DEMO = location.hash === '#mau';
@@ -2962,6 +2969,7 @@ function startCloud() {
       render(); setSync('ok');
       clearInterval(pollTimer); pollTimer = setInterval(poll, 6000);
       if (session.mustChange) showPwChange(true);   // lần đăng nhập đầu: bắt buộc đổi mật khẩu ban đầu
+      setTimeout(newsCheck, 900);
     });
   }).catch(function (e) {
     if (e.handled) throw e;
@@ -6434,6 +6442,46 @@ function hoaStart() {
   if (seen !== today() || /[?&]hoa\b/.test(location.search)) setTimeout(hoaShow, 1200);
 }
 
+/* ================= THÔNG BÁO TÍNH NĂNG MỚI ================= */
+// Bác sĩ yêu cầu 10/11/2026: có tính năng mới thì hiện bảng thông báo cho điều dưỡng ở lần mở app / thao tác đầu tiên
+// mỗi ngày, trong 1 tuần. Mỗi người mỗi ngày thấy một lần (bản dùng chung: theo tài khoản; bản một máy, bản xem thử: theo máy).
+// Lần sau có tính năng mới: đổi NEWS (id mới, ngày bắt đầu) và nội dung trong newsShow().
+var NEWS = {id: 'mo-nham', from: '2026-11-10', days: 7};
+var newsMem = {};   // phòng khi trình duyệt chặn localStorage: trong phiên này cũng chỉ hiện một lần mỗi ngày
+function newsUntil() { var a = NEWS.from.split('-'); return ymd(new Date(+a[0], +a[1] - 1, +a[2] + NEWS.days - 1)); }
+function newsCheck() {
+  var t = today();
+  if (t < NEWS.from || t > newsUntil() || !can('opCancel')) return;   // chỉ điều dưỡng, điều dưỡng trưởng, quản trị
+  if (cloud && !(session && session.uid && remoteVersion)) return;    // chưa đăng nhập xong
+  if (!$('login').hidden || !$('pwbox').hidden || !$('overlay').hidden || $('hoa')) return;   // đang mở bảng khác: đợi lần thao tác sau
+  var who = cloud ? session.uid : 'may', k = KEY + '.news', seen = null;
+  if (newsMem[who] === t) return;
+  newsMem[who] = t;
+  try { seen = JSON.parse(localStorage.getItem(k)); } catch (e) {}
+  if (!seen || seen.id !== NEWS.id) seen = {id: NEWS.id};
+  if (seen[who] === t) return;
+  seen[who] = t;
+  try { localStorage.setItem(k, JSON.stringify(seen)); } catch (e) {}
+  newsShow();
+}
+function newsShow() {
+  var head = can('opDel');
+  showModal(mhead('Có gì mới trong app') + '<div class="mbody news">' +
+    '<h3>Bấm nhầm “Chuyển đi mổ” – nay sửa được</h3>' +
+    '<p>Người bệnh <b>không đi mổ</b> mà lỡ bấm “Chuyển đi mổ” thì phải gỡ lượt đó, nếu không báo cáo giao ca sẽ tính sai số đi mổ. ' +
+    'Bấm vào người bệnh trên sơ đồ, xem dòng <b>Đi mổ</b>:</p><ol>' +
+    '<li><b>Chưa bấm “Mổ về”:</b> bấm <span class="btn small mock">Bấm nhầm – hủy</span>. Người bệnh về lại giường cũ.</li>' +
+    (head ? '<li><b>Đã lỡ bấm “Mổ về”:</b> bấm <span class="btn small mock">Xóa lượt này (bấm nhầm)</span>. Giường giữ nguyên. ' +
+        'Chỉ điều dưỡng trưởng và quản trị viên thấy nút này: các bạn điều dưỡng sẽ báo để mình xóa.</li>'
+      : '<li><b>Đã lỡ bấm “Mổ về”:</b> báo <b>điều dưỡng trưởng</b> để xóa lượt đi mổ đó.</li>') +
+    '<li><b>Người bệnh đã ra khoa:</b> vào <b>Lịch sử</b> → <b>Hoàn tác ra khoa</b> → sửa như trên → cho ra khoa lại, ghi đúng ngày giờ ra khoa cũ.</li></ol>' +
+    '<p class="wl"><b>Đừng</b> dùng “Mổ về” để sửa bấm nhầm: lượt đi mổ vẫn còn và báo cáo vẫn tính.</p>' +
+    '<h3>Cũng mới: gợi ý mã ICD-10 ở ô Chẩn đoán</h3>' +
+    '<p>Gõ tên bệnh hoặc tên cơ quan (vd “ruột thừa”, “đại tràng”, “sỏi thận”) là hiện danh sách mã để chọn.</p>' +
+    '</div><div class="mfoot"><span class="hint nf">Thông báo này hiện mỗi ngày một lần, đến hết ngày ' + fmtDate(newsUntil()) + '.</span>' +
+    '<button class="btn primary" data-act="close">Đã hiểu</button></div>');
+}
+
 /* ================= SỰ KIỆN ================= */
 document.addEventListener('click', function (e) {
   var eye = e.target.closest ? e.target.closest('[data-eye]') : null;
@@ -6615,6 +6663,8 @@ setInterval(checkUpdate, 60000);
 // đổi đuôi liên kết (#chung, #mau) là đổi kiểu chạy, nên tải lại trang
 window.addEventListener('hashchange', function () { location.reload(); });
 hoaStart();
+// thông báo tính năng mới: sau mỗi lần bấm, nếu hôm nay người này chưa xem và không có bảng nào đang mở
+document.addEventListener('click', function () { setTimeout(newsCheck, 60); });
 
 cloud = cloudConfig();
 if (cloud) {
@@ -6627,6 +6677,7 @@ if (cloud) {
   state = load();
   if (DEMO && ((!state.patients.length && !state.discharged.length) || (state.sample && state.sampleVer !== SAMPLE_VER))) { state.rooms = defaultRooms(); loadSample(true); }
   else render();
+  setTimeout(newsCheck, 900);
 }
 })();
 </script>
